@@ -1,0 +1,15 @@
+{
+  "buildCommand": "next build",
+  "devCommand": "next dev",
+  "installCommand": "npm install",
+  "framework": "nextjs",
+  "nodeVersion": "18.x",
+  "env": {
+    "NEXT_PUBLIC_SITE_URL": {
+      "description": "The public URL of your site",
+      "required": false
+    }
+  }
+}
+
+
