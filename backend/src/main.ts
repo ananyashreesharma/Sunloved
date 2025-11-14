@@ -7,7 +7,7 @@ async function bootstrap() {
 
   // Enable CORS for frontend
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.FRONTEND_URL || 'http://localhost:5000',
     credentials: true,
   });
 
@@ -26,7 +26,7 @@ async function bootstrap() {
     }),
   );
 
-  const port = process.env.PORT || 4000;
+  const port = process.env.PORT || 2000;
   await app.listen(port);
 
   console.log(`
@@ -37,7 +37,7 @@ async function bootstrap() {
   🎯 Health Check:     http://localhost:${port}/api/health
   
   📝 Environment:      ${process.env.NODE_ENV || 'development'}
-  🔗 Frontend URL:     ${process.env.FRONTEND_URL || 'http://localhost:3000'}
+  🔗 Frontend URL:     ${process.env.FRONTEND_URL || 'http://localhost:5000'}
   `);
 }
 

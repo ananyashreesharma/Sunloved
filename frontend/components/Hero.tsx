@@ -3,8 +3,20 @@
 import { Search } from "lucide-react"
 import { Button } from "./ui/button"
 import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 export function Hero() {
+  const [searchQuery, setSearchQuery] = useState("")
+  const router = useRouter()
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/products?q=${encodeURIComponent(searchQuery)}`)
+    }
+  }
+
   return (
     <section className="bg-background py-16 sm:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,29 +43,31 @@ export function Hero() {
         </p>
 
         {/* Search Bar */}
-        <div className="max-w-2xl mx-auto mb-8">
+        <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8">
           <div className="relative">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search for a product to swap, like 'CeraVe Daily Moisturizing Lotion'"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for a product to swap, like 'niacinamide' or 'The Ordinary'"
               className="w-full pl-12 pr-4 py-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent placeholder-gray-500"
             />
           </div>
-        </div>
+        </form>
 
         {/* Try an example */}
         <div className="text-center">
           <p className="text-gray-600 mb-4">Try an example:</p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/products">
+            <Link href="/products?q=niacinamide">
               <Button variant="link" className="text-primary hover:underline p-0 h-auto">
-                SkinCeuticals C E Ferulic
+                Niacinamide
               </Button>
             </Link>
-            <Link href="/products">
+            <Link href="/products?q=the ordinary">
               <Button variant="link" className="text-primary hover:underline p-0 h-auto">
-                Supergoop! Unseen Sunscreen
+                The Ordinary
               </Button>
             </Link>
           </div>

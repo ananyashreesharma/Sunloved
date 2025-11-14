@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ProductsModule } from './modules/products/products.module';
+import { IngredientsModule } from './modules/ingredients/ingredients.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -12,8 +14,9 @@ import { ProductsModule } from './modules/products/products.module';
     
     // Feature modules
     ProductsModule,
+    IngredientsModule,
   ],
-  controllers: [],
+  controllers: [AppController],
   providers: [],
 })
 export class AppModule {}

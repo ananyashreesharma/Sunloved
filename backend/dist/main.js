@@ -6,7 +6,7 @@ const app_module_1 = require("./app.module");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors({
-        origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+        origin: process.env.FRONTEND_URL || 'http://localhost:5000',
         credentials: true,
     });
     app.setGlobalPrefix('api');
@@ -18,7 +18,7 @@ async function bootstrap() {
             enableImplicitConversion: true,
         },
     }));
-    const port = process.env.PORT || 4000;
+    const port = process.env.PORT || 2000;
     await app.listen(port);
     console.log(`
   🚀 Sunloved Backend Server is running!
@@ -28,7 +28,7 @@ async function bootstrap() {
   🎯 Health Check:     http://localhost:${port}/api/health
   
   📝 Environment:      ${process.env.NODE_ENV || 'development'}
-  🔗 Frontend URL:     ${process.env.FRONTEND_URL || 'http://localhost:2000'}
+  🔗 Frontend URL:     ${process.env.FRONTEND_URL || 'http://localhost:5000'}
   `);
 }
 bootstrap();

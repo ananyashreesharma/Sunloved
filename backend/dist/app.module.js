@@ -10,6 +10,8 @@ exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const products_module_1 = require("./modules/products/products.module");
+const ingredients_module_1 = require("./modules/ingredients/ingredients.module");
+const app_controller_1 = require("./app.controller");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -21,8 +23,9 @@ exports.AppModule = AppModule = __decorate([
                 envFilePath: '.env',
             }),
             products_module_1.ProductsModule,
+            ingredients_module_1.IngredientsModule,
         ],
-        controllers: [],
+        controllers: [app_controller_1.AppController],
         providers: [],
     })
 ], AppModule);

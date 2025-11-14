@@ -1,17 +1,48 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { Button } from "@/components/ui/button"
+import { getProduct } from "@/lib/api"
 import { dummyProducts } from "@/lib/data"
 import { Heart, Star, Share2 } from "lucide-react"
 import Link from "next/link"
 
-export const metadata = {
-  title: "Product Details - Sunloved",
-  description: "View detailed product information",
-}
-
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
-  const product = dummyProducts.find((p) => p.id === params.id)
+  const [product, setProduct] = useState(dummyProducts.find((p) => p.id === params.id))
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true)
+        const result = await getProduct(params.id)
+        setProduct(result)
+      } catch (error) {
+        console.error("Failed to fetch product:", error)
+        // Fallback to dummy data
+        setProduct(dummyProducts.find((p) => p.id === params.id))
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchProduct()
+  }, [params.id])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background">
+        <Header />
+        <div className="py-16 sm:py-24">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-xl text-gray-600">Loading product details...</p>
+          </div>
+        </div>
+        <Footer />
+      </main>
+    )
+  }
 
   if (!product) {
     return (
