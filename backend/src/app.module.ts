@@ -7,6 +7,7 @@ import { AppController } from './app.controller';
 import { ComparisonsModule } from './modules/comparisons/comparisons.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { ScraperModule } from './modules/scraper/scraper.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AdminModule } from './modules/admin/admin.module';
     ComparisonsModule,
     PricingModule,
     AdminModule,
+    ScraperModule,
   ],
   controllers: [AppController],
   providers: [],
