@@ -4,14 +4,17 @@ import { useEffect, useState } from "react"
 import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { Button } from "@/components/ui/button"
-import { getProduct } from "@/lib/api"
+import { PricesPopup } from "@/components/PricesPopup"
+import { getProduct, getProductPrices } from "@/lib/api"
 import { dummyProducts } from "@/lib/data"
-import { Heart, Star, Share2 } from "lucide-react"
+import { Share2, TrendingDown, Eye } from "lucide-react"
 import Link from "next/link"
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
   const [product, setProduct] = useState(dummyProducts.find((p) => p.id === params.id))
+  const [prices, setPrices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [showPricesModal, setShowPricesModal] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -19,6 +22,16 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         setLoading(true)
         const result = await getProduct(params.id)
         setProduct(result)
+        
+        // Fetch prices
+        try {
+          const priceData = await getProductPrices(params.id)
+          console.log('✅ Fetched prices:', priceData)
+          setPrices(Array.isArray(priceData) ? priceData : [])
+        } catch (priceError) {
+          console.error("❌ Failed to fetch prices:", priceError)
+          setPrices([])
+        }
       } catch (error) {
         console.error("Failed to fetch product:", error)
         // Fallback to dummy data
@@ -77,27 +90,34 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
               Everything you need to know about {product.name}
             </h1>
             
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              {/* Left: Wishlist and Rating */}
-              <div className="flex items-center gap-6">
-                <button className="text-2xl hover:scale-110 transition">
-                  <Heart className="w-6 h-6" />
-                </button>
-                <div>
-                  <div className="flex gap-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-5 h-5 text-gray-300 fill-gray-300" />
-                    ))}
+            <div className="flex flex-col gap-4">
+              {/* User Summary */}
+              <p className="text-sm text-gray-600">
+                <span className="text-green-600 font-semibold">✓ Users loved:</span> Hydration & texture • <span className="text-orange-600 font-semibold">✗ Concern:</span> Price point
+              </p>
+              
+              {/* Reviews and Share */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                {/* Left: User Reviews Badges */}
+                <div className="flex items-center gap-4 flex-wrap">
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
+                    <span>🟠</span>
+                    <span className="font-semibold">Amazon</span>
+                    <span className="text-gray-600">4.2★</span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">0 reviews</p>
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
+                    <span>🔴</span>
+                    <span className="font-semibold">Reddit</span>
+                    <span className="text-gray-600">892↑</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
+                    <span>⚫</span>
+                    <span className="font-semibold">Sephora</span>
+                    <span className="text-gray-600">4.4★</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Right: Actions */}
-              <div className="flex gap-3">
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white font-semibold">
-                  WRITE A REVIEW →
-                </Button>
+                {/* Right: Share Button */}
                 <button className="text-primary hover:text-teal-800">
                   <Share2 className="w-5 h-5" />
                 </button>
@@ -209,12 +229,51 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <div className="grid grid-cols-2 gap-4 mb-6">
                     <div className="bg-green-50 rounded-lg p-4">
                       <p className="text-sm text-gray-600 mb-1">Price Per Unit</p>
-                      <p className="text-2xl font-bold text-green-700">${product.pricePerUnit}</p>
+                      <p className="text-2xl font-bold text-green-700">${product.pricePerUnit || 'N/A'}</p>
                     </div>
                     <div className="bg-green-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 mb-1">Value Savings</p>
-                      <p className="text-2xl font-bold text-green-700">{product.savingsPercent}%</p>
+                      <p className="text-sm text-gray-600 mb-1">Best Price Available</p>
+                      <p className="text-2xl font-bold text-green-700">
+                        {prices.length > 0 ? `$${Math.min(...prices.map((p) => p.amount)).toFixed(2)}` : 'N/A'}
+                      </p>
                     </div>
+                  </div>
+
+                  {/* Pricing from Retailers - Button to open modal */}
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <TrendingDown className="w-5 h-5" />
+                      Price Comparison
+                    </h4>
+                    
+                    {prices.length > 0 ? (
+                      <div className="bg-gradient-to-r from-teal-50 to-green-50 rounded-lg p-6 border-2 border-teal-200">
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm text-gray-600 mb-1">Best Price Available</p>
+                            <p className="text-3xl font-bold text-teal-700">
+                              ${Math.min(...prices.map((p) => p.amount)).toFixed(2)}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-2">Across {prices.length} retailers</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              console.log('👁️ Button clicked, opening modal...')
+                              setShowPricesModal(true)
+                            }}
+                            className="flex-shrink-0 flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-semibold px-6 py-3 rounded-lg border-2 border-teal-700 transition shadow-sm hover:shadow-md cursor-pointer"
+                          >
+                            <Eye className="w-5 h-5" />
+                            See All Prices
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                        <p className="text-gray-600">No prices available for this product</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Ethical Attributes */}
@@ -308,6 +367,15 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
       </section>
+
+      {/* Prices Popup */}
+      {product && (
+        <PricesPopup
+          isOpen={showPricesModal}
+          onClose={() => setShowPricesModal(false)}
+          product={product}
+        />
+      )}
 
       <Footer />
     </main>

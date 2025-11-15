@@ -1,13 +1,29 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { TransformInterceptor } from './common/interceptors/transform.interceptor';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS for frontend
+  // Enable CORS for frontend (accept multiple ports for dev)
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:5000',
+    process.env.FRONTEND_URL || 'http://localhost:3001',
+  ];
+  
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   });
 
@@ -25,6 +41,12 @@ async function bootstrap() {
       },
     }),
   );
+
+  // Global exception filter (handles all errors consistently)
+  app.useGlobalFilters(new AllExceptionsFilter());
+
+  // Global response transform interceptor (wraps all responses in { data, meta, error })
+  app.useGlobalInterceptors(new TransformInterceptor());
 
   const port = process.env.PORT || 2000;
   await app.listen(port);

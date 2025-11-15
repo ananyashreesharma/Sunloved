@@ -4,27 +4,136 @@ import Link from "next/link"
 import { Button } from "./ui/button"
 import { Menu, User, Search, Settings, ChevronDown } from "lucide-react"
 import Image from "next/image"
-import { useState } from "react"
 import { usePathname } from "next/navigation"
+import { useState } from "react"
+
+const categoryDropdowns = {
+  "Skincare": {
+    sections: [
+      {
+        title: "Cleaners",
+        color: "bg-blue-100 text-blue-800",
+        items: ["Makeup Removers", "Face Cleansers", "Exfoliators", "Toners"]
+      },
+      {
+        title: "Masks",
+        color: "bg-pink-100 text-pink-800",
+        items: ["Wash Off Masks", "Sheet Masks", "Overnight Masks"]
+      },
+      {
+        title: "Treatments",
+        color: "bg-yellow-100 text-yellow-800",
+        items: ["Ampules", "Essences", "Serums", "Facial Treatments", "Emulsions"]
+      },
+      {
+        title: "Moisturizers",
+        color: "bg-cyan-100 text-cyan-800",
+        items: ["Oils", "Night Moisturizers", "Day Moisturizers", "General Moisturizers"]
+      },
+      {
+        title: "Eye Care",
+        color: "bg-purple-100 text-purple-800",
+        items: ["Eye Moisturizers", "Eye Masks"]
+      },
+      {
+        title: "Sun Care",
+        color: "bg-yellow-50 text-yellow-900",
+        items: ["Sunscreens", "Tanning", "After Sun Care"]
+      },
+      {
+        title: "Lip Care",
+        color: "bg-red-100 text-red-800",
+        items: ["Lip Moisturizers", "Lip Masks"]
+      },
+      {
+        title: "Other Skincare",
+        color: "bg-lime-100 text-lime-800",
+        items: ["Prescription", "Tools"]
+      }
+    ]
+  },
+  "Makeup": {
+    sections: [
+      {
+        title: "Face Makeup",
+        color: "bg-cyan-100 text-cyan-800",
+        items: ["Color Correctors", "BB, CC, Tinted", "Moisturizers", "Foundations", "Concealers", "Face Primers", "Setting Spray & Powders", "Highlighters", "Contours", "Blushes", "Bronzers", "Other Face Makeup"]
+      },
+      {
+        title: "Eye Makeup",
+        color: "bg-purple-100 text-purple-800",
+        items: ["Eyeshadows", "Mascaras", "Eyeliners", "Eye Primers", "Eyebrows", "Other Eye Makeup", "Lash & Brow Serums", "False Eyelashes"]
+      },
+      {
+        title: "Lip Makeup",
+        color: "bg-red-100 text-red-800",
+        items: ["Lip Glosses", "Lip Plumpers", "Lip Stains", "Lip Oils", "Lip Liners", "Lipsticks", "Other Lip Makeup"]
+      },
+      {
+        title: "Makeup Tools",
+        color: "bg-gray-100 text-gray-800",
+        items: ["Makeup Applicators"]
+      }
+    ]
+  },
+  "Haircare": {
+    sections: [
+      {
+        title: "Shampoo & Conditioner",
+        color: "bg-blue-100 text-blue-800",
+        items: ["Scalp Scrubs", "Dry Shampoos", "Shampoos", "Leave In Conditioners", "Conditioners", "Other Hair Cleansers"]
+      },
+      {
+        title: "Hair Treatments",
+        color: "bg-lime-100 text-lime-800",
+        items: ["Hair Serums", "Scalp Treatments", "Detanglers", "Hair Loss", "Leave In Treatments", "Hair Masks", "Hair Oils", "Other Haircare"]
+      },
+      {
+        title: "Hair Styling",
+        color: "bg-teal-100 text-teal-800",
+        items: ["Styling Creams & Sprays", "Mousse & Foam", "Gel, Pomade & Wax", "Hair Sprays", "Heat Protectants", "Styling Tools", "Other Styling"]
+      }
+    ]
+  },
+  "Bath & Body": {
+    sections: [
+      {
+        title: "Hand & Foot",
+        color: "bg-blue-100 text-blue-800",
+        items: ["Hand Soaps", "Hand Cream", "Foot Cream", "Other Hand & Foot"]
+      },
+      {
+        title: "Bath & Shower",
+        color: "bg-red-100 text-red-800",
+        items: ["Body Scrubs", "Body Washes"]
+      },
+      {
+        title: "Body Moisturizers",
+        color: "bg-teal-100 text-teal-800",
+        items: ["Body Treatments", "Body Lotions", "Body Oils", "Body Serums"]
+      },
+      {
+        title: "Body Care",
+        color: "bg-purple-100 text-purple-800",
+        items: ["Grooming Tools", "Bath Tools", "Grooming", "Deodorant", "Other Bath & Body"]
+      },
+      {
+        title: "Other Beauty",
+        color: "bg-pink-100 text-pink-800",
+        items: ["Fragrances", "Nail Tools", "Nail Care"]
+      }
+    ]
+  },
+}
 
 export function Header() {
   const pathname = usePathname()
   const isHomePage = pathname === "/"
-  const [showProductsDropdown, setShowProductsDropdown] = useState(false)
-
-  const categories = [
-    { name: "Cleaners", color: "bg-blue-100" },
-    { name: "Masks", color: "bg-pink-100" },
-    { name: "Treatments", color: "bg-yellow-100" },
-    { name: "Moisturizers", color: "bg-green-100" },
-    { name: "Eye Care", color: "bg-purple-100" },
-    { name: "Sun Care", color: "bg-yellow-50" },
-    { name: "Lip Care", color: "bg-pink-50" },
-    { name: "Other Skincare", color: "bg-yellow-100" },
-  ]
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-background/98 backdrop-blur-sm">
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -56,160 +165,23 @@ export function Header() {
           )}
 
           {/* Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            {/* Products Dropdown */}
-            <div 
-              className="relative group"
-              onMouseEnter={() => setShowProductsDropdown(true)}
-              onMouseLeave={() => setShowProductsDropdown(false)}
-            >
-              <button
-                className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-1"
-              >
-                Products
-                <ChevronDown className={`w-4 h-4 transition-transform ${showProductsDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {showProductsDropdown && (
-                <div
-                  className="fixed top-20 left-0 right-0 w-full bg-white border-b border-gray-200 shadow-2xl z-50"
-                  style={{ top: '80px' }}
-                >
-                  <div className="max-w-7xl mx-auto px-8 py-10">
-                    {/* Main Grid - Ladder Style */}
-                    <div className="grid grid-cols-6 gap-16">
-                      {/* Main Categories - Left Sidebar */}
-                      <div className="col-span-1 border-r border-gray-200 pr-8">
-                        <h3 className="text-xs font-bold text-gray-900 uppercase tracking-wider mb-6">Categories</h3>
-                        <div className="space-y-4">
-                          <div className="hover:bg-gray-50 p-2 rounded cursor-pointer transition">
-                            <p className="font-semibold text-gray-900 text-sm">Skincare</p>
-                            <p className="text-xs text-gray-500 mt-1">All skincare products</p>
-                          </div>
-                          <div className="hover:bg-gray-50 p-2 rounded cursor-pointer transition">
-                            <p className="font-semibold text-gray-900 text-sm">Makeup</p>
-                            <p className="text-xs text-gray-500 mt-1">Face, eye & lip makeup</p>
-                          </div>
-                          <div className="hover:bg-gray-50 p-2 rounded cursor-pointer transition">
-                            <p className="font-semibold text-gray-900 text-sm">Haircare</p>
-                            <p className="text-xs text-gray-500 mt-1">Shampoos & conditioners</p>
-                          </div>
-                          <div className="hover:bg-gray-50 p-2 rounded cursor-pointer transition">
-                            <p className="font-semibold text-gray-900 text-sm">Bath & Body</p>
-                            <p className="text-xs text-gray-500 mt-1">Body care essentials</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Column 1: Cleansers & Masks */}
-                      <div className="col-span-1">
-                        <div className={`${categories[0].color} rounded-lg px-3 py-2 inline-block mb-6`}>
-                          <h4 className="font-bold text-sm text-gray-900">Cleansers</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Makeup Removers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Face Cleansers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Exfoliators</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Toners</Link></li>
-                        </ul>
-                        
-                        <div className={`${categories[1].color} rounded-lg px-3 py-2 inline-block mt-8 mb-4`}>
-                          <h4 className="font-bold text-sm text-gray-900">Masks</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Wash Off Masks</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Sheet Masks</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Overnight Masks</Link></li>
-                        </ul>
-                      </div>
-
-                      {/* Column 2: Eye & Sun Care */}
-                      <div className="col-span-1">
-                        <div className={`${categories[4].color} rounded-lg px-3 py-2 inline-block mb-6`}>
-                          <h4 className="font-bold text-sm text-gray-900">Eye Care</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Eye Moisturizers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Eye Masks</Link></li>
-                        </ul>
-
-                        <div className={`${categories[5].color} rounded-lg px-3 py-2 inline-block mt-8 mb-4`}>
-                          <h4 className="font-bold text-sm text-gray-900">Sun Care</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Sunscreens</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Tanning</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">After Sun Care</Link></li>
-                        </ul>
-                      </div>
-
-                      {/* Column 3: Treatments & Moisturizers */}
-                      <div className="col-span-1">
-                        <div className={`${categories[2].color} rounded-lg px-3 py-2 inline-block mb-6`}>
-                          <h4 className="font-bold text-sm text-gray-900">Treatments</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Ampoules</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Essences</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Serums</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Facial Treatments</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Emulsions</Link></li>
-                        </ul>
-                      </div>
-
-                      {/* Column 4: Moisturizers & Lip Care */}
-                      <div className="col-span-1">
-                        <div className={`${categories[3].color} rounded-lg px-3 py-2 inline-block mb-6`}>
-                          <h4 className="font-bold text-sm text-gray-900">Moisturizers</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Oils</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Night Moisturizers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Day Moisturizers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">General Moisturizers</Link></li>
-                        </ul>
-
-                        <div className={`${categories[6].color} rounded-lg px-3 py-2 inline-block mt-8 mb-4`}>
-                          <h4 className="font-bold text-sm text-gray-900">Lip Care</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Lip Moisturizers</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Lip Masks</Link></li>
-                        </ul>
-                      </div>
-
-                      {/* Column 5: Other & CTA */}
-                      <div className="col-span-1">
-                        <div className={`${categories[7].color} rounded-lg px-3 py-2 inline-block mb-6`}>
-                          <h4 className="font-bold text-sm text-gray-900">Other Skincare</h4>
-                        </div>
-                        <ul className="space-y-3">
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Prescription</Link></li>
-                          <li><Link href="/products" className="text-sm text-gray-700 hover:text-primary hover:font-semibold transition">Tools</Link></li>
-                        </ul>
-
-                        <Link href="/products">
-                          <button className="w-full mt-8 bg-primary hover:bg-primary/90 text-white font-semibold py-2 rounded-lg transition">
-                            View All Products
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Link href="/how-we-decide" className="text-gray-700 hover:text-gray-900 font-medium">
+            <nav className="hidden lg:flex items-center gap-8 flex-1 justify-center">
+              <Link href="/how-we-decide" className="text-gray-700 hover:text-gray-900 font-medium text-sm">
               How We Decide
             </Link>
-            <Link href="/about" className="text-gray-700 hover:text-gray-900 font-medium">
+              <Link href="/about" className="text-gray-700 hover:text-gray-900 font-medium text-sm">
               About Us
             </Link>
           </nav>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4 lg:gap-6">
+              {/* Free Samples - Desktop Only */}
+              <div className="hidden lg:flex items-center gap-1 text-right">
+                <span className="text-xs font-semibold text-gray-900">FREE SAMPLES</span>
+                <p className="text-xs text-gray-600">WITH EVERY PURCHASE</p>
+              </div>
+              
             <Button variant="ghost" size="icon" className="hidden md:inline-flex">
               <User className="w-5 h-5" />
             </Button>
@@ -220,6 +192,69 @@ export function Header() {
         </div>
       </div>
     </header>
+
+      {/* Category Navigation Bar */}
+      <nav className="sticky top-20 z-40 w-full bg-gradient-to-b from-amber-50/40 via-amber-100/20 to-amber-50/40 backdrop-blur-sm hidden md:block overflow-visible">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center gap-12 h-16">
+            {Object.entries(categoryDropdowns).map(([category, data]) => (
+              <div 
+                key={category}
+                className="relative flex-shrink-0"
+                onMouseEnter={() => setOpenDropdown(category)}
+                onMouseLeave={() => setOpenDropdown(null)}
+              >
+                <button className="flex items-center gap-1 text-sm font-bold text-gray-900 hover:text-primary whitespace-nowrap transition py-4 border-b-2 border-transparent hover:border-primary">
+                  {category}
+                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === category ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {openDropdown === category && (
+                  <div className="absolute left-1/2 transform -translate-x-1/2 top-full mt-0 w-screen max-w-5xl bg-white rounded-lg shadow-2xl border border-gray-200 z-[100]">
+                    <div className="p-8">
+                      {/* Grid of sections - responsive columns */}
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+                        {data.sections.map((section) => (
+                          <div key={section.title}>
+                            {/* Section Title with colored badge */}
+                            <div className={`${section.color} rounded-full px-3 py-1 inline-block mb-4`}>
+                              <h4 className="font-semibold text-sm">{section.title}</h4>
+                            </div>
+                            
+                            {/* Section Items */}
+                            <ul className="space-y-2">
+                              {section.items.map((item) => (
+                                <li key={item}>
+                                  <Link
+                                    href={`/products?category=${category}&section=${section.title}&item=${item}`}
+                                    className="text-sm text-gray-700 hover:text-primary transition font-medium"
+                                  >
+                                    {item}
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Explore all products */}
+            <Link
+              href="/products"
+              className="text-sm font-bold text-gray-900 hover:text-primary whitespace-nowrap transition py-4 border-b-2 border-transparent hover:border-primary flex-shrink-0"
+            >
+              Explore all products
+            </Link>
+          </div>
+        </div>
+      </nav>
+    </>
   )
 }
 

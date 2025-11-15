@@ -20,6 +20,11 @@ export interface Product {
   category: "closest-match" | "best-value" | "sensitive-safe"
   categoryLabel: string
   categoryBadgeColor: string
+  prices?: {
+    amazon?: { price: string; url: string }
+    sephora?: { price: string; url: string }
+    ulta?: { price: string; url: string }
+  }
 }
 
 export const dummyProducts: Product[] = [
@@ -46,6 +51,11 @@ export const dummyProducts: Product[] = [
     category: "closest-match",
     categoryLabel: "CLOSEST MATCH",
     categoryBadgeColor: "bg-teal-50 text-teal-700",
+    prices: {
+      amazon: { price: "$16.50", url: "https://amazon.com" },
+      sephora: { price: "$18.99", url: "https://sephora.com" },
+      ulta: { price: "$17.99", url: "https://ulta.com" },
+    },
   },
   {
     id: "2",
@@ -165,30 +175,6 @@ export const badges: Badge[] = [
     title: "Fungal Acne Safe",
     description: "Safe for malassezia/fungal acne-prone skin.",
     icon: "shield",
-  },
-  {
-    id: "6",
-    title: "Paraben Free",
-    description: "No synthetic preservatives (parabens).",
-    icon: "leaf-outline",
-  },
-  {
-    id: "7",
-    title: "Sulfate Free",
-    description: "No harsh sulfate cleansing agents.",
-    icon: "sparkles",
-  },
-  {
-    id: "8",
-    title: "Silicones Free",
-    description: "Contains no silicone-based ingredients.",
-    icon: "leaf-outline",
-  },
-  {
-    id: "9",
-    title: "Data Freshness",
-    description: "Indicates when we last verified the data.",
-    icon: "clock",
   },
   {
     id: "10",

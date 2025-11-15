@@ -1,0 +1,610 @@
+{
+  "products": [
+    {
+      "name": "Niacinamide 10% + Zinc 1%",
+      "brand": "The Ordinary",
+      "volume": "30ml",
+      "description": "Hydrating and brightening formula with niacinamide and zinc PCA. Controls sebum and minimizes pores. Non-irritating for most skin types.",
+      "category": "Serum",
+      "pricePerUnit": 5.90,
+      "currentPrice": 5.90,
+      "imageUrl": "https://deciem.com/product/the-ordinary-niacinamide-10-zinc-1",
+      "actives": ["Niacinamide", "Zinc PCA"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 9.00 },
+        { "retailer": "amazon", "amount": 8.99 },
+        { "retailer": "ulta", "amount": 9.50 }
+      ]
+    },
+    {
+      "name": "10% Niacinamide Face Serum",
+      "brand": "Minimalist",
+      "volume": "40ml",
+      "description": "Simple, effective niacinamide serum for oil control and texture refinement. Lightweight, non-sticky formula suitable for oily to combination skin.",
+      "category": "Serum",
+      "pricePerUnit": 8.99,
+      "currentPrice": 8.99,
+      "imageUrl": "https://minimalist.co.in/products/niacinamide-serum",
+      "actives": ["Niacinamide"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": false,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 12.99 },
+        { "retailer": "sephora", "amount": 14.99 }
+      ]
+    },
+    {
+      "name": "10% Niacinamide Booster",
+      "brand": "Paula's Choice",
+      "volume": "50ml",
+      "description": "Advanced niacinamide formula with skin-conditioning agents. Refines pores, reduces redness, and improves skin clarity. Premium formulation.",
+      "category": "Serum",
+      "pricePerUnit": 70.00,
+      "currentPrice": 70.00,
+      "imageUrl": "https://paulaschoice.com/niacinamide-booster",
+      "actives": ["Niacinamide", "Panthenol"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 70.00 },
+        { "retailer": "ulta", "amount": 72.50 }
+      ]
+    },
+    {
+      "name": "Oil-Free Acne Wash",
+      "brand": "Neutrogena",
+      "volume": "200ml",
+      "description": "Gentle salicylic acid cleanser for acne-prone skin. Oil-free formula removes makeup and impurities without over-drying.",
+      "category": "Cleanser",
+      "pricePerUnit": 6.99,
+      "currentPrice": 6.99,
+      "imageUrl": "https://neutrogena.com/oil-free-acne-wash",
+      "actives": ["Salicylic Acid"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": false,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": false,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 6.99 },
+        { "retailer": "ulta", "amount": 7.49 }
+      ]
+    },
+    {
+      "name": "Pro Oil Control Cleanser",
+      "brand": "Cetaphil",
+      "volume": "240ml",
+      "description": "Dermatologist-recommended foam cleanser that controls oil without stripping skin. Hypoallergenic and fragrance-free.",
+      "category": "Cleanser",
+      "pricePerUnit": 8.99,
+      "currentPrice": 8.99,
+      "imageUrl": "https://cetaphil.com/pro-oil-control",
+      "actives": ["Zinc PCA"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": false,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 8.99 },
+        { "retailer": "ulta", "amount": 9.99 },
+        { "retailer": "sephora", "amount": 10.00 }
+      ]
+    },
+    {
+      "name": "Vitamin C + E Serum",
+      "brand": "Timeless",
+      "volume": "30ml",
+      "description": "Budget-friendly vitamin C serum with ferulic acid and vitamin E. Brightening and antioxidant protection without the premium price tag.",
+      "category": "Serum",
+      "pricePerUnit": 12.99,
+      "currentPrice": 12.99,
+      "imageUrl": "https://timelessskincare.com/vitamin-c-serum",
+      "actives": ["Vitamin C", "Vitamin E", "Ferulic Acid"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": false,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 12.99 },
+        { "retailer": "sephora", "amount": 15.00 }
+      ]
+    },
+    {
+      "name": "L-Ascorbic Acid 8% + Alpha Arbutin 2%",
+      "brand": "The Ordinary",
+      "volume": "30ml",
+      "description": "Stabilized vitamin C serum for brightening and evening skin tone. Contains alpha arbutin for additional hyperpigmentation support.",
+      "category": "Serum",
+      "pricePerUnit": 9.90,
+      "currentPrice": 9.90,
+      "imageUrl": "https://deciem.com/product/the-ordinary-l-ascorbic-acid",
+      "actives": ["L-Ascorbic Acid", "Alpha Arbutin"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 14.00 },
+        { "retailer": "amazon", "amount": 13.50 },
+        { "retailer": "ulta", "amount": 14.50 }
+      ]
+    },
+    {
+      "name": "C E Ferulic",
+      "brand": "Skinceuticals",
+      "volume": "30ml",
+      "description": "Gold standard vitamin C serum with ferulic acid and vitamin E. Clinical-grade antioxidant protection and brightening. Premium formulation.",
+      "category": "Serum",
+      "pricePerUnit": 168.00,
+      "currentPrice": 168.00,
+      "imageUrl": "https://skinceuticals.com/c-e-ferulic",
+      "actives": ["Vitamin C", "Ferulic Acid", "Vitamin E"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 168.00 },
+        { "retailer": "ulta", "amount": 168.00 }
+      ]
+    },
+    {
+      "name": "Vitamin C Serum",
+      "brand": "Mad Hippie",
+      "volume": "29.6ml",
+      "description": "Natural vitamin C serum with antioxidant-rich ingredients. Gentle alternative for sensitive skin. Plant-based, vegan formula.",
+      "category": "Serum",
+      "pricePerUnit": 42.99,
+      "currentPrice": 42.99,
+      "imageUrl": "https://madhippie.com/vitamin-c-serum",
+      "actives": ["Vitamin C", "Rosehip Oil", "Sea Buckthorn"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": false,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 42.99 },
+        { "retailer": "sephora", "amount": 44.00 }
+      ]
+    },
+    {
+      "name": "C-Firma Fresh Serum",
+      "brand": "Drunk Elephant",
+      "volume": "30ml",
+      "description": "Advanced vitamin C serum with kale, green tea, and silymarin. Brightening, firming, and protective. Luxury skincare.",
+      "category": "Serum",
+      "pricePerUnit": 80.00,
+      "currentPrice": 80.00,
+      "imageUrl": "https://drunkelelephant.com/c-firma",
+      "actives": ["Vitamin C", "Kale", "Spinach"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 80.00 },
+        { "retailer": "ulta", "amount": 80.00 }
+      ]
+    },
+    {
+      "name": "Moisturizing Cream",
+      "brand": "CeraVe",
+      "volume": "454g",
+      "description": "Rich, non-greasy moisturizer with ceramides and hyaluronic acid. Dermatologist-recommended for dry to very dry skin. Budget hero.",
+      "category": "Moisturizer",
+      "pricePerUnit": 16.99,
+      "currentPrice": 16.99,
+      "imageUrl": "https://cerave.com/moisturizing-cream",
+      "actives": ["Ceramides", "Hyaluronic Acid", "Niacinamide"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 16.99 },
+        { "retailer": "ulta", "amount": 17.99 },
+        { "retailer": "sephora", "amount": 18.00 }
+      ]
+    },
+    {
+      "name": "Toleriane Rich Moisturizer",
+      "brand": "La Roche-Posay",
+      "volume": "40ml",
+      "description": "Rich moisturizer with thermal spring water and ceramides. Ideal for dry, sensitive skin. Dermatologist-tested and fragrance-free.",
+      "category": "Moisturizer",
+      "pricePerUnit": 28.00,
+      "currentPrice": 28.00,
+      "imageUrl": "https://laroche-posay.com/toleriane-rich",
+      "actives": ["Ceramides", "Niacinamide", "Prebiotic Thermal Water"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 28.00 },
+        { "retailer": "ulta", "amount": 29.00 }
+      ]
+    },
+    {
+      "name": "Hydro Boost Hydrating Hydrogel Eye Patches",
+      "brand": "Neutrogena",
+      "volume": "30 patches",
+      "description": "Lightweight gel moisturizer inspired by makeup primer technology. Hydrates without heaviness. Great for oily skin.",
+      "category": "Moisturizer",
+      "pricePerUnit": 8.99,
+      "currentPrice": 8.99,
+      "imageUrl": "https://neutrogena.com/hydro-boost",
+      "actives": ["Hyaluronic Acid", "Glycerin"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": false,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": false,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 8.99 },
+        { "retailer": "ulta", "amount": 9.49 }
+      ]
+    },
+    {
+      "name": "Daily Facial Moisturizer",
+      "brand": "Vanicream",
+      "volume": "113g",
+      "description": "Fragrance-free, hypoallergenic moisturizer formulated for sensitive skin. No dyes, perfumes, or common irritants.",
+      "category": "Moisturizer",
+      "pricePerUnit": 7.99,
+      "currentPrice": 7.99,
+      "imageUrl": "https://vanicream.com/daily-moisturizer",
+      "actives": ["Glycerin", "Dimethicone"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 7.99 },
+        { "retailer": "ulta", "amount": 8.49 }
+      ]
+    },
+    {
+      "name": "Dramatically Different Moisturizing Lotion",
+      "brand": "Clinique",
+      "volume": "125ml",
+      "description": "Allergy-tested, 100% fragrance-free moisturizer for all skin types. Lightweight hydration without oils.",
+      "category": "Moisturizer",
+      "pricePerUnit": 39.00,
+      "currentPrice": 39.00,
+      "imageUrl": "https://clinique.com/dramatically-different",
+      "actives": ["Glycerin", "Hyaluronic Acid"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 39.00 },
+        { "retailer": "ulta", "amount": 39.00 }
+      ]
+    },
+    {
+      "name": "Anthelios SPF 60 Mineral Sunscreen",
+      "brand": "La Roche-Posay",
+      "volume": "50ml",
+      "description": "Mineral sunscreen with zinc oxide. Reef-safe, water-resistant. Ideal for sensitive skin and daily protection.",
+      "category": "Sunscreen",
+      "pricePerUnit": 29.99,
+      "currentPrice": 29.99,
+      "imageUrl": "https://laroche-posay.com/anthelios",
+      "actives": ["Zinc Oxide", "Titanium Dioxide"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 29.99 },
+        { "retailer": "amazon", "amount": 31.99 }
+      ]
+    },
+    {
+      "name": "UV Clear SPF 46",
+      "brand": "EltaMD",
+      "volume": "48g",
+      "description": "Lightweight chemical sunscreen that won't clog pores. Oil-free, transparent finish. Ideal for acne-prone skin.",
+      "category": "Sunscreen",
+      "pricePerUnit": 35.00,
+      "currentPrice": 35.00,
+      "imageUrl": "https://eltamd.com/uv-clear",
+      "actives": ["Octinoxate", "Octisalate", "Oxybenzone"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 35.00 },
+        { "retailer": "ulta", "amount": 36.00 }
+      ]
+    },
+    {
+      "name": "Face Lotion SPF 50",
+      "brand": "CeraVe",
+      "volume": "52ml",
+      "description": "Lightweight daily facial sunscreen with ceramides and hyaluronic acid. Hydrating and protective. Budget-friendly.",
+      "category": "Sunscreen",
+      "pricePerUnit": 12.99,
+      "currentPrice": 12.99,
+      "imageUrl": "https://cerave.com/face-lotion-spf50",
+      "actives": ["Octinoxate", "Zinc Oxide"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 12.99 },
+        { "retailer": "ulta", "amount": 13.99 },
+        { "retailer": "sephora", "amount": 14.00 }
+      ]
+    },
+    {
+      "name": "Australian Sunscreen SPF 30+",
+      "brand": "Blue Lizard",
+      "volume": "148ml",
+      "description": "Natural mineral sunscreen that's reef-safe. Temperature-sensitive tube (turns blue in sun). Water-resistant.",
+      "category": "Sunscreen",
+      "pricePerUnit": 11.99,
+      "currentPrice": 11.99,
+      "imageUrl": "https://bluelizard.com/sunscreen",
+      "actives": ["Zinc Oxide"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": false,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 11.99 },
+        { "retailer": "ulta", "amount": 12.99 }
+      ]
+    },
+    {
+      "name": "Hyaluronic Toner Plus",
+      "brand": "Isntree",
+      "volume": "200ml",
+      "description": "K-beauty hydrating toner with hyaluronic acid and panthenol. Affordable, effective hydration. Great dupe for expensive toners.",
+      "category": "Toner",
+      "pricePerUnit": 10.00,
+      "currentPrice": 10.00,
+      "imageUrl": "https://isntree.com/hyaluronic-toner",
+      "actives": ["Hyaluronic Acid", "Panthenol"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 10.00 },
+        { "retailer": "sephora", "amount": 12.00 }
+      ]
+    },
+    {
+      "name": "Great Barrier Relief Serum",
+      "brand": "Krave Beauty",
+      "volume": "50ml",
+      "description": "Indie brand barrier repair serum with amino acids and botanical extracts. Expensive but highly praised. Niche luxury.",
+      "category": "Serum",
+      "pricePerUnit": 48.00,
+      "currentPrice": 48.00,
+      "imageUrl": "https://kravebeauty.com/barrier-relief",
+      "actives": ["Centella Asiatica", "Amino Acids"],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": false,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 48.00 }
+      ]
+    },
+    {
+      "name": "Cicaplast Balm B5",
+      "brand": "La Roche-Posay",
+      "volume": "40ml",
+      "description": "Multi-purpose barrier repair balm with panthenol and ceramides. Affordable, effective for compromised skin barriers.",
+      "category": "Moisturizer",
+      "pricePerUnit": 14.99,
+      "currentPrice": 14.99,
+      "imageUrl": "https://laroche-posay.com/cicaplast",
+      "actives": ["Panthenol", "Ceramides", "Shea Butter"],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": true,
+        "siliconesFree": false
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 14.99 },
+        { "retailer": "sephora", "amount": 16.00 },
+        { "retailer": "ulta", "amount": 16.50 }
+      ]
+    },
+    {
+      "name": "D-Bronzi Smoothing Bronzing Powder",
+      "brand": "Drunk Elephant",
+      "volume": "6g",
+      "description": "Luxury bronzing powder with bioactive ingredients. High-end makeup product. Used to test non-skincare categories.",
+      "category": "Makeup",
+      "pricePerUnit": 65.00,
+      "currentPrice": 65.00,
+      "imageUrl": "https://drunkelelephant.com/d-bronzi",
+      "actives": [],
+      "ethics": {
+        "crueltyFree": true,
+        "vegan": true,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": false,
+        "parabenFree": true,
+        "sulfateFree": true,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "sephora", "amount": 65.00 },
+        { "retailer": "ulta", "amount": 65.00 }
+      ]
+    },
+    {
+      "name": "Baby Wash",
+      "brand": "Cetaphil",
+      "volume": "400ml",
+      "description": "Gentle, hypoallergenic cleanser for babies and sensitive skin. Budget-friendly everyday cleanser.",
+      "category": "Cleanser",
+      "pricePerUnit": 5.99,
+      "currentPrice": 5.99,
+      "imageUrl": "https://cetaphil.com/baby-wash",
+      "actives": [],
+      "ethics": {
+        "crueltyFree": false,
+        "vegan": false,
+        "fragranceFree": true,
+        "alcoholFree": true,
+        "fungalAcneSafe": true,
+        "parabenFree": false,
+        "sulfateFree": false,
+        "siliconesFree": true
+      },
+      "prices": [
+        { "retailer": "amazon", "amount": 5.99 },
+        { "retailer": "ulta", "amount": 6.49 }
+      ]
+    }
+  ]
+}
+

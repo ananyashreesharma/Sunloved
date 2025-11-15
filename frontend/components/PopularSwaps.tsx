@@ -15,11 +15,15 @@ export function PopularSwaps() {
       try {
         setLoading(true)
         const results = await searchProducts("niacinamide")
-        if (results && results.length > 0) {
-          setProducts(results)
+        console.log('📦 Popular Swaps results:', results)
+        
+        // Handle the API response structure: { data, meta, error, products }
+        const productsArray = results.products || results.data || results || []
+        if (Array.isArray(productsArray) && productsArray.length > 0) {
+          setProducts(productsArray)
         }
       } catch (error) {
-        console.error("Failed to fetch popular products:", error)
+        console.error("❌ Failed to fetch popular products:", error)
         // Keep using dummy data as fallback
       } finally {
         setLoading(false)
@@ -51,7 +55,7 @@ export function PopularSwaps() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} showCategoryBadge={false} />
             ))}
           </div>
         )}
