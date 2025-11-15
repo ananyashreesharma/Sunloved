@@ -336,7 +336,6 @@ export class ScraperService {
             category: scraped.category,
             volume: scraped.volume,
             description: `Sourced from ${scraped.source}`,
-            barcode: scraped.barcode,
           },
         });
 
