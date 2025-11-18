@@ -48,7 +48,7 @@ async function bootstrap() {
   // Global response transform interceptor (wraps all responses in { data, meta, error })
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  const port = process.env.PORT || 2000;
+  const port = process.env.PORT || 3001;
   await app.listen(port);
 
   console.log(`

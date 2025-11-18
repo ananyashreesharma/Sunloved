@@ -222,10 +222,20 @@ export class ComparisonsService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Get all other products with ingredients
+    // RUTHLESS: Base product must have ingredients
+    if (!baseProduct.ingredients || baseProduct.ingredients.length === 0) {
+      throw new NotFoundException(
+        `Product with ID ${productId} has no ingredients and cannot be compared`,
+      );
+    }
+
+    // RUTHLESS: Get all other products WITH ingredients only
     const allProducts = await this.prisma.product.findMany({
       where: {
         id: { not: productId }, // Exclude the base product
+        ingredients: {
+          some: {}, // At least one ingredient link exists
+        },
       },
       include: {
         ingredients: {
@@ -244,6 +254,10 @@ export class ComparisonsService {
 
     // Calculate similarity for each candidate product
     const comparisons: ProductComparison[] = allProducts
+      .filter((candidate) => {
+        // RUTHLESS: Skip products without ingredients (extra safety check)
+        return candidate.ingredients && candidate.ingredients.length > 0;
+      })
       .map((candidate) => {
         // Extract ingredient IDs from candidate
         const candidateIngredientIds = new Set(

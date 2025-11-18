@@ -13,8 +13,8 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-ADMIN_KEY="${ADMIN_KEY:-your-admin-key-here}"
-BASE_URL="${BASE_URL:-http://localhost:2000/api}"
+ADMIN_KEY="${ADMIN_KEY:-VITrJCdveiGHxYwtEEcrA0MKjYCxMmz70bmmR0mG7dc=}"
+BASE_URL="${BASE_URL:-http://localhost:9000/api}"
 WAIT_BETWEEN_REQUESTS=2
 
 # Counters
@@ -56,8 +56,9 @@ import_category() {
     -H "Content-Type: application/json" \
     -d "{\"query\": \"$query\", \"limit\": $limit}")
 
-  # Check if response contains error
-  if echo "$response" | grep -q '"error":'; then
+  # Check if response contains actual error (not null)
+  error_value=$(echo "$response" | jq -r '.error // null')
+  if [ "$error_value" != "null" ] && [ -n "$error_value" ]; then
     print_error "Failed to import $description"
     echo "$response" | jq '.'
     return 1
@@ -123,18 +124,18 @@ EOF
   echo "  Base URL: $BASE_URL"
   echo ""
 
-  if [ "$ADMIN_KEY" = "your-admin-key-here" ]; then
+  if [ "$ADMIN_KEY" = "yVITrJCdveiGHxYwtEEcrA0MKjYCxMmz70bmmR0mG7dc=" ]; then
     print_error "Admin key not set!"
     echo ""
     echo "Set your admin key with:"
-    echo "  export ADMIN_KEY='your-actual-key'"
+    echo "  export ADMIN_KEY='VITrJCdveiGHxYwtEEcrA0MKjYCxMmz70bmmR0mG7dc='"
     echo ""
     exit 1
   fi
 
   # Test connection
   echo "Testing connection..."
-  if ! curl -s -f "$BASE_URL/scraper/stats" > /dev/null; then
+  if ! curl -s -f -H "x-admin-key: $ADMIN_KEY" "$BASE_URL/scraper/stats" > /dev/null; then
     print_error "Cannot reach backend at $BASE_URL"
     echo ""
     echo "Make sure backend is running:"

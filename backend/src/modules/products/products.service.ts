@@ -117,6 +117,13 @@ export class ProductsService {
       // Build AND conditions array to combine text search with filters
       const andConditions: any[] = [];
 
+      // RUTHLESS: Only show products with ingredients
+      andConditions.push({
+        ingredients: {
+          some: {}, // At least one ingredient link exists
+        },
+      });
+
       // Text search (only if query is not wildcard "*")
       if (query && query !== '*') {
         const q = query.toLowerCase();
@@ -294,6 +301,11 @@ export class ProductsService {
       });
 
       if (!product) return undefined;
+
+      // RUTHLESS: Only return products with ingredients
+      if (!product.ingredients || product.ingredients.length === 0) {
+        return undefined;
+      }
 
       // Calculate days since last verified
       const sourcesCheckedDaysAgo = product.ethicsData
