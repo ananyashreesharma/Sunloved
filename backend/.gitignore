@@ -1,10 +1,14 @@
 # Dependencies
 node_modules/
 package-lock.json
+yarn.lock
+.pnp
+.pnp.js
 
 # Build output
 dist/
 build/
+*.tsbuildinfo
 
 # Logs
 logs/
@@ -13,14 +17,23 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+pnpm-debug.log*
 
 # OS
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+Desktop.ini
 
 # Tests
 coverage/
 .nyc_output
+*.lcov
+.jest/
 
 # IDE
 .vscode/
@@ -30,11 +43,20 @@ coverage/
 *.swn
 *.bak
 *~
+*.sublime-project
+*.sublime-workspace
+.project
+.classpath
+.settings/
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+.env.development
+.env.production
+.env.test
+.env.staging
 
 # Temp files
 *.tmp
@@ -46,6 +68,8 @@ temp/
 .cache/
 .eslintcache
 .npm/
+.parcel-cache/
+.turbo/
 
 # Optional npm cache directory
 .npm
@@ -53,5 +77,24 @@ temp/
 # Optional REPL history
 .node_repl_history
 
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
 
+# Prisma
 /generated/prisma
+prisma/migrations/*.sql
+!prisma/migrations/migration_lock.toml
+
+# TypeScript
+*.tsbuildinfo
+
+# Misc
+*.pem
+*.key
+*.cert
+.cache
+.next
+out/
