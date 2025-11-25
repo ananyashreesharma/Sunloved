@@ -1,8 +1,5 @@
 const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:2000/api';
-
-// For dev: if frontend is on 3002, ensure backend is on 2000
-// const API_BASE = 'http://localhost:2000/api';
+  process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3001/api';
 
 export async function searchProducts(query: string, page: number = 1, pageSize: number = 20, filters?: any) {
   const params = new URLSearchParams({

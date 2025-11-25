@@ -57,20 +57,20 @@ export class IngredientsService {
       const dbIngredient = await this.prisma.ingredient.findFirst({
         where: {
           OR: [
-            { name: { contains: ingredientName, mode: 'insensitive' } },
-            { scientificName: { contains: ingredientName, mode: 'insensitive' } },
+            { inciName: { contains: ingredientName, mode: 'insensitive' } },
+            { displayName: { contains: ingredientName, mode: 'insensitive' } },
           ],
         },
       });
 
       if (dbIngredient) {
         foundIngredients.push({
-          name: dbIngredient.name,
-          scientificName: dbIngredient.scientificName || undefined,
-          category: dbIngredient.category || undefined,
+          name: dbIngredient.inciName,
+          scientificName: dbIngredient.displayName || undefined,
+          category: undefined, // Removed from schema
           function: dbIngredient.function || undefined,
-          isIrritant: dbIngredient.isIrritant,
-          fungalAcneSafe: dbIngredient.fungalAcneSafe,
+          isIrritant: false, // TODO: Calculate from irritancyRating
+          fungalAcneSafe: false, // TODO: Calculate from sensitivityFlags
           found: true,
         });
       } else {

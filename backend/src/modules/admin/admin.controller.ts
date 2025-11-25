@@ -59,32 +59,65 @@ export class AdminController {
         throw new BadRequestException('name and brand are required');
       }
 
+      // Find or create brand
+      let brand = await this.prisma.brand.findFirst({
+        where: {
+          name: {
+            equals: body.brand || 'Unknown',
+            mode: 'insensitive',
+          },
+        },
+      });
+
+      if (!brand) {
+        brand = await this.prisma.brand.create({
+          data: {
+            name: body.brand || 'Unknown',
+            isCrueltyFree: false,
+            isVeganBrand: false,
+          },
+        });
+      }
+
+      // Parse volume if provided
+      let volumeValue: number | null = null;
+      let volumeUnit: string | null = null;
+      if (body.volume) {
+        const match = body.volume.match(/^(\d+\.?\d*)\s*(ml|g|oz|fl oz|fl\.?\s*oz\.?)$/i);
+        if (match) {
+          volumeValue = parseFloat(match[1]);
+          volumeUnit = match[2].toLowerCase().replace(/\./g, '');
+        }
+      }
+
       const product = await this.prisma.product.upsert({
         where: { id: body.id || 'new-product-' + Date.now() },
         update: {
           name: body.name,
-          brand: body.brand,
-          volume: body.volume,
+          brandId: brand.id,
+          volumeValue: volumeValue,
+          volumeUnit: volumeUnit,
           description: body.description,
-          category: body.category,
+          category: body.category || 'Serum',
           pricePerUnit: body.pricePerUnit,
-          currentPrice: body.currentPrice,
+          price: body.currentPrice,
           imageUrl: body.imageUrl,
-          productUrl: body.productUrl,
-          originalProduct: body.originalProduct,
+          url: body.productUrl,
+          originalProductId: body.originalProduct,
           updatedAt: new Date(),
         },
         create: {
           name: body.name,
-          brand: body.brand,
-          volume: body.volume || '',
+          brandId: brand.id,
+          volumeValue: volumeValue,
+          volumeUnit: volumeUnit,
           description: body.description || '',
-          category: body.category,
+          category: body.category || 'Serum',
           pricePerUnit: body.pricePerUnit,
-          currentPrice: body.currentPrice,
+          price: body.currentPrice,
           imageUrl: body.imageUrl,
-          productUrl: body.productUrl,
-          originalProduct: body.originalProduct,
+          url: body.productUrl,
+          originalProductId: body.originalProduct,
         },
       });
 
@@ -220,21 +253,15 @@ export class AdminController {
       }
 
       const ingredient = await this.prisma.ingredient.upsert({
-        where: { name: body.name },
+        where: { inciName: body.name },
         update: {
-          scientificName: body.scientificName,
-          category: body.category,
+          displayName: body.scientificName || body.name,
           function: body.function,
-          isIrritant: body.isIrritant ?? false,
-          fungalAcneSafe: body.fungalAcneSafe ?? true,
         },
         create: {
-          name: body.name,
-          scientificName: body.scientificName,
-          category: body.category,
+          inciName: body.name,
+          displayName: body.scientificName || body.name,
           function: body.function,
-          isIrritant: body.isIrritant ?? false,
-          fungalAcneSafe: body.fungalAcneSafe ?? true,
         },
       });
 

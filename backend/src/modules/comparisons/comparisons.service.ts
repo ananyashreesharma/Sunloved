@@ -65,12 +65,12 @@ export class ComparisonsService {
    * Find shared ingredients between base and candidate products
    */
   private getSharedActives(
-    baseIngredients: Array<{ ingredient: { name: string } }>,
-    candidateIngredients: Array<{ ingredient: { name: string } }>,
+    baseIngredients: Array<{ ingredient: { inciName: string } }>,
+    candidateIngredients: Array<{ ingredient: { inciName: string } }>,
   ): string[] {
-    const baseNames = new Set(baseIngredients.map((pi) => pi.ingredient.name.toLowerCase()));
+    const baseNames = new Set(baseIngredients.map((pi) => pi.ingredient.inciName.toLowerCase()));
     const candidateNames = candidateIngredients
-      .map((pi) => pi.ingredient.name)
+      .map((pi) => pi.ingredient.inciName)
       .filter((name) => baseNames.has(name.toLowerCase()));
 
     return candidateNames;
@@ -209,12 +209,13 @@ export class ComparisonsService {
     const baseProduct = await this.prisma.product.findUnique({
       where: { id: productId },
       include: {
+        brand: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethicsData: true,
+        ethics: true,
       },
     });
 
@@ -238,29 +239,30 @@ export class ComparisonsService {
         },
       },
       include: {
+        brand: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethicsData: true,
+        ethics: true,
       },
     });
 
     // Extract ingredient IDs from base product
-    const baseIngredientIds = new Set(
+    const baseIngredientIds = new Set<string>(
       baseProduct.ingredients.map((pi) => pi.ingredientId),
     );
 
     // Calculate similarity for each candidate product
-    const comparisons: ProductComparison[] = allProducts
+    const comparisons = allProducts
       .filter((candidate) => {
         // RUTHLESS: Skip products without ingredients (extra safety check)
         return candidate.ingredients && candidate.ingredients.length > 0;
       })
       .map((candidate) => {
         // Extract ingredient IDs from candidate
-        const candidateIngredientIds = new Set(
+        const candidateIngredientIds = new Set<string>(
           candidate.ingredients.map((pi) => pi.ingredientId),
         );
 
@@ -277,9 +279,9 @@ export class ComparisonsService {
         );
 
         // Calculate savings percent (if applicable)
-        const basePricePerUnit = baseProduct.pricePerUnit || baseProduct.currentPrice || 0;
+        const basePricePerUnit = baseProduct.pricePerUnit ? Number(baseProduct.pricePerUnit) : (baseProduct.price ? Number(baseProduct.price) : 0);
         const candidatePricePerUnit =
-          candidate.pricePerUnit || candidate.currentPrice || 0;
+          candidate.pricePerUnit ? Number(candidate.pricePerUnit) : (candidate.price ? Number(candidate.price) : 0);
 
         let savingsPercent = 0;
         let priceRatio = 1;
@@ -293,8 +295,8 @@ export class ComparisonsService {
         const matchType = this.determineMatchType(
           similarity,
           priceRatio,
-          baseProduct.ethicsData?.fungalAcneSafe || false,
-          candidate.ethicsData?.fungalAcneSafe || false,
+          false, // TODO: Calculate from ingredients
+          false, // TODO: Calculate from ingredients
         );
 
         // Generate human-readable reason
@@ -306,8 +308,8 @@ export class ComparisonsService {
         );
 
         // Detect biotech ingredients and formulation differences
-        const baseIngredientNames = baseProduct.ingredients.map((pi) => pi.ingredient.name);
-        const candidateIngredientNames = candidate.ingredients.map((pi) => pi.ingredient.name);
+        const baseIngredientNames = baseProduct.ingredients.map((pi) => pi.ingredient.inciName);
+        const candidateIngredientNames = candidate.ingredients.map((pi) => pi.ingredient.inciName);
         const biotechInfo = this.detectBiotechIngredients(
           baseIngredientNames,
           candidateIngredientNames,
@@ -321,11 +323,11 @@ export class ComparisonsService {
         return {
           id: candidate.id,
           name: candidate.name,
-          brand: candidate.brand,
+          brand: candidate.brand.name,
           category: candidate.category || undefined,
           imageUrl: candidate.imageUrl || undefined,
-          pricePerUnit: candidate.pricePerUnit || undefined,
-          currentPrice: candidate.currentPrice || undefined,
+          pricePerUnit: candidate.pricePerUnit ? Number(candidate.pricePerUnit) : undefined,
+          currentPrice: candidate.price ? Number(candidate.price) : undefined,
           similarityScore: Math.round(similarity),
           matchType,
           savingsPercent: savingsPercent !== 0 ? savingsPercent : undefined,
@@ -353,6 +355,6 @@ export class ComparisonsService {
       })
       .slice(0, 10); // Return top 10 dupes
 
-    return comparisons;
+    return comparisons as ProductComparison[];
   }
 }

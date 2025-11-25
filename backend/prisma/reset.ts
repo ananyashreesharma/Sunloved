@@ -6,9 +6,10 @@ async function main() {
   console.log('🗑️  Clearing database...');
   
   await prisma.productIngredient.deleteMany({});
+  await prisma.productEthics.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.ingredient.deleteMany({});
-  await prisma.ethicsData.deleteMany({});
+  await prisma.brand.deleteMany({});
   
   console.log('✅ Database cleared');
 }

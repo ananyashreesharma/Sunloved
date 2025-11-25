@@ -573,11 +573,11 @@ export class ScraperService {
 
     for (const ingredientName of ingredientNames) {
       try {
-        // Find or create ingredient
+        // Find or create ingredient (using inciName as the canonical name)
         let ingredient = await this.prisma.ingredient.findFirst({
           where: {
-            name: {
-              contains: ingredientName.substring(0, 10),
+            inciName: {
+              equals: ingredientName,
               mode: 'insensitive',
             },
           },
@@ -587,7 +587,8 @@ export class ScraperService {
           // Create new ingredient
           ingredient = await this.prisma.ingredient.create({
             data: {
-              name: ingredientName,
+              inciName: ingredientName,
+              displayName: ingredientName, // Use same as INCI name for now
               function: this.guessIngredientFunction(ingredientName),
             },
           });
@@ -661,6 +662,60 @@ export class ScraperService {
   }
 
   /**
+   * Find or create brand
+   */
+  private async findOrCreateBrand(brandName: string): Promise<string> {
+    // Find existing brand
+    let brand = await this.prisma.brand.findFirst({
+      where: {
+        name: {
+          equals: brandName,
+          mode: 'insensitive',
+        },
+      },
+    });
+
+    // Create if doesn't exist
+    if (!brand) {
+      brand = await this.prisma.brand.create({
+        data: {
+          name: brandName,
+          isCrueltyFree: false, // Default, can be updated later
+          isVeganBrand: false,
+        },
+      });
+      this.logger.debug(`Created new brand: ${brandName}`);
+    }
+
+    return brand.id;
+  }
+
+  /**
+   * Parse volume string into value and unit
+   * Examples: "30ml" -> { value: 30, unit: "ml" }
+   *           "1 fl oz" -> { value: 1, unit: "fl oz" }
+   */
+  private parseVolume(volumeStr: string | undefined): {
+    value: number | null;
+    unit: string | null;
+  } {
+    if (!volumeStr || volumeStr === 'N/A') {
+      return { value: null, unit: null };
+    }
+
+    // Match patterns like "30ml", "1 fl oz", "50g", etc.
+    const match = volumeStr.match(/^(\d+\.?\d*)\s*(ml|g|oz|fl oz|fl\.?\s*oz\.?)$/i);
+    if (match) {
+      return {
+        value: parseFloat(match[1]),
+        unit: match[2].toLowerCase().replace(/\./g, ''),
+      };
+    }
+
+    return { value: null, unit: null };
+  }
+
+  /**
    * Bulk import scraped products into database
    */
   async bulkImportProducts(
@@ -680,12 +735,15 @@ export class ScraperService {
       try {
         const scraped = scrapedProducts[i];
 
-        // Check if product already exists
+        // Find or create brand
+        const brandId = await this.findOrCreateBrand(scraped.brand);
+
+        // Check if product already exists (by name + brand)
         const existingProduct = await this.prisma.product.findFirst({
           where: {
             AND: [
               { name: { equals: scraped.name, mode: 'insensitive' } },
-              { brand: { equals: scraped.brand, mode: 'insensitive' } },
+              { brandId: brandId },
             ],
           },
         });
@@ -711,14 +769,21 @@ export class ScraperService {
           continue;
         }
 
+        // Parse volume
+        const { value: volumeValue, unit: volumeUnit } = this.parseVolume(
+          scraped.volume,
+        );
+
         // Create product
         const product = await this.prisma.product.create({
           data: {
             name: scraped.name,
-            brand: scraped.brand,
+            brandId: brandId,
             category: scraped.category,
-            volume: scraped.volume || 'N/A', // Default to 'N/A' if volume not available
+            volumeValue: volumeValue,
+            volumeUnit: volumeUnit,
             description: `Sourced from ${scraped.source}`,
+            source: scraped.source,
           },
         });
 
@@ -816,6 +881,9 @@ export class ScraperService {
             none: {},
           },
         },
+        include: {
+          brand: true,
+        },
         take: limit,
       });
 
@@ -826,9 +894,9 @@ export class ScraperService {
         try {
           // Try multiple search strategies
           const searchQueries = [
-            `${product.name} ${product.brand}`,
+            `${product.name} ${product.brand.name}`,
             product.name,
-            product.brand,
+            product.brand.name,
           ];
 
           let matchedProduct: OpenBeautyFactsProduct | null = null;
@@ -858,7 +926,7 @@ export class ScraperService {
                   if (!p.brands) return false;
                   const pBrand = Array.isArray(p.brands) ? p.brands[0] : p.brands.split(',')[0];
                   const pBrandLower = pBrand.toLowerCase().trim();
-                  const productBrandLower = product.brand.toLowerCase().trim();
+                  const productBrandLower = product.brand.name.toLowerCase().trim();
                   return pBrandLower === productBrandLower || 
                          pBrandLower.includes(productBrandLower) || 
                          productBrandLower.includes(pBrandLower);
@@ -888,7 +956,7 @@ export class ScraperService {
                 result.productsFixed++;
                 result.ingredientsAdded += linkedCount;
                 this.logger.log(
-                  `✓ Fixed: ${product.name} by ${product.brand} - added ${linkedCount} ingredients`,
+                  `✓ Fixed: ${product.name} by ${product.brand.name} - added ${linkedCount} ingredients`,
                 );
               } else {
                 this.logger.warn(
@@ -902,7 +970,7 @@ export class ScraperService {
             }
           } else {
             this.logger.debug(
-              `No match found: ${product.name} by ${product.brand} (searched ${foundProducts} products)`,
+              `No match found: ${product.name} by ${product.brand.name} (searched ${foundProducts} products)`,
             );
           }
         } catch (error) {
@@ -1030,15 +1098,17 @@ export class ScraperService {
             none: {},
           },
         },
-        select: {
-          id: true,
-          name: true,
+        include: {
           brand: true,
         },
       });
 
       result.totalFound = productsWithoutIngredients.length;
-      result.products = productsWithoutIngredients;
+      result.products = productsWithoutIngredients.map((p) => ({
+        id: p.id,
+        name: p.name,
+        brand: p.brand.name,
+      }));
 
       this.logger.log(
         `Found ${productsWithoutIngredients.length} products without ingredients`,
@@ -1058,7 +1128,7 @@ export class ScraperService {
             where: { id: product.id },
           });
           result.deleted++;
-          this.logger.debug(`Deleted product: ${product.name} by ${product.brand}`);
+          this.logger.debug(`Deleted product: ${product.name} by ${product.brand.name}`);
         } catch (error) {
           result.errors.push({
             productId: product.id,
@@ -1110,18 +1180,14 @@ export class ScraperService {
               contains: 'Sourced from',
             },
           },
-          select: {
-            id: true,
-            name: true,
+          include: {
             brand: true,
           },
         });
       } else {
         // Delete all products
         productsToDelete = await this.prisma.product.findMany({
-          select: {
-            id: true,
-            name: true,
+          include: {
             brand: true,
           },
         });
@@ -1136,7 +1202,7 @@ export class ScraperService {
             where: { id: product.id },
           });
           result.deleted++;
-          this.logger.debug(`Deleted product: ${product.name} by ${product.brand}`);
+          this.logger.debug(`Deleted product: ${product.name} by ${product.brand.name}`);
         } catch (error) {
           result.errors.push({
             productId: product.id,

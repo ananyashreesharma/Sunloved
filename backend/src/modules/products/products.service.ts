@@ -130,7 +130,7 @@ export class ProductsService {
         andConditions.push({
           OR: [
             { name: { contains: q, mode: 'insensitive' } },
-            { brand: { contains: q, mode: 'insensitive' } },
+            { brand: { name: { contains: q, mode: 'insensitive' } } },
             { category: { contains: q, mode: 'insensitive' } },
             { description: { contains: q, mode: 'insensitive' } },
             {
@@ -138,8 +138,8 @@ export class ProductsService {
                 some: {
                   ingredient: {
                     OR: [
-                      { name: { contains: q, mode: 'insensitive' } },
-                      { scientificName: { contains: q, mode: 'insensitive' } },
+                      { inciName: { contains: q, mode: 'insensitive' } },
+                      { displayName: { contains: q, mode: 'insensitive' } },
                     ],
                   },
                 },
@@ -151,7 +151,9 @@ export class ProductsService {
 
       // Brand filter
       if (brand) {
-        andConditions.push({ brand: { equals: brand, mode: 'insensitive' } });
+        andConditions.push({
+          brand: { name: { equals: brand, mode: 'insensitive' } },
+        });
       }
 
       // Category filter
@@ -194,10 +196,14 @@ export class ProductsService {
           take: pageSize,
           orderBy,
           include: {
-            ethicsData: true,
+            brand: true,
+            ethics: true,
             ingredients: {
               include: {
                 ingredient: true,
+              },
+              orderBy: {
+                position: 'asc',
               },
             },
             prices: {
@@ -211,35 +217,47 @@ export class ProductsService {
       ]);
 
       // Transform to ProductDetail
-      const data = products.map((p) => ({
-        id: p.id,
-        name: p.name,
-        brand: p.brand,
-        volume: p.volume || undefined,
-        description: p.description,
-        category: p.category || undefined,
-        imageUrl: p.imageUrl || undefined,
-        pricePerUnit: p.pricePerUnit || undefined,
-        currentPrice: p.currentPrice || undefined,
-        originalProduct: p.originalProduct || undefined,
-        crueltyFree: p.ethicsData?.crueltyFree,
-        vegan: p.ethicsData?.vegan,
-        fragranceFree: p.ethicsData?.fragranceFree,
-        alcoholFree: p.ethicsData?.alcoholFree,
-        fungalAcneSafe: p.ethicsData?.fungalAcneSafe,
-        parabenFree: p.ethicsData?.parabenFree,
-        sulfateFree: p.ethicsData?.sulfateFree,
-        siliconesFree: p.ethicsData?.siliconesFree,
-        sourcesCheckedDaysAgo: p.ethicsData
-          ? Math.floor(
-              (Date.now() - p.ethicsData.lastVerifiedAt.getTime()) /
-                (1000 * 60 * 60 * 24),
-            )
-          : undefined,
-        actives: p.ingredients
-          .sort((a, b) => a.position - b.position)
-          .map((pi) => pi.ingredient.name),
-      }));
+      const data = products.map((p) => {
+        // Format volume
+        let volume: string | undefined;
+        if (p.volumeValue && p.volumeUnit) {
+          volume = `${p.volumeValue}${p.volumeUnit}`;
+        } else if (p.volumeValue) {
+          volume = p.volumeValue.toString();
+        }
+
+        // Get effective ethics (product-level or brand-level)
+        const isCrueltyFree = p.ethics?.isCrueltyFree ?? p.brand.isCrueltyFree;
+        const isVegan = p.ethics?.isVegan ?? p.brand.isVeganBrand;
+
+        return {
+          id: p.id,
+          name: p.name,
+          brand: p.brand.name,
+          volume: volume,
+          description: p.description || undefined,
+          category: p.category || undefined,
+          imageUrl: p.imageUrl || undefined,
+          pricePerUnit: p.pricePerUnit ? Number(p.pricePerUnit) : undefined,
+          currentPrice: p.price ? Number(p.price) : undefined,
+          originalProduct: p.originalProductId || undefined,
+          crueltyFree: isCrueltyFree,
+          vegan: isVegan,
+          fragranceFree: p.ethics?.isFragranceFree ?? false,
+          alcoholFree: p.ethics?.isAlcoholFree ?? false,
+          fungalAcneSafe: false, // TODO: Calculate from ingredients
+          parabenFree: p.ethics?.isParabenFree ?? false,
+          sulfateFree: p.ethics?.isSulfateFree ?? false,
+          siliconesFree: false, // TODO: Add to schema if needed
+          sourcesCheckedDaysAgo: p.ethics?.lastVerifiedAt
+            ? Math.floor(
+                (Date.now() - p.ethics.lastVerifiedAt.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              )
+            : undefined,
+          actives: p.ingredients.map((pi) => pi.ingredient.inciName),
+        };
+      });
 
       return {
         data,
@@ -291,10 +309,19 @@ export class ProductsService {
       const product = await this.prisma.product.findUnique({
         where: { id },
         include: {
-          ethicsData: true,
+          brand: true,
+          ethics: true,
           ingredients: {
             include: {
               ingredient: true,
+            },
+            orderBy: {
+              position: 'asc',
+            },
+          },
+          prices: {
+            include: {
+              retailer: true,
             },
           },
         },
@@ -307,10 +334,22 @@ export class ProductsService {
         return undefined;
       }
 
+      // Format volume
+      let volume: string | undefined;
+      if (product.volumeValue && product.volumeUnit) {
+        volume = `${product.volumeValue}${product.volumeUnit}`;
+      } else if (product.volumeValue) {
+        volume = product.volumeValue.toString();
+      }
+
+      // Get effective ethics (product-level or brand-level)
+      const isCrueltyFree = product.ethics?.isCrueltyFree ?? product.brand.isCrueltyFree;
+      const isVegan = product.ethics?.isVegan ?? product.brand.isVeganBrand;
+
       // Calculate days since last verified
-      const sourcesCheckedDaysAgo = product.ethicsData
+      const sourcesCheckedDaysAgo = product.ethics?.lastVerifiedAt
         ? Math.floor(
-            (Date.now() - product.ethicsData.lastVerifiedAt.getTime()) /
+            (Date.now() - product.ethics.lastVerifiedAt.getTime()) /
               (1000 * 60 * 60 * 24),
           )
         : undefined;
@@ -337,23 +376,24 @@ export class ProductsService {
       return {
         id: product.id,
         name: product.name,
-        brand: product.brand,
-        volume: product.volume,
-        description: product.description,
-        imageUrl: product.imageUrl,
-        category: product.category,
-        pricePerUnit: product.pricePerUnit,
-        currentPrice: product.currentPrice,
-        originalProduct: product.originalProduct,
-        crueltyFree: product.ethicsData?.crueltyFree,
-        vegan: product.ethicsData?.vegan,
-        fragranceFree: product.ethicsData?.fragranceFree,
-        alcoholFree: product.ethicsData?.alcoholFree,
-        fungalAcneSafe: product.ethicsData?.fungalAcneSafe,
-        parabenFree: product.ethicsData?.parabenFree,
-        sulfateFree: product.ethicsData?.sulfateFree,
-        siliconesFree: product.ethicsData?.siliconesFree,
+        brand: product.brand.name,
+        volume: volume,
+        description: product.description || undefined,
+        imageUrl: product.imageUrl || undefined,
+        category: product.category || undefined,
+        pricePerUnit: product.pricePerUnit ? Number(product.pricePerUnit) : undefined,
+        currentPrice: product.price ? Number(product.price) : undefined,
+        originalProduct: product.originalProductId || undefined,
+        crueltyFree: isCrueltyFree,
+        vegan: isVegan,
+        fragranceFree: product.ethics?.isFragranceFree ?? false,
+        alcoholFree: product.ethics?.isAlcoholFree ?? false,
+        fungalAcneSafe: false, // TODO: Calculate from ingredients
+        parabenFree: product.ethics?.isParabenFree ?? false,
+        sulfateFree: product.ethics?.isSulfateFree ?? false,
+        siliconesFree: false, // TODO: Add to schema if needed
         sourcesCheckedDaysAgo,
+        actives: product.ingredients.map((pi) => pi.ingredient.inciName),
         dupes: dupes.length > 0 ? dupes : undefined,
       };
     } catch (error) {

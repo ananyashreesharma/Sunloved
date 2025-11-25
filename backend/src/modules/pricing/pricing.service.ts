@@ -47,7 +47,7 @@ export class PricingService {
       id: price.id,
       retailer: price.retailer.name,
       retailerSlug: price.retailer.slug,
-      amount: price.amount,
+      amount: Number(price.amount),
       currency: price.currency,
       best: index === 0, // First (cheapest) is best
       lastCheckedAt: price.lastCheckedAt,
