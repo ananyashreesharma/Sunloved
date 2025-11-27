@@ -20,6 +20,8 @@ export interface Product {
   category: "closest-match" | "best-value" | "sensitive-safe"
   categoryLabel: string
   categoryBadgeColor: string
+  imageUrl?: string
+  ingredients?: string[]
   prices?: {
     amazon?: { price: string; url: string }
     sephora?: { price: string; url: string }

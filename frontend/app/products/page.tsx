@@ -6,7 +6,6 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { ProductCard } from "@/components/ProductCard"
 import { searchProducts } from "@/lib/api"
-import { dummyProducts } from "@/lib/data"
 import { ChevronDown, X } from "lucide-react"
 
 const PRICE_RANGES = [
@@ -16,7 +15,7 @@ const PRICE_RANGES = [
   { label: "$50+", min: 50, max: Infinity },
 ]
 
-const BRANDS = Array.from(new Set(dummyProducts.map(p => p.brand)))
+// BRANDS will be populated from API
 
 // Map header category names (from dropdown) to database category values
 const CATEGORY_MAP: { [key: string]: string } = {
@@ -43,14 +42,18 @@ export default function ProductsPage() {
   const brandParam = searchParams.get("brand")
   const priceParam = searchParams.get("price")
   
-  const [products, setProducts] = useState(dummyProducts)
-  const [loading, setLoading] = useState(false)
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   
   // Filters state
   const [selectedBrand, setSelectedBrand] = useState<string | null>(brandParam || null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(itemParam || null)
   const [selectedPrice, setSelectedPrice] = useState<string | null>(priceParam || null)
   const [showBrandDropdown, setShowBrandDropdown] = useState(false)
+  
+  // Get unique brands from API products
+  const [availableBrands, setAvailableBrands] = useState<string[]>([])
 
   // Handle dropdown item clicks
   useEffect(() => {
@@ -106,14 +109,98 @@ export default function ProductsPage() {
     router.push(queryString ? `/products?${queryString}` : "/products")
   }, [selectedBrand, selectedCategory, selectedPrice, query, router])
 
+  // Helper function to transform API product to ProductCard format
+  const transformProduct = (apiProduct: any): any => {
+    const price = apiProduct.currentPrice || apiProduct.pricePerUnit || 0
+    const volume = apiProduct.volume || ''
+    const ingredients = apiProduct.actives || apiProduct.ingredients || []
+    const productName = apiProduct.name || ''
+    const brandName = apiProduct.brand || ''
+    
+    // Clean description - remove ingredient lists and product name/brand repetition
+    let description = apiProduct.description || ''
+    
+    if (description) {
+      // Remove "Full INCI:" and ingredient lists from description if ingredients are already available
+      if (ingredients.length > 0) {
+        // Remove patterns like "Full INCI:" followed by ingredients
+        description = description.replace(/Full INCI:.*$/i, '').trim()
+        // Remove patterns like "Ingredients:" followed by ingredients
+        description = description.replace(/Ingredients?:.*$/i, '').trim()
+        // Remove any trailing periods or commas
+        description = description.replace(/[.,;]\s*$/, '').trim()
+      }
+      
+      // Remove product name from description if it's repeated
+      if (productName) {
+        // Remove exact product name match (case insensitive)
+        const nameRegex = new RegExp(productName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+        description = description.replace(nameRegex, '').trim()
+      }
+      
+      // Remove brand name from description if it's repeated
+      if (brandName) {
+        const brandRegex = new RegExp(brandName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+        description = description.replace(brandRegex, '').trim()
+      }
+      
+      // Remove common patterns like "BrandName ProductName" or "ProductName by BrandName"
+      if (productName && brandName) {
+        const combinedPattern1 = new RegExp(`${brandName}\\s+${productName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi')
+        const combinedPattern2 = new RegExp(`${productName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s+by\\s+${brandName}`, 'gi')
+        description = description.replace(combinedPattern1, '').trim()
+        description = description.replace(combinedPattern2, '').trim()
+      }
+      
+      // Clean up extra spaces and punctuation
+      description = description.replace(/\s+/g, ' ').trim()
+      description = description.replace(/^[.,;:\-\s]+|[.,;:\-\s]+$/g, '').trim()
+      
+      // If description is now empty or just punctuation, use a generic fallback
+      if (!description || description.length < 10) {
+        description = `A ${apiProduct.category || 'skincare'} product by ${brandName}`
+      }
+    } else {
+      description = `A ${apiProduct.category || 'skincare'} product by ${brandName}`
+    }
+    
+    return {
+      id: apiProduct.id,
+      name: apiProduct.name,
+      brand: apiProduct.brand,
+      volume: volume,
+      originalProduct: apiProduct.originalProduct || apiProduct.name,
+      description: description,
+      pricePerUnit: price ? `$${price.toFixed(2)}` : 'N/A',
+      savings: 'Check prices',
+      savingsPercent: 0,
+      crueltyFree: apiProduct.crueltyFree || false,
+      vegan: apiProduct.vegan || false,
+      fragranceFree: apiProduct.fragranceFree || false,
+      alcoholFree: apiProduct.alcoholFree || false,
+      fungalAcneSafe: apiProduct.fungalAcneSafe || false,
+      parabenfree: apiProduct.parabenFree || false,
+      sulfateFree: apiProduct.sulfateFree || false,
+      siliconesFree: apiProduct.siliconesFree || false,
+      sourcesCheckedDaysAgo: apiProduct.sourcesCheckedDaysAgo || 30,
+      category: 'closest-match' as const,
+      categoryLabel: (apiProduct.category || 'Product').toUpperCase(),
+      categoryBadgeColor: "bg-teal-50 text-teal-700",
+      imageUrl: apiProduct.imageUrl,
+      ingredients: ingredients,
+      prices: apiProduct.prices,
+    }
+  }
+
   // Fetch products when search query or filters change
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true)
+        setError(null)
         
-        // Build search query with filters
-        const searchQuery = query || "*" // Use wildcard if no query but filters exist
+        // Build search query with filters - use empty string to get all products
+        const searchQuery = query || "" // Empty string to get all products
         const filters = {
           ...(selectedBrand && { brand: selectedBrand }),
           ...(selectedCategory && { category: normalizeCategoryForApi(selectedCategory) }),
@@ -123,21 +210,58 @@ export default function ProductsPage() {
           }),
         }
 
-        // Only fetch from API if we have a query or filters
-        if (query || selectedBrand || selectedCategory || selectedPrice) {
-          const results = await searchProducts(searchQuery, 1, 100, filters)
-          console.log('🔍 Search results:', results)
-          
-          // Handle the API response structure: { data, meta, error, products }
-          const productsArray = results.products || results.data || results || []
-          setProducts(Array.isArray(productsArray) ? productsArray : [])
-        } else {
-          // Show all dummy products if no search or filters
-          setProducts(dummyProducts)
+        // Fetch all products with pagination (max 100 per page)
+        let allProducts: any[] = []
+        let currentPage = 1
+        const pageSize = 100
+        let hasMore = true
+        let totalPages = 1
+
+        while (hasMore) {
+          try {
+            const results = await searchProducts(searchQuery, currentPage, pageSize, filters)
+            console.log(`🔍 Fetching page ${currentPage}:`, results)
+            
+            // Handle the API response structure: { data, meta, error, products }
+            const productsArray = results.products || results.data || []
+            
+            if (Array.isArray(productsArray)) {
+              if (productsArray.length > 0) {
+                allProducts = [...allProducts, ...productsArray]
+              }
+            } else {
+              console.warn("⚠️ Unexpected response format:", results)
+            }
+            
+            // Check if there are more pages
+            if (results.meta) {
+              totalPages = results.meta.totalPages || 1
+              hasMore = currentPage < totalPages
+              currentPage++
+            } else {
+              // If no meta, assume single page
+              hasMore = false
+            }
+          } catch (pageError) {
+            console.error(`❌ Error fetching page ${currentPage}:`, pageError)
+            hasMore = false
+          }
         }
+        
+        console.log(`✅ Total products fetched: ${allProducts.length}`)
+        const transformedProducts = allProducts.map(transformProduct)
+        setProducts(transformedProducts)
+        
+        // Extract unique brands for filter dropdown
+        const brands = Array.from(new Set(transformedProducts.map(p => p.brand).filter(Boolean)))
+        setAvailableBrands(brands)
       } catch (error) {
         console.error("❌ Failed to fetch products:", error)
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        console.error("Error details:", errorMessage)
+        setError(`Failed to load products: ${errorMessage}. Please check if the backend API is running on http://localhost:3001`)
         setProducts([])
+        setAvailableBrands([])
       } finally {
         setLoading(false)
       }
@@ -166,7 +290,7 @@ export default function ProductsPage() {
             <p className="text-lg text-gray-600">
             {query 
                 ? `Found ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} matching your search`
-              : "Explore all skincare alternatives. Evidence-backed, ethically verified, and priced fairly."
+              : `Showing ${filteredProducts.length} product${filteredProducts.length !== 1 ? 's' : ''} from database. Explore all skincare alternatives. Evidence-backed, ethically verified, and priced fairly.`
             }
           </p>
           </div>
@@ -196,7 +320,7 @@ export default function ProductsPage() {
                   >
                     All Brands
                   </button>
-                  {BRANDS.map((brand) => (
+                  {availableBrands.map((brand) => (
                     <button
                       key={brand}
                       onClick={() => {
@@ -282,15 +406,30 @@ export default function ProductsPage() {
             )}
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-800 font-semibold mb-2">⚠️ Error Loading Products</p>
+              <p className="text-red-600 text-sm">{error}</p>
+              <p className="text-red-600 text-xs mt-2">
+                Make sure your backend API is running on <code className="bg-red-100 px-1 rounded">http://localhost:3001</code>
+              </p>
+            </div>
+          )}
+
           {/* Products Grid */}
           {loading ? (
             <div className="text-center py-12">
-              <p className="text-gray-600">Searching products...</p>
+              <p className="text-gray-600">Loading all products from database...</p>
             </div>
           ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-600 text-xl">
-                {products.length === 0 ? "No products found. Try a different search term." : "No products match your filters. Try adjusting them."}
+                {error 
+                  ? "Unable to load products. Please check the error message above."
+                  : products.length === 0 
+                    ? "No products found in database. The database might be empty or products don't have ingredients linked." 
+                    : "No products match your filters. Try adjusting them."}
               </p>
             </div>
           ) : (

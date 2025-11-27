@@ -3,21 +3,42 @@ const API_BASE =
 
 export async function searchProducts(query: string, page: number = 1, pageSize: number = 20, filters?: any) {
   const params = new URLSearchParams({
-    query: query || '',
     page: page.toString(),
     pageSize: pageSize.toString(),
-    ...(filters?.brand && { brand: filters.brand }),
-    ...(filters?.category && { category: filters.category }),
-    ...(filters?.minPrice && { minPrice: filters.minPrice.toString() }),
-    ...(filters?.maxPrice && { maxPrice: filters.maxPrice.toString() }),
-    ...(filters?.sort && { sort: filters.sort }),
   });
   
-  const res = await fetch(`${API_BASE}/products/search?${params.toString()}`, {
+  // Only add query if it's not empty
+  if (query && query.trim() !== '') {
+    params.set('query', query);
+  }
+  
+  // Add filters
+  if (filters?.brand) params.set('brand', filters.brand);
+  if (filters?.category) params.set('category', filters.category);
+  if (filters?.minPrice !== undefined) params.set('minPrice', filters.minPrice.toString());
+  if (filters?.maxPrice !== undefined) params.set('maxPrice', filters.maxPrice.toString());
+  if (filters?.sort) params.set('sort', filters.sort);
+  
+  const url = `${API_BASE}/products/search?${params.toString()}`;
+  console.log('🌐 API Request:', url);
+  
+  const res = await fetch(url, {
     cache: 'no-store',
   });
-  if (!res.ok) throw new Error('Failed to search products');
+  
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('❌ API Error:', res.status, errorText);
+    throw new Error(`Failed to search products: ${res.status} ${errorText}`);
+  }
+  
   const result = await res.json();
+  console.log('📦 API Response:', { 
+    dataCount: result.data?.length || 0, 
+    meta: result.meta,
+    hasProducts: !!result.products 
+  });
+  
   // Return data array for backward compatibility, but also include meta
   return {
     products: result.data,
@@ -61,5 +82,37 @@ export async function getComparisons(productId: string) {
   const result = await res.json();
   // Extract data from standardized response format
   return result.data || result;
+}
+
+export async function generateProductSummary(productData: {
+  name: string;
+  brand: string;
+  category?: string;
+  description?: string;
+  ingredients?: string[];
+  fragranceFree?: boolean;
+  alcoholFree?: boolean;
+  parabenFree?: boolean;
+  sulfateFree?: boolean;
+  crueltyFree?: boolean;
+  vegan?: boolean;
+}) {
+  const res = await fetch(`${API_BASE}/ai/summary`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(productData),
+    cache: 'no-store',
+  });
+  
+  if (!res.ok) {
+    const errorText = await res.text();
+    console.error('❌ AI Summary Error:', res.status, errorText);
+    throw new Error(`Failed to generate summary: ${res.status} ${errorText}`);
+  }
+  
+  const result = await res.json();
+  return result.data || null;
 }
 

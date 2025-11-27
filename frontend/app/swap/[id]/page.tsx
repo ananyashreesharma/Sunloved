@@ -5,9 +5,9 @@ import { Header } from "@/components/Header"
 import { Footer } from "@/components/Footer"
 import { Button } from "@/components/ui/button"
 import { PricesPopup } from "@/components/PricesPopup"
-import { getProduct, getProductPrices } from "@/lib/api"
+import { getProduct, getProductPrices, analyzeIngredients, generateProductSummary } from "@/lib/api"
 import { dummyProducts } from "@/lib/data"
-import { Share2, TrendingDown, Eye } from "lucide-react"
+import { Heart, ShoppingBag } from "lucide-react"
 import Link from "next/link"
 
 export default function ProductDetailPage({ params }: { params: { id: string } }) {
@@ -15,12 +15,77 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
   const [prices, setPrices] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [showPricesModal, setShowPricesModal] = useState(false)
+  const [ingredientAnalysis, setIngredientAnalysis] = useState<any>(null)
+  const [aiSummary, setAiSummary] = useState<any>(null)
+
+  // Helper function to infer correct category from product name/description/ingredients
+  const inferCategory = (name: string, description: string, ingredients: string[], currentCategory: string): string => {
+    const nameLower = name.toLowerCase()
+    const descLower = (description || '').toLowerCase()
+    const ingredientsStr = (ingredients || []).join(' ').toLowerCase()
+    
+    // Priority 1: Check product name first (most reliable indicator)
+    if (nameLower.includes('cleanser') || nameLower.includes('cleansing') || nameLower.includes('wash')) {
+      return 'Cleanser'
+    }
+    if (nameLower.includes('sunscreen') || nameLower.includes('spf')) {
+      return 'Sunscreen'
+    }
+    if (nameLower.includes('serum')) return 'Serum'
+    if (nameLower.includes('moisturizer') || nameLower.includes('moisturising') || nameLower.includes('cream')) {
+      return 'Moisturizer'
+    }
+    if (nameLower.includes('toner')) return 'Toner'
+    if (nameLower.includes('exfoliator') || nameLower.includes('exfoliating')) return 'Exfoliator'
+    if (nameLower.includes('mask')) return 'Mask'
+    if (nameLower.includes('oil')) return 'Oil'
+    
+    // Priority 2: Check ingredients for strong indicators (sunscreen filters are definitive)
+    if (ingredientsStr.includes('titanium dioxide') || ingredientsStr.includes('zinc oxide') || 
+        ingredientsStr.includes('avobenzone') || ingredientsStr.includes('octinoxate') ||
+        ingredientsStr.includes('octocrylene') || ingredientsStr.includes('homosalate')) {
+      return 'Sunscreen'
+    }
+    
+    // Priority 3: Check description
+    if (descLower.includes('sunscreen') || descLower.includes('spf') || descLower.includes('uv protection')) {
+      return 'Sunscreen'
+    }
+    if (descLower.includes('cleanser') || descLower.includes('cleansing')) {
+      return 'Cleanser'
+    }
+    
+    // Return current category if no match found
+    return currentCategory || 'Product'
+  }
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true)
         const result = await getProduct(params.id)
+        // Map actives to ingredients for consistency
+        if (result && (result.actives || result.ingredients)) {
+          result.ingredients = result.actives || result.ingredients || []
+        }
+        
+        // Infer correct category if there's a mismatch
+        if (result) {
+          const ingredients = result.actives || result.ingredients || []
+          const inferredCategory = inferCategory(
+            result.name || '',
+            result.description || '',
+            ingredients,
+            result.category || ''
+          )
+          
+          // Use inferred category if it differs from stored category
+          if (inferredCategory !== result.category) {
+            result.category = inferredCategory
+            result.categoryCorrected = true // Flag to show it was corrected
+          }
+        }
+        
         setProduct(result)
         
         // Fetch prices
@@ -31,6 +96,40 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
         } catch (priceError) {
           console.error("❌ Failed to fetch prices:", priceError)
           setPrices([])
+        }
+        
+        // Analyze ingredients if available
+        if (result && result.ingredients && result.ingredients.length > 0) {
+          try {
+            const ingredientsString = result.ingredients.join(', ')
+            const analysis = await analyzeIngredients(ingredientsString)
+            setIngredientAnalysis(analysis)
+          } catch (analysisError) {
+            console.error("❌ Failed to analyze ingredients:", analysisError)
+          }
+        }
+        
+        // Generate product summary (free fallback method)
+        if (result) {
+          try {
+            const summary = await generateProductSummary({
+              name: result.name || '',
+              brand: result.brand || '',
+              category: result.category || '',
+              description: result.description || '',
+              ingredients: result.ingredients || [],
+              fragranceFree: result.fragranceFree,
+              alcoholFree: result.alcoholFree,
+              parabenFree: result.parabenFree,
+              sulfateFree: result.sulfateFree,
+              crueltyFree: result.crueltyFree,
+              vegan: result.vegan,
+            })
+            setAiSummary(summary)
+          } catch (summaryError) {
+            console.error("❌ Failed to generate summary:", summaryError)
+            setAiSummary(null)
+          }
         }
       } catch (error) {
         console.error("Failed to fetch product:", error)
@@ -84,296 +183,419 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
       
       <section className="py-12 sm:py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header with Title and Actions */}
-          <div className="mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Everything you need to know about {product.name}
+          {/* Page Title */}
+          <div className="mb-8">
+            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Best {product.name} dupes and ingredient-based alternatives
             </h1>
+            <button className="text-sm text-primary hover:text-teal-800 font-semibold border border-primary rounded-lg px-4 py-2 hover:bg-primary/5 transition-colors">
+              Save search
+            </button>
+          </div>
+
+          {/* Quick Summary of Target Product */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 mb-12 shadow-sm">
+            <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Summary of Target Product</h2>
             
-            <div className="flex flex-col gap-4">
-              {/* User Summary */}
-              <p className="text-sm text-gray-600">
-                <span className="text-green-600 font-semibold">✓ Users loved:</span> Hydration & texture • <span className="text-orange-600 font-semibold">✗ Concern:</span> Price point
-              </p>
-              
-              {/* Reviews and Share */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                {/* Left: User Reviews Badges */}
-                <div className="flex items-center gap-4 flex-wrap">
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
-                    <span>🟠</span>
-                    <span className="font-semibold">Amazon</span>
-                    <span className="text-gray-600">4.2★</span>
+            <div className="flex flex-col sm:flex-row gap-6">
+              {/* Left: Product Actions */}
+              <div className="flex flex-row sm:flex-col items-start gap-4">
+                <button className="p-3 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors">
+                  <Heart className="w-5 h-5 text-gray-600" />
+                </button>
+                <Link href={`/comparables/${product.id}`}>
+                  <Button className="bg-primary hover:bg-teal-800 text-white font-semibold gap-2 whitespace-nowrap">
+                    <ShoppingBag className="w-4 h-4" />
+                    SHOP PRODUCT
+                  </Button>
+                </Link>
+              </div>
+
+              {/* Center: Product Details */}
+              <div className="flex-1">
+                {/* Product Metadata */}
+                <div className="flex flex-wrap items-center gap-3 mb-4">
+                  <span className="px-3 py-1 bg-teal-50 text-teal-700 rounded-full text-xs font-semibold">
+                    {product.category || 'Product'}
+                    {(product as any).categoryCorrected && (
+                      <span className="ml-1 text-xs" title="Category was inferred from product details">*</span>
+                    )}
+                  </span>
+                  <span className="text-gray-400 font-semibold">
+                    {product.pricePerUnit ? '$$' : '$$$'}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-yellow-400">★★★★</span>
+                    <span className="text-gray-300">★</span>
+                    <span className="text-xs text-gray-500 ml-1">4.0</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
-                    <span>🔴</span>
-                    <span className="font-semibold">Reddit</span>
-                    <span className="text-gray-600">892↑</span>
+                  <span className="text-pink-500">🐷</span>
                   </div>
-                  <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 text-xs border border-gray-200">
-                    <span>⚫</span>
-                    <span className="font-semibold">Sephora</span>
-                    <span className="text-gray-600">4.4★</span>
-                  </div>
+
+                {/* Product Name and Brand */}
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                  {product.name}
+                </h3>
+                <p className="text-lg font-semibold text-primary mb-4">
+                  {product.brand}
+                </p>
+
+                {/* Additional Tags */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                    {product.category?.toUpperCase() || 'PRODUCT'}
+                  </span>
+                  {product.volume && (
+                    <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-medium">
+                      {product.volume}
+                    </span>
+                  )}
                 </div>
 
-                {/* Right: Share Button */}
-                <button className="text-primary hover:text-teal-800">
-                  <Share2 className="w-5 h-5" />
-                </button>
+                {/* Product Summary Section */}
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Product Summary</h4>
+                  {aiSummary ? (
+                    <div className="text-sm text-gray-700 leading-relaxed space-y-2">
+                      {aiSummary.summaryText && (
+                        <p className="mb-3 italic text-gray-600">{aiSummary.summaryText}</p>
+                      )}
+                      {aiSummary.whatItDoes && (
+                        <p><span className="font-semibold">What it does:</span> {aiSummary.whatItDoes}</p>
+                      )}
+                      {aiSummary.whoItsFor && (
+                        <p><span className="font-semibold">Best for:</span> {aiSummary.whoItsFor}</p>
+                      )}
+                      {aiSummary.howToUse && (
+                        <p><span className="font-semibold">How to use:</span> {aiSummary.howToUse}</p>
+                      )}
+                      {aiSummary.keyIngredients && aiSummary.keyIngredients.length > 0 && (
+                        <p><span className="font-semibold">Key ingredients:</span> {aiSummary.keyIngredients.join(', ')}</p>
+                      )}
+                      {aiSummary.warnings && aiSummary.warnings !== 'Not specified' && (
+                        <p><span className="font-semibold">Warnings:</span> {aiSummary.warnings}</p>
+                      )}
+                      {aiSummary.claims && aiSummary.claims !== 'No specific claims provided' && (
+                        <p><span className="font-semibold">Claims:</span> {aiSummary.claims}</p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">Loading summary...</p>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-            {/* Left Sidebar - Product Image and Navigation */}
-            <div className="lg:col-span-1">
-              {/* Product Image */}
-              <div className="bg-white rounded-2xl p-8 flex items-center justify-center h-64 mb-6 border border-gray-200">
-                <span className="text-8xl">🧴</span>
+          {/* What's Inside Section */}
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">What's inside</h2>
+            
+            {/* Product Attributes Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+              <div className="flex items-center gap-2">
+                {product.fragranceFree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Fragrance-free</span>
               </div>
-
-              {/* Find Comparables Button */}
-              <Link href={`/comparables/${product.id}`}>
-                <Button variant="outline" className="w-full border-2 border-gray-900 text-gray-900 hover:bg-gray-50 font-semibold py-3">
-                  FIND COMPARABLES →
-                </Button>
-              </Link>
-
-              {/* Navigation Sidebar */}
-              <div className="mt-8 bg-yellow-50 rounded-lg p-6">
-                <h3 className="font-bold text-gray-900 mb-4">Overview</h3>
-                <ul className="space-y-3 text-sm">
-                  <li><a href="#what-it-is" className="text-gray-700 hover:text-gray-900">What it is</a></li>
-                  <li><a href="#key-ingredients" className="text-gray-700 hover:text-gray-900">Key ingredients and their functions</a></li>
-                  <li><a href="#how-it-works" className="text-gray-700 hover:text-gray-900">How it works</a></li>
-                  <li><a href="#classification" className="text-gray-700 hover:text-gray-900">Classification</a></li>
-                  <li className="font-bold text-gray-900 mt-4"><a href="#analysis" className="text-gray-700 hover:text-gray-900">Product analysis</a></li>
-                </ul>
+              <div className="flex items-center gap-2">
+                {product.alcoholFree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Alcohol-free</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.parabenfree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Paraben-free</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.crueltyFree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Cruelty-free</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.vegan ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Vegan</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.fungalAcneSafe ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Fungal-acne-safe</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.sulfateFree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Sulfate-free</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {product.siliconesFree ? (
+                  <span className="text-green-600 font-bold">✓</span>
+                ) : (
+                  <span className="text-red-600 font-bold">✗</span>
+                )}
+                <span className="text-sm text-gray-700">Silicone-free</span>
               </div>
             </div>
 
-            {/* Right Content - Product Details */}
-            <div className="lg:col-span-3 space-y-8">
-              {/* Overview Section */}
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-6">Overview</h2>
-
-                {/* What it is */}
-                <div id="what-it-is" className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">What it is</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    {product.description}
-                  </p>
+            {/* Ingredients List */}
+            {product.ingredients && product.ingredients.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Ingredients List</h3>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {product.ingredients.map((ingredient: string, index: number) => {
+                    // Determine color based on ingredient type (simplified logic)
+                    const ingLower = ingredient.toLowerCase()
+                    let color = 'green' // Default safe
+                    let functionText = 'Skin Conditioning'
+                    
+                    // Color coding logic
+                    if (ingLower.includes('alcohol') || ingLower.includes('ethanol') || ingLower.includes('denat')) {
+                      color = 'red'
+                      functionText = 'Solvent'
+                    } else if (ingLower.includes('paraben') || ingLower.includes('sulfate') || ingLower.includes('sles') || ingLower.includes('sds')) {
+                      color = 'orange'
+                      functionText = 'Preservative / Cleansing'
+                    } else if (ingLower.includes('ceramide') || ingLower.includes('niacinamide') || ingLower.includes('hyaluronic') || ingLower.includes('glycerin')) {
+                      color = 'green'
+                      functionText = 'Skin Conditioning / Active'
+                    } else if (ingLower.includes('fragrance') || ingLower.includes('parfum')) {
+                      color = 'red'
+                      functionText = 'Fragrance'
+                    } else if (ingLower.includes('titanium') || ingLower.includes('zinc oxide')) {
+                      color = 'green'
+                      functionText = 'UV Filter'
+                    } else if (ingLower.includes('dimethicone') || ingLower.includes('silicon')) {
+                      color = 'orange'
+                      functionText = 'Emollient'
+                    }
+                    
+                    const foundIngredient = ingredientAnalysis?.foundIngredients?.find(
+                      (ing: any) => ing.name.toLowerCase().includes(ingredient.toLowerCase()) || 
+                                   ingredient.toLowerCase().includes(ing.name.toLowerCase())
+                    )
+                    
+                    if (foundIngredient && foundIngredient.function) {
+                      functionText = foundIngredient.function
+                    }
+                    
+                    return (
+                      <div key={index} className="flex items-center gap-3 py-2 border-b border-gray-100 last:border-0">
+                        <div className={`w-3 h-3 rounded-full ${
+                          color === 'green' ? 'bg-green-500' : 
+                          color === 'orange' ? 'bg-orange-500' : 
+                          'bg-red-500'
+                        }`} />
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900">{ingredient}</p>
+                          <p className="text-xs text-gray-600">{functionText}</p>
+                    </div>
+                  </div>
+                    )
+                  })}
                 </div>
+              </div>
+            )}
 
                 {/* Key Ingredients */}
-                <div id="key-ingredients" className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Key ingredients and their functions</h3>
-                  <ul className="space-y-3">
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Glycerin</span> - humectant
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Vp/Va Copolymer</span> - film-former
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Hydroxyethylcellulose</span> - thickening agent
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Prunus Amygdalus Dulcis (Sweet Almond) Oil</span> - emollient
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Butyrospermum Parkii (Shea) Butter</span> - moisturizing agent
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Cocos Nucifera (Coconut) Oil</span> - conditioning agent
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Panthenol</span> - moisturizing agent
-                    </li>
-                    <li className="text-gray-700">
-                      <span className="font-semibold text-gray-900">Agave Rigida (Sisal) Extract</span> - conditioning agent
-                    </li>
-                  </ul>
-                </div>
-
-                {/* How it Works */}
-                <div id="how-it-works" className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">How it works</h3>
-                  <p className="text-gray-700 leading-relaxed">
-                    This product utilizes ingredients like Glycerin to attract moisture to the hair, helping curls stay hydrated and defined. The film-forming agents create a protective layer while natural oils provide additional conditioning and shine. This balanced formulation helps enhance curl definition while managing frizz.
-                  </p>
-                </div>
-
-                {/* Classification */}
-                <div id="classification" className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Classification</h3>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <p className="text-sm text-gray-600 mb-1">Category</p>
-                      <p className="font-semibold text-gray-900">Hair Styling Gel</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <p className="text-sm text-gray-600 mb-1">Type</p>
-                      <p className="font-semibold text-gray-900">Defining Gel</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Product Analysis */}
-                <div id="analysis" className="mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Product analysis</h3>
-                  
-                  {/* Key Metrics */}
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 mb-1">Price Per Unit</p>
-                      <p className="text-2xl font-bold text-green-700">${product.pricePerUnit || 'N/A'}</p>
-                    </div>
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <p className="text-sm text-gray-600 mb-1">Best Price Available</p>
-                      <p className="text-2xl font-bold text-green-700">
-                        {prices.length > 0 ? `$${Math.min(...prices.map((p) => p.amount)).toFixed(2)}` : 'N/A'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Pricing from Retailers - Button to open modal */}
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <TrendingDown className="w-5 h-5" />
-                      Price Comparison
-                    </h4>
+            {product.ingredients && product.ingredients.length > 0 && (
+              <div className="mb-8">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Key Ingredients</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {product.ingredients.slice(0, 6).map((ingredient: string, index: number) => {
+                    const ingLower = ingredient.toLowerCase()
+                    const isKeyIngredient = ingLower.includes('ceramide') || 
+                                           ingLower.includes('niacinamide') || 
+                                           ingLower.includes('hyaluronic') || 
+                                           ingLower.includes('retinol') ||
+                                           ingLower.includes('peptide') ||
+                                           ingLower.includes('vitamin c') ||
+                                           ingLower.includes('glycerin')
                     
-                    {prices.length > 0 ? (
-                      <div className="bg-gradient-to-r from-teal-50 to-green-50 rounded-lg p-6 border-2 border-teal-200">
-                        <div className="flex items-center justify-between gap-4">
-                          <div>
-                            <p className="text-sm text-gray-600 mb-1">Best Price Available</p>
-                            <p className="text-3xl font-bold text-teal-700">
-                              ${Math.min(...prices.map((p) => p.amount)).toFixed(2)}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-2">Across {prices.length} retailers</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              console.log('👁️ Button clicked, opening modal...')
-                              setShowPricesModal(true)
-                            }}
-                            className="flex-shrink-0 flex items-center gap-2 bg-white hover:bg-teal-50 text-teal-700 font-semibold px-6 py-3 rounded-lg border-2 border-teal-700 transition shadow-sm hover:shadow-md cursor-pointer"
-                          >
-                            <Eye className="w-5 h-5" />
-                            See All Prices
-                          </button>
+                    if (!isKeyIngredient && index >= 3) return null
+                    
+                    let icon = '🛡️'
+                    let description = 'Supports skin health'
+                    
+                    if (ingLower.includes('ceramide')) {
+                      icon = '🛡️'
+                      description = 'Locks in moisture and supports skin barrier'
+                    } else if (ingLower.includes('niacinamide')) {
+                      icon = '✨'
+                      description = 'Strengthens, smooths, and brightens skin'
+                    } else if (ingLower.includes('hyaluronic')) {
+                      icon = '💧'
+                      description = 'Hydrates by attracting and holding water'
+                    } else if (ingLower.includes('glycerin')) {
+                      icon = '💧'
+                      description = 'Attracts moisture to the skin'
+                    } else if (ingLower.includes('retinol')) {
+                      icon = '🌟'
+                      description = 'Supports cell turnover and reduces signs of aging'
+                    } else if (ingLower.includes('peptide')) {
+                      icon = '🔬'
+                      description = 'Supports collagen production'
+                    }
+                    
+                    return (
+                      <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-2xl">{icon}</span>
+                          <p className="font-semibold text-gray-900 text-sm">{ingredient}</p>
                         </div>
+                        <p className="text-xs text-gray-600">{description}</p>
                       </div>
-                    ) : (
-                      <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-                        <p className="text-gray-600">No prices available for this product</p>
-                      </div>
-                    )}
-                  </div>
+                    )
+                  })}
+                          </div>
+                        </div>
+                      )}
 
-                  {/* Ethical Attributes */}
-                  <div className="bg-white rounded-lg p-6 border border-gray-200">
-                    <h4 className="font-semibold text-gray-900 mb-4">Product Attributes</h4>
-                    <div className="space-y-3">
-                      {product.crueltyFree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🐾</span>
+            {/* Benefits */}
+            <div className="mb-8">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Benefits</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {product.ingredients && product.ingredients.some((ing: string) => ing.toLowerCase().includes('hyaluronic') || ing.toLowerCase().includes('glycerin')) && (
+                  <div className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-100">
+                    <span className="text-2xl">💧</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Cruelty-Free</p>
-                            <p className="text-sm text-gray-600">Product & ingredients not tested on animals</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">Hydrating</p>
+                      <p className="text-xs text-gray-600">Boosts hydration and relieves dry, tight skin</p>
                           </div>
                         </div>
                       )}
-                      {product.vegan && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🌿</span>
+                {product.ingredients && product.ingredients.some((ing: string) => ing.toLowerCase().includes('ceramide')) && (
+                  <div className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-100">
+                    <span className="text-2xl">🛡️</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Vegan</p>
-                            <p className="text-sm text-gray-600">Contains no animal-derived ingredients</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">Barrier Repair</p>
+                      <p className="text-xs text-gray-600">Strengthen and restore your skin's natural barrier</p>
                           </div>
                         </div>
                       )}
-                      {product.fragranceFree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🧪</span>
+                {product.ingredients && product.ingredients.some((ing: string) => ing.toLowerCase().includes('niacinamide')) && (
+                  <div className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-100">
+                    <span className="text-2xl">✨</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Fragrance-Free</p>
-                            <p className="text-sm text-gray-600">No added synthetic or natural fragrance</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">Reduces Irritation</p>
+                      <p className="text-xs text-gray-600">Eases discomfort and supports skin resilience</p>
                           </div>
                         </div>
                       )}
-                      {product.alcoholFree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🍷</span>
+                {product.ingredients && product.ingredients.some((ing: string) => ing.toLowerCase().includes('retinol') || ing.toLowerCase().includes('peptide')) && (
+                  <div className="flex items-start gap-3 bg-green-50 rounded-lg p-4 border border-green-100">
+                    <span className="text-2xl">🌟</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Alcohol Free</p>
-                            <p className="text-sm text-gray-600">Contains no alcohols that can dry skin</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">Anti-Aging</p>
+                      <p className="text-xs text-gray-600">Softens lines and helps skin look youthful</p>
                           </div>
                         </div>
                       )}
-                      {product.fungalAcneSafe && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">🛡️</span>
+              </div>
+                </div>
+
+            {/* Concerns */}
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Concerns</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {product.ingredients && product.ingredients.some((ing: string) => 
+                  ing.toLowerCase().includes('alcohol') || 
+                  ing.toLowerCase().includes('ethanol') ||
+                  ing.toLowerCase().includes('denat')
+                ) && (
+                  <div className="flex items-start gap-3 bg-red-50 rounded-lg p-4 border border-red-100">
+                    <span className="text-2xl">🌋</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Fungal Acne Safe</p>
-                            <p className="text-sm text-gray-600">Safe for malassezia/fungal acne-prone skin</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">May Worsen Dryness</p>
+                      <p className="text-xs text-gray-600">Can strip moisture and worsen dryness</p>
                           </div>
                         </div>
                       )}
-                      {product.parabenfree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">⭐</span>
+                {product.ingredients && product.ingredients.some((ing: string) => 
+                  ing.toLowerCase().includes('fragrance') || 
+                  ing.toLowerCase().includes('parfum')
+                ) && (
+                  <div className="flex items-start gap-3 bg-red-50 rounded-lg p-4 border border-red-100">
+                    <span className="text-2xl">⚠️</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Paraben Free</p>
-                            <p className="text-sm text-gray-600">No synthetic preservatives (parabens)</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">May Trigger Irritation</p>
+                      <p className="text-xs text-gray-600">Fragrance can cause sensitivity in some skin types</p>
                           </div>
                         </div>
                       )}
-                      {product.sulfateFree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">✨</span>
+                {product.ingredients && product.ingredients.some((ing: string) => 
+                  ing.toLowerCase().includes('sulfate') || 
+                  ing.toLowerCase().includes('sles') ||
+                  ing.toLowerCase().includes('sds')
+                ) && (
+                  <div className="flex items-start gap-3 bg-red-50 rounded-lg p-4 border border-red-100">
+                    <span className="text-2xl">🌋</span>
                           <div>
-                            <p className="font-semibold text-gray-900">Sulfate Free</p>
-                            <p className="text-sm text-gray-600">No harsh sulfate cleansing agents</p>
+                      <p className="font-semibold text-gray-900 text-sm mb-1">May Trigger Acne</p>
+                      <p className="text-xs text-gray-600">Can clog pores or trigger breakouts</p>
                           </div>
                         </div>
                       )}
-                      {product.siliconesFree && (
-                        <div className="flex items-center gap-3">
-                          <span className="text-2xl">💎</span>
-                          <div>
-                            <p className="font-semibold text-gray-900">Silicones Free</p>
-                            <p className="text-sm text-gray-600">Contains no silicone-based ingredients</p>
-                          </div>
-                        </div>
-                      )}
+                    </div>
+                  </div>
+            </div>
+
+          {/* Product Analysis */}
+          <div id="analysis" className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-sm">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6">Product Analysis</h3>
+            
+            {/* Key Metrics */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+                <p className="text-sm text-gray-600 mb-1">Price Per Unit</p>
+                <p className="text-2xl font-bold text-green-700">{product.pricePerUnit || 'N/A'}</p>
+              </div>
+              <div className="bg-green-50 rounded-lg p-4 border border-green-100">
+                <p className="text-sm text-gray-600 mb-1">Best Price Available</p>
+                <p className="text-2xl font-bold text-green-700">
+                  {prices.length > 0 ? `$${Math.min(...prices.map((p) => p.amount)).toFixed(2)}` : 'N/A'}
+                </p>
                     </div>
                   </div>
 
                   {/* Data Freshness */}
-                  <div className="mt-6 bg-blue-50 rounded-lg p-4">
+            <div className="mt-6 bg-blue-50 rounded-lg p-4 border border-blue-100">
                     <p className="text-sm text-gray-600">
                       <span className="text-blue-700 font-semibold">Last verified:</span> {product.sourcesCheckedDaysAgo} days ago
                     </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Prices Popup */}
-      {product && (
+      {product && product.id && (
         <PricesPopup
           isOpen={showPricesModal}
           onClose={() => setShowPricesModal(false)}
-          product={product}
+          product={product as any}
         />
       )}
 
