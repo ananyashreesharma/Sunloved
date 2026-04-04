@@ -51,6 +51,29 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /** Sunloved semantic palette — prefer these over raw hex for new UI */
+        sun: {
+          html: "hsl(var(--sun-html))",
+          mesh: "hsl(var(--sun-mesh-page-shell) / 0.68)",
+          ink: "hsl(var(--sun-ink))",
+          "ink-muted": "hsl(var(--sun-ink-muted))",
+          /** Brand palette #6B7A8F #F7882F #F7C331 #DCC7AA */
+          blueberry: "hsl(var(--sun-blueberry))",
+          apricot: "hsl(var(--sun-apricot))",
+          citrus: "hsl(var(--sun-citrus))",
+          "apple-core": "hsl(var(--sun-apple-core))",
+          "blueberry-wash": "hsl(var(--sun-blueberry-wash))",
+          "apricot-wash": "hsl(var(--sun-apricot-wash))",
+          "citrus-wash": "hsl(var(--sun-citrus-wash))",
+          "apple-wash": "hsl(var(--sun-apple-wash))",
+          /** Aliases used by scroll-story */
+          clay: "hsl(var(--sun-clay))",
+          sage: "hsl(var(--sun-sage))",
+          slate: "hsl(var(--sun-slate))",
+          mauve: "hsl(var(--sun-mauve))",
+          wheat: "hsl(var(--sun-wheat))",
+          olive: "hsl(var(--sun-olive))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

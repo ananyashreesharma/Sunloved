@@ -20,8 +20,11 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:setup": "npm run prisma:migrate && npm run prisma:seed"
+    "db:setup": "npm run prisma:migrate && npm run prisma:seed",
+    "db:supabase": "npm run prisma:reset",
+    "prisma:reset": "prisma migrate reset --force"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -35,6 +38,7 @@
     "axios": "^1.7.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
+    "dotenv": "^17.4.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1"
   },

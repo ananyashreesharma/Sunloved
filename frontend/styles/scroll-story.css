@@ -1,0 +1,646 @@
+/*
+ * Home “scroll story”: section nav, view timelines, text reveals, etc.
+ * Wrapped in @supports (animation-timeline: scroll()) so unsupported browsers get static fallbacks.
+ * Class prefix ss- avoids clashes with Tailwind and the rest of the app.
+ */
+
+/* Story chrome: maps to global tokens in styles/sunloved-tokens.css */
+.sunloved-scroll-story {
+  --ss-text: hsl(var(--sun-ink));
+  --ss-header-bg: var(--sun-glass-header);
+  --ss-section: hsl(var(--sun-white) / 55%);
+  --ss-section-even: hsl(85 28% 98% / 50%);
+  --ss-red: hsl(var(--sun-clay));
+  --ss-green: hsl(var(--sun-sage));
+  --ss-blue: hsl(var(--sun-slate));
+  --ss-purple: hsl(var(--sun-mauve));
+  --ss-yellow: hsl(var(--sun-wheat));
+  --ss-black: hsl(0 0% 0%);
+  --ss-cubic: var(--sun-ease-story);
+}
+
+.ss-pastel-stack {
+  position: relative;
+  overflow-x: clip;
+  isolation: isolate;
+}
+
+/*
+ * Pastel tiles must sit ABOVE the page shell (sections were z-index:1 with opaque bg,
+ * which hid tiles at z-index:0). Scrim moves to ::before (z-index:-1) so blocks show through.
+ */
+.ss-pastel-stack > .ps-pastel-tiles {
+  z-index: 1;
+}
+
+.ss-pastel-stack > .ss-section {
+  position: relative;
+  z-index: 2;
+  isolation: isolate;
+  background: transparent !important;
+}
+
+.ss-pastel-stack > .ss-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.ss-pastel-stack > .ss-section.ss-section--tiles::before {
+  background: linear-gradient(
+    to bottom,
+    hsl(var(--sun-apple-wash) / 0.38) 0%,
+    hsl(var(--sun-mesh-page-shell) / 0.28) 2.5rem,
+    hsl(var(--sun-apple-wash) / 0.42) 6rem,
+    hsl(var(--sun-apple-wash) / 0.48) 100%
+  );
+}
+
+.ss-pastel-stack > .ss-section.ss-section--text::before {
+  background: hsl(var(--sun-apple-wash) / 0.42);
+}
+
+.ss-pastel-stack > .ss-section.ss-section--two-columns::before {
+  background: hsl(var(--sun-apple-wash) / 0.36);
+}
+
+.ss-pastel-stack > .ss-section.ss-section--subscribe::before {
+  background: hsl(var(--sun-apple-wash) / 0.42);
+}
+
+/* Masthead floating squares (hero only) — outside @supports so all browsers get them */
+.ss-flying-squares {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ss-flying-squares .ss-square {
+  position: absolute;
+  width: min(20vw, 150px);
+  height: min(20vw, 150px);
+  opacity: 0.94;
+  border-radius: 0.45rem;
+  border: 1px solid hsl(35 25% 100% / 0.55);
+  box-shadow: 0 10px 32px hsl(35 22% 18% / 0.2);
+  animation: ss-flying 2s infinite alternate both;
+}
+
+.ss-flying-squares .ss-square--a {
+  top: 17vh;
+  left: 8vw;
+  background: hsl(var(--sun-masthead-square-a));
+  transform: rotate(0.55turn);
+  animation-delay: 1s;
+}
+
+.ss-flying-squares .ss-square--b {
+  top: 8vh;
+  right: 12vw;
+  background: hsl(var(--sun-masthead-square-b));
+  transform: rotate(0.45turn);
+}
+
+.ss-flying-squares .ss-square--c {
+  top: 55vh;
+  left: 40vw;
+  background: hsl(var(--sun-masthead-square-c));
+  transform: rotate(0.5turn);
+  animation-delay: 0.5s;
+}
+
+@keyframes ss-flying {
+  to {
+    translate: 0 -5vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-flying-squares .ss-square {
+    animation: none;
+  }
+}
+
+/* Masthead layout baseline when scroll-timeline CSS is unsupported */
+.sunloved-scroll-story section.ss-section--masthead {
+  position: relative;
+  min-height: 100vh;
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    html:has(.sunloved-scroll-story) {
+      scroll-behavior: smooth;
+    }
+  }
+
+  .sunloved-scroll-story {
+    timeline-scope: --masthead-s, --tiles-s, --text-s, --two-columns-s, --subscribe-s;
+    color: var(--ss-text);
+    overflow-x: clip;
+    --ss-story-nav-top: 5rem;
+    --ss-story-menu-top: 5.25rem;
+    --ss-story-read-top: 5.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .sunloved-scroll-story {
+      /* Main header (5rem) + category bar (4rem) */
+      --ss-story-nav-top: 9rem;
+      --ss-story-menu-top: 9.25rem;
+      --ss-story-read-top: 9.5rem;
+    }
+  }
+
+  /* —— Sticky section nav (below main site header) —— */
+  .ss-story-header {
+    --ss-show: none;
+    --ss-position: sticky;
+    --ss-b: 0;
+    --ss-s: 10%;
+    --ss-nav-bg: var(--ss-yellow);
+    position: var(--ss-position);
+    top: var(--ss-story-nav-top);
+    z-index: 30;
+    width: 100%;
+    transition: padding 200ms linear;
+    animation: ss-height-resize both linear;
+    animation-timeline: scroll();
+    animation-range: entry 0% exit 15%;
+  }
+
+  .ss-story-header .ss-menu {
+    position: fixed;
+    top: var(--ss-story-menu-top);
+    left: 0.25rem;
+    z-index: 31;
+    cursor: pointer;
+  }
+
+  .ss-story-header .ss-menu input {
+    display: none;
+  }
+
+  .ss-story-header .ss-burger {
+    display: var(--ss-show);
+    background: var(--ss-header-bg);
+    border-radius: 0.5rem;
+    padding: 0.25rem;
+  }
+
+  .ss-story-header .ss-burger path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3;
+    transition: stroke-dasharray 400ms, stroke-dashoffset 400ms;
+  }
+
+  .ss-story-header .ss-burger .top {
+    stroke-dasharray: 40 172;
+  }
+  .ss-story-header .ss-burger .middle {
+    stroke-dasharray: 40 111;
+  }
+  .ss-story-header .ss-burger .bottom {
+    stroke-dasharray: 40 172;
+  }
+
+  .ss-story-header .ss-menu:has(input:checked) .top {
+    stroke-dashoffset: -132px;
+  }
+  .ss-story-header .ss-menu:has(input:checked) .middle {
+    stroke-dashoffset: -71px;
+  }
+  .ss-story-header .ss-menu:has(input:checked) .bottom {
+    stroke-dashoffset: -132px;
+  }
+
+  .ss-story-header nav {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--ss-header-bg);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--sun-line-faint);
+  }
+
+  .ss-story-header nav ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 2rem;
+    margin: 0;
+    padding: 0.65rem 1rem;
+  }
+
+  .ss-story-header nav li {
+    position: relative;
+    padding: 0.35rem 0.75rem;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    transition: transform 0.25s var(--ss-cubic);
+  }
+
+  .ss-story-header nav li::after {
+    position: absolute;
+    content: "";
+    left: 0;
+    bottom: var(--ss-b);
+    z-index: -1;
+    width: 100%;
+    height: var(--ss-s);
+    background: var(--ss-nav-bg);
+    transition: all 0.25s var(--ss-cubic);
+  }
+
+  .ss-story-header nav li:has(a:hover) {
+    --ss-b: 10%;
+    --ss-s: 70%;
+  }
+
+  .ss-story-header nav a {
+    text-decoration: none;
+    color: inherit;
+    animation: ss-active-link both linear;
+    anchor-name: var(--ss-an);
+    animation-timeline: var(--ss-at);
+  }
+
+  .ss-story-header nav a:not(:hover) {
+    opacity: calc(0.55 + var(--ss-active, 0));
+  }
+
+  @keyframes ss-height-resize {
+    to {
+      padding-block: 0;
+    }
+  }
+
+  @keyframes ss-active-link {
+    50% {
+      --ss-active: 1;
+    }
+  }
+
+  @media (max-width: 48rem) {
+    .sunloved-scroll-story:has(#ss-burger:checked) {
+      scrollbar-gutter: stable;
+    }
+
+    .ss-story-header {
+      --ss-position: absolute;
+      --ss-translateY: -100%;
+      --ss-show: block;
+      --ss-nav-bg: var(--ss-green);
+    }
+
+    .ss-story-header nav {
+      top: 0;
+      translate: 0 var(--ss-translateY);
+      min-height: 100dvh;
+      padding-inline: 1rem;
+      transition: translate 200ms ease-in-out;
+      align-items: center;
+    }
+
+    .ss-story-header nav ul {
+      flex-direction: column;
+      justify-content: space-evenly;
+      min-height: 70dvh;
+    }
+
+    .ss-story-header .ss-menu:has(input:checked) ~ nav {
+      --ss-translateY: 0;
+    }
+  }
+
+  /* —— Sections & view timelines —— */
+  .ss-section {
+    min-height: 100vh;
+    background: var(--ss-section);
+    position: relative;
+  }
+
+  .ss-section--masthead {
+    view-timeline-name: --masthead-s;
+    --ss-section: transparent;
+    min-height: 100vh;
+  }
+
+  .ss-section.ss-section--tiles {
+    view-timeline-name: --tiles-s;
+    --ss-section: hsl(0 0% 100% / 42%);
+    min-height: auto;
+  }
+
+  .ss-section--text {
+    view-timeline-name: --text-s;
+    --ss-section: hsl(210 50% 97% / 48%);
+  }
+
+  .ss-section--two-columns {
+    view-timeline-name: --two-columns-s;
+    --ss-section: hsl(0 0% 100% / 42%);
+  }
+
+  .ss-section--subscribe {
+    view-timeline-name: --subscribe-s;
+    --ss-section: hsl(210 50% 97% / 48%);
+  }
+
+  /* Masthead title */
+  .ss-masthead-inner {
+    position: relative;
+    z-index: 1;
+    min-height: min(100dvh, 880px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .ss-scroll-masthead-h1 {
+    animation: ss-scale-up both linear, ss-fade-away both linear;
+    animation-timeline: --masthead-s;
+    animation-range:
+      entry-crossing 65% exit 88%,
+      exit 8% exit 65%;
+  }
+
+  @keyframes ss-scale-up {
+    100% {
+      scale: 1.08;
+      filter: blur(2px);
+    }
+  }
+
+  @keyframes ss-fade-away {
+    100% {
+      opacity: 0.35;
+    }
+  }
+
+  /* Text reveal */
+  .ss-read {
+    position: fixed;
+    top: var(--ss-story-read-top);
+    left: 0;
+    z-index: 25;
+    width: 0;
+    max-width: 100%;
+    text-align: right;
+    white-space: nowrap;
+    padding: 0.125rem 0.5rem 0.125rem 0;
+    background: linear-gradient(
+      0.25turn,
+      var(--ss-red),
+      var(--ss-yellow),
+      var(--ss-green),
+      var(--ss-blue),
+      hsl(var(--sun-olive))
+    );
+    opacity: 0;
+    animation: ss-read-text both linear;
+    animation-timeline: --text-s;
+    animation-range: entry 100% exit 100%;
+  }
+
+  .ss-read-inner {
+    filter: invert(1);
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  @keyframes ss-read-text {
+    1% {
+      opacity: 1;
+    }
+    99% {
+      width: 100%;
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .ss-text-block {
+    max-width: 80ch;
+    margin-inline: auto;
+    padding: 3rem 1rem;
+  }
+
+  .ss-text-block .ss-reveal-p {
+    text-wrap: pretty;
+    animation: ss-show-text both linear;
+    animation-timeline: view(y 80vh auto);
+  }
+
+  @keyframes ss-show-text {
+    from {
+      opacity: 0;
+      translate: 0 0.75rem;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  /* Two columns */
+  .ss-two-columns {
+    max-width: 80ch;
+    margin-inline: auto;
+    padding: 3rem 1rem;
+  }
+
+  .ss-two-columns .ss-content {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 48rem) {
+    .ss-two-columns .ss-content {
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+    }
+  }
+
+  .ss-two-columns .ss-card {
+    box-shadow: inset 0 0 0 1px hsl(0 0% 0% / 0.12);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    background: hsl(0 0% 100% / 0.65);
+    backdrop-filter: blur(8px);
+    animation: ss-show both linear;
+    animation-timeline: --two-columns-s;
+  }
+
+  .ss-two-columns .ss-card:nth-of-type(1) {
+    animation-range: entry-crossing 8%;
+  }
+  .ss-two-columns .ss-card:nth-of-type(2) {
+    animation-range: entry-crossing 35%;
+  }
+  .ss-two-columns .ss-card:nth-of-type(3) {
+    animation-range: entry-crossing 62%;
+  }
+
+  .ss-two-columns .ss-preview {
+    position: relative;
+    min-height: 16rem;
+    border-radius: 1rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, hsl(var(--sun-clay)), hsl(var(--sun-sage)));
+    animation: ss-fade-right both linear;
+    animation-timeline: scroll(root);
+    animation-range: entry 5% exit 85%;
+  }
+
+  .ss-two-columns .ss-preview-inner {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      160deg,
+      hsl(0 0% 100% / 0.25),
+      transparent 50%,
+      hsl(0 0% 0% / 0.08)
+    );
+  }
+
+  @keyframes ss-fade-right {
+    from {
+      translate: 12% 0;
+      opacity: 0.6;
+    }
+    to {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+
+  @keyframes ss-show {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Subscribe */
+  .ss-subscribe {
+    max-width: 80ch;
+    margin-inline: auto;
+    min-height: 100vh;
+    padding: 3rem 1rem;
+    display: grid;
+    place-content: center;
+    text-align: center;
+  }
+
+  .ss-subscribe form {
+    position: relative;
+    margin-top: 2rem;
+    animation: ss-slide-up both linear;
+    animation-timeline: --subscribe-s;
+    animation-range: entry-crossing 40%;
+  }
+
+  @keyframes ss-slide-up {
+    from {
+      scale: 0.92;
+      opacity: 0;
+    }
+    to {
+      scale: 1;
+      opacity: 1;
+    }
+  }
+
+  .ss-subscribe input {
+    width: 100%;
+    border: 0;
+    min-height: 3rem;
+    margin-bottom: 1rem;
+    padding: 0 0.75rem;
+    font-size: 1rem;
+    box-shadow: 0 0 0 1px hsl(0 0% 0% / 0.15);
+    border-radius: 0.375rem;
+    background: hsl(0 0% 100% / 0.9);
+  }
+
+  .ss-subscribe input:focus {
+    outline: 2px solid var(--ss-green);
+    outline-offset: 2px;
+  }
+
+  .ss-subscribe .ss-btn {
+    padding: 0.75rem 1.25rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: var(--ss-green);
+    border: 0;
+    border-radius: 0.375rem;
+    color: white;
+    font-weight: 700;
+  }
+
+  /* Scroll hint */
+  .ss-scroll-hint {
+    position: fixed;
+    top: 50%;
+    left: 0.35rem;
+    translate: 0 -50%;
+    writing-mode: vertical-lr;
+    rotate: 0.5turn;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.45;
+    z-index: 5;
+    pointer-events: none;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: lowercase;
+  }
+
+  .ss-scroll-hint .ss-divider {
+    width: 2rem;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+}
+
+/* No @supports: static fallbacks */
+@supports not (animation-timeline: scroll()) {
+  .ss-story-header nav a {
+    opacity: 1;
+  }
+  .ss-scroll-masthead-h1 {
+    animation: none;
+  }
+  .ss-text-block .ss-reveal-p {
+    animation: none;
+    opacity: 1;
+  }
+  .ss-two-columns .ss-card,
+  .ss-two-columns .ss-preview,
+  .ss-subscribe form {
+    animation: none;
+    opacity: 1;
+  }
+  .ss-read {
+    display: none;
+  }
+}

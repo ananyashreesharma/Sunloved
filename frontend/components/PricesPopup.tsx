@@ -1,7 +1,7 @@
 "use client"
 
 import { Product } from "@/lib/data"
-import { X, ShoppingCart } from "lucide-react"
+import { X } from "lucide-react"
 
 interface PricesPopupProps {
   product: Product

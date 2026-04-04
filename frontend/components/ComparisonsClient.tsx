@@ -1,48 +1,34 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { getComparisons, getProduct } from "@/lib/api"
+import { useMemo } from "react"
 import { ComparisonCard } from "./ComparisonCard"
 import { dummyProducts } from "@/lib/data"
+import { useProductQuery, useComparisonsQuery } from "@/hooks/use-sunloved-queries"
 
 interface ComparisonsClientProps {
   productId: string
 }
 
 export function ComparisonsClient({ productId }: ComparisonsClientProps) {
-  const [product, setProduct] = useState<any>(null)
-  const [comparisons, setComparisons] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const productQ = useProductQuery(productId)
+  const compQ = useComparisonsQuery(productId)
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const loading = productQ.isPending || compQ.isPending
 
-        // Fetch product details
-        const productData = await getProduct(productId)
-        setProduct(productData)
+  const product = useMemo(() => {
+    if (productQ.data) return productQ.data
+    if (productQ.isError) return dummyProducts.find((p) => p.id === productId) ?? null
+    return null
+  }, [productQ.data, productQ.isError, productId])
 
-        // Fetch comparisons
-        const comparisonsData = await getComparisons(productId)
-        setComparisons(Array.isArray(comparisonsData) ? comparisonsData : [])
-      } catch (err) {
-        console.error("Failed to fetch comparisons:", err)
-        setError("Could not load comparable products")
-        
-        // Fallback to dummy data
-        const dummyProduct = dummyProducts.find((p) => p.id === productId)
-        setProduct(dummyProduct)
-        setComparisons(dummyProducts.filter((p) => p.id !== productId))
-      } finally {
-        setLoading(false)
-      }
-    }
+  const comparisons = useMemo(() => {
+    if (compQ.data && compQ.data.length > 0) return compQ.data
+    if (compQ.isError) return dummyProducts.filter((p) => p.id !== productId)
+    return compQ.data ?? []
+  }, [compQ.data, compQ.isError, productId])
 
-    fetchData()
-  }, [productId])
+  const error =
+    productQ.isError || compQ.isError ? "Could not load comparable products" : null
 
   if (loading) {
     return (
@@ -60,12 +46,10 @@ export function ComparisonsClient({ productId }: ComparisonsClientProps) {
     )
   }
 
-  // Organize comparisons by match type
-  const bestValue = comparisons.filter(c => c.matchType === 'best-value')
-  const closestMatch = comparisons.filter(c => c.matchType === 'closest-match')
-  const sensitiveSafe = comparisons.filter(c => c.matchType === 'sensitive-safe')
+  const bestValue = comparisons.filter((c) => c.matchType === "best-value")
+  const closestMatch = comparisons.filter((c) => c.matchType === "closest-match")
+  const sensitiveSafe = comparisons.filter((c) => c.matchType === "sensitive-safe")
 
-  // Helper to render comparison cards grid
   const renderComparisonGrid = (items: any[], title?: string) => {
     if (items.length === 0) return null
     return (
@@ -89,16 +73,17 @@ export function ComparisonsClient({ productId }: ComparisonsClientProps) {
 
   return (
     <div className="space-y-8">
-      {/* Product Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
           Find Comparable Products
         </h1>
         <p className="text-lg text-gray-600">
-          Looking for alternatives to <span className="font-semibold text-teal-700">{product.name}</span> by {product.brand}?
+          Looking for alternatives to{" "}
+          <span className="font-semibold text-teal-700">{product.name}</span> by {product.brand}?
         </p>
         <p className="text-gray-600 mt-2">
-          We've found {comparisons.length} product{comparisons.length !== 1 ? 's' : ''} with 50%+ ingredient similarity
+          We&apos;ve found {comparisons.length} product{comparisons.length !== 1 ? "s" : ""} with 50%+
+          ingredient similarity
         </p>
       </div>
 
@@ -108,43 +93,46 @@ export function ComparisonsClient({ productId }: ComparisonsClientProps) {
         </div>
       )}
 
-      {/* Organized by Match Type */}
       {comparisons.length > 0 ? (
         <div>
-          {/* Best Value First */}
           {renderComparisonGrid(bestValue, "💰 Best Value Alternatives")}
-          
-          {/* Closest Match */}
           {renderComparisonGrid(closestMatch, "⭐ Closest Ingredient Match")}
-          
-          {/* Sensitive Safe */}
           {renderComparisonGrid(sensitiveSafe, "🛡️ Ethically Sound Alternatives")}
         </div>
       ) : (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">No comparable products found with 50%+ ingredient similarity</p>
+          <p className="text-gray-600">
+            No comparable products found with 50%+ ingredient similarity
+          </p>
         </div>
       )}
 
-      {/* Info Section */}
       <div className="mt-16 bg-blue-50 rounded-lg p-8">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">How We Find Comparables</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">🧬 Ingredient Matching</h3>
-            <p className="text-gray-700">We analyze all active ingredients and calculate a similarity score using Jaccard similarity, a proven method for comparing ingredient lists.</p>
+            <p className="text-gray-700">
+              We analyze all active ingredients and calculate a similarity score using Jaccard
+              similarity, a proven method for comparing ingredient lists.
+            </p>
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">💰 Price Analysis</h3>
-            <p className="text-gray-700">We compare prices across multiple retailers to show you potential savings and better value alternatives.</p>
+            <p className="text-gray-700">
+              We compare prices across multiple retailers to show you potential savings and better
+              value alternatives.
+            </p>
           </div>
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">🎯 Smart Ranking</h3>
-            <p className="text-gray-700">We rank products by best value, ingredient match quality, and suitability for sensitive skin types.</p>
+            <p className="text-gray-700">
+              We rank products by best value, ingredient match quality, and suitability for
+              sensitive skin types.
+            </p>
           </div>
         </div>
       </div>
     </div>
   )
 }
-

@@ -5,7 +5,7 @@ import { Button } from "./ui/button"
 import { Menu, User, Search, Settings, ChevronDown } from "lucide-react"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useHeaderNavStore } from "@/stores/ui-stores"
 
 const categoryDropdowns = {
   "Skincare": {
@@ -129,11 +129,12 @@ const categoryDropdowns = {
 export function Header() {
   const pathname = usePathname()
   const isHomePage = pathname === "/"
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const openDropdown = useHeaderNavStore((s) => s.openDropdown)
+  const setOpenDropdown = useHeaderNavStore((s) => s.setOpenDropdown)
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-white/40 bg-white/60 backdrop-blur-xl backdrop-saturate-150">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
@@ -194,7 +195,7 @@ export function Header() {
     </header>
 
       {/* Category Navigation Bar */}
-      <nav className="sticky top-20 z-40 w-full bg-gradient-to-b from-amber-50/40 via-amber-100/20 to-amber-50/40 backdrop-blur-sm hidden md:block overflow-visible">
+      <nav className="sticky top-20 z-40 w-full border-b border-white/25 bg-white/40 backdrop-blur-lg backdrop-saturate-150 hidden md:block overflow-visible">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center gap-12 h-16">
             {Object.entries(categoryDropdowns).map(([category, data]) => (

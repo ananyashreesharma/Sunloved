@@ -1,6 +1,10 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "../globals.css"
+/* Home scroll-story animations (scoped to .sunloved-scroll-story); safe to load globally. */
+import "@/styles/scroll-story.css"
+import { AppProviders } from "@/components/providers/AppProviders"
+import { MeshParallaxBackground } from "@/components/MeshParallaxBackground"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,7 +21,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        {children}
+        <MeshParallaxBackground />
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   )

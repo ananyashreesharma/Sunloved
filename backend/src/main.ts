@@ -1,3 +1,12 @@
+/**
+ * API entrypoint: CORS, global `/api` prefix, validation pipe, unified JSON envelope.
+ * Loads `backend/.env` with override so local PORT isn’t shadowed by the parent environment.
+ */
+import { config as loadEnv } from 'dotenv';
+import { resolve } from 'path';
+
+loadEnv({ path: resolve(process.cwd(), '.env'), override: true });
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -12,6 +21,9 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:3002',
+    'http://localhost:3040',
+    'http://localhost:3050',
+    'http://localhost:3060',
     'http://localhost:5000',
     process.env.FRONTEND_URL || 'http://localhost:3001',
   ];
@@ -48,7 +60,7 @@ async function bootstrap() {
   // Global response transform interceptor (wraps all responses in { data, meta, error })
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  const port = process.env.PORT || 3001;
+  const port = parseInt(process.env.PORT || '3001', 10);
   await app.listen(port);
 
   console.log(`

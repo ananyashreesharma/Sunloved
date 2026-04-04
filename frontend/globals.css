@@ -1,77 +1,64 @@
+@import "./styles/sunloved-tokens.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 43 33% 95%;
-    --foreground: 0 0% 3.6%;
-
-    --card: 43 25% 98%;
-    --card-foreground: 0 0% 3.6%;
-
-    --popover: 43 25% 98%;
-    --popover-foreground: 0 0% 3.6%;
-
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-
-    --accent: 135 34% 36%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 43 30% 90%;
-    --input: 43 25% 96%;
-    --ring: 0 0% 3.6%;
-
-    --primary: 135 34% 36%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 43 25% 98%;
-    --secondary-foreground: 0 0% 9%;
-
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    --background: 0 0% 3.6%;
-    --foreground: 0 0% 98%;
-
-    --card: 0 0% 3.6%;
-    --card-foreground: 0 0% 98%;
-
-    --popover: 0 0% 3.6%;
-    --popover-foreground: 0 0% 98%;
-
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-
-    --accent: 0 0% 98%;
-    --accent-foreground: 0 0% 9%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.3%;
-
-    --primary: 135 34% 45%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-  }
-}
-
-@layer base {
   * {
     @apply border-border;
   }
+
+  html {
+    min-height: 100%;
+    background-color: hsl(var(--sun-html));
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-transparent text-foreground antialiased;
+    min-height: 100%;
   }
 }
 
+/* Frosted shell: lighter scrim so mesh texture stays visible behind content */
+@layer utilities {
+  .mesh-page {
+    @apply min-h-screen backdrop-blur-md backdrop-saturate-[0.92];
+    background-color: hsl(var(--sun-mesh-page-shell) / 0.68);
+  }
+}
+
+/*
+ * Pastel stack (home): tokens for seam + tiles ramp live in sunloved-tokens.css (--sun-*).
+ * Masks stay here; gradient stops use shared surface tokens.
+ */
+@layer components {
+  .ps-pastel-tiles {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* Normal blend: soft-light was stacking into murky brown with the mesh */
+  .ps-pastel-tiles__tile {
+    position: absolute;
+    mix-blend-mode: normal;
+  }
+
+  .ss-pastel-stack > .ps-pastel-tiles {
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.55) 1.75rem,
+      black 4.5rem
+    );
+    mask-image: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0, 0, 0, 0.55) 1.75rem,
+      black 4.5rem
+    );
+  }
+}

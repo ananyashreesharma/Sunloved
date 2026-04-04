@@ -8,6 +8,10 @@ import {
   AlertCircle,
   Clock,
   Wind,
+  FlaskConical,
+  Wine,
+  Shield,
+  Sparkles,
 } from "lucide-react"
 
 const iconMap = {
@@ -18,6 +22,11 @@ const iconMap = {
   wind: Wind,
   clock: Clock,
   question: AlertCircle,
+  bottle: FlaskConical,
+  wine: Wine,
+  "leaf-outline": Leaf,
+  shield: Shield,
+  sparkles: Sparkles,
 }
 
 export const metadata = {
@@ -27,7 +36,7 @@ export const metadata = {
 
 export default function HowWeDecidePage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="mesh-page">
       <Header />
       
       <section className="py-16 sm:py-24">

@@ -33,7 +33,7 @@ const iconMap = {
 
 export function HowWeDecide() {
   return (
-    <section className="bg-background py-16 sm:py-24">
+    <section className="bg-transparent py-16 sm:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">

@@ -5,20 +5,31 @@ import { Button } from "./ui/button"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSearchHistoryStore } from "@/stores/ui-stores"
 
-export function Hero() {
+type HeroProps = {
+  /** Enables scroll-driven title treatment on the home story (CSS: .ss-scroll-masthead-h1). */
+  mastheadScrollTitle?: boolean
+}
+
+export function Hero({ mastheadScrollTitle = false }: HeroProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const router = useRouter()
+  const recentSearches = useSearchHistoryStore((s) => s.recentSearches)
+  const addRecentSearch = useSearchHistoryStore((s) => s.addRecentSearch)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchQuery.trim()) {
+      addRecentSearch(searchQuery)
       router.push(`/products?q=${encodeURIComponent(searchQuery)}`)
     }
   }
 
+  const Root = mastheadScrollTitle ? "div" : "section"
+
   return (
-    <section className="bg-background py-16 sm:py-24 lg:py-32">
+    <Root className="bg-transparent py-16 sm:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Subtitle */}
         <div className="text-center mb-12">
@@ -32,7 +43,11 @@ export function Hero() {
         </div>
 
         {/* Main Heading */}
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-center text-gray-900 mb-8 leading-tight">
+        <h1
+          className={`text-5xl sm:text-6xl lg:text-7xl font-bold text-center text-gray-900 mb-8 leading-tight ${
+            mastheadScrollTitle ? "ss-scroll-masthead-h1" : ""
+          }`}
+        >
           Same results, fewer doubts.
         </h1>
 
@@ -57,23 +72,44 @@ export function Hero() {
         </form>
 
         {/* Try an example */}
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Try an example:</p>
-          <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/products?q=niacinamide">
-              <Button variant="link" className="text-primary hover:underline p-0 h-auto">
-                Niacinamide
-              </Button>
-            </Link>
-            <Link href="/products?q=the ordinary">
-              <Button variant="link" className="text-primary hover:underline p-0 h-auto">
-                The Ordinary
-              </Button>
-            </Link>
+        <div className="text-center space-y-6">
+          {recentSearches.length > 0 && (
+            <div>
+              <p className="text-gray-600 mb-2 text-sm">Recent searches</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {recentSearches.map((q) => (
+                  <Link key={q} href={`/products?q=${encodeURIComponent(q)}`}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="rounded-full text-xs border-gray-200"
+                    >
+                      {q}
+                    </Button>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          <div>
+            <p className="text-gray-600 mb-4">Try an example:</p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Link href="/products?q=niacinamide">
+                <Button variant="link" className="text-primary hover:underline p-0 h-auto">
+                  Niacinamide
+                </Button>
+              </Link>
+              <Link href="/products?q=the ordinary">
+                <Button variant="link" className="text-primary hover:underline p-0 h-auto">
+                  The Ordinary
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </Root>
   )
 }
 

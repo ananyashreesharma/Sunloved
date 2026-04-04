@@ -32,7 +32,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="bg-background border-t border-gray-300">
+    <footer className="border-t border-white/40 bg-white/50 backdrop-blur-xl backdrop-saturate-150">
       {/* Expert Dermatology Blogs Section */}
       <div className="bg-gradient-to-br from-slate-50 via-white to-blue-50 border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

@@ -2,8 +2,7 @@
 
 import { Button } from "./ui/button"
 import Link from "next/link"
-import { TrendingDown, TrendingUp, Check, AlertCircle, Info } from "lucide-react"
-import { useState } from "react"
+import { TrendingDown, TrendingUp, AlertCircle } from "lucide-react"
 
 interface ComparisonCardProps {
   comparison: {
@@ -29,9 +28,7 @@ interface ComparisonCardProps {
   baseProduct?: any
 }
 
-export function ComparisonCard({ comparison, baseProduct }: ComparisonCardProps) {
-  const [showFormulationDetails, setShowFormulationDetails] = useState(false)
-
+export function ComparisonCard({ comparison }: ComparisonCardProps) {
   const matchTypeBadges = {
     'best-value': {
       bg: 'bg-green-100',

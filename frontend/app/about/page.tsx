@@ -10,7 +10,7 @@ export const metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="mesh-page">
       <Header />
       
       <section className="py-16 sm:py-24">

@@ -1,6 +1,6 @@
 "use client"
 
-import { X, TrendingDown, Check } from "lucide-react"
+import { X, Check } from "lucide-react"
 
 interface Price {
   retailerId?: string
@@ -111,7 +111,7 @@ export function PricesModal({ isOpen, onClose, prices, productName }: PricesModa
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 
