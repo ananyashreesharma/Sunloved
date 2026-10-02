@@ -24,6 +24,16 @@ function daysBetween(a: Date, b: Date): number {
   return Math.round((startOfUtcDay(a).getTime() - startOfUtcDay(b).getTime()) / 86_400_000);
 }
 
+/**
+ * The stored counter only changes when a routine is completed, so after two missed days it is
+ * stale: report 0 instead of yesterday's number. Same rule as packages/shared/src/streak.ts
+ * (one missed day pauses the streak, a second ends it).
+ */
+function liveCurrentStreak(streak: Streak | null): number {
+  if (!streak?.lastActiveDate) return 0;
+  return daysBetween(new Date(), streak.lastActiveDate) <= 2 ? streak.currentStreak : 0;
+}
+
 @Injectable()
 export class OumaService {
   constructor(private prisma: PrismaService) {}
@@ -204,9 +214,7 @@ export class OumaService {
     return {
       done: !wasDone,
       allDone,
-      streak: streak
-        ? { currentStreak: streak.currentStreak, longestStreak: streak.longestStreak }
-        : { currentStreak: 0, longestStreak: 0 },
+      streak: { currentStreak: liveCurrentStreak(streak), longestStreak: streak?.longestStreak ?? 0 },
     };
   }
 
@@ -241,7 +249,7 @@ export class OumaService {
   async getStreak(userId: string) {
     const streak = await this.prisma.streak.findUnique({ where: { userId } });
     return {
-      currentStreak: streak?.currentStreak ?? 0,
+      currentStreak: liveCurrentStreak(streak),
       longestStreak: streak?.longestStreak ?? 0,
       totalDaysCompleted: streak?.totalDaysCompleted ?? 0,
     };

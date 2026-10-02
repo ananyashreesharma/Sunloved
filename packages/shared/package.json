@@ -1,0 +1,11 @@
+{
+  "name": "@skinlens/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Platform-neutral code shared by the SkinLens web (frontend/) and mobile (mobile/) apps: API types, ingredient scoring, guest-mode logic, streak rules, formatting, design tokens. Pure TypeScript — no React, React Native, Next.js or DOM imports.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p ."
+  }
+}

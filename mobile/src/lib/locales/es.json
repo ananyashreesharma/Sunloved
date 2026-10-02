@@ -217,7 +217,7 @@
     "leadGeneric": "Una lista corta de ingredientes",
     "inShortNoFlags": "{{lead}}, sin nada marcado en nuestra referencia. Generalmente seguro de usar.",
     "inShortFlagged": "{{lead}}. El problema: {{name}} está en la etiqueta — {{note}} {{advice}}",
-    "adviceAvoid": "Mejor evitarlo, o haz una prueba de parche exhaustiva primero.",
+    "adviceAvoid": "Mejor evitarlo.",
     "adviceTry": "Puedes probarlo; haz una prueba de parche primero."
   },
   "profile": {

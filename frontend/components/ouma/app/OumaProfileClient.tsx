@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Copy, Check, ChevronRight } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import {
   getMe,
   getNotificationPreferences,
@@ -14,7 +14,6 @@ import {
   type RoutineStepDto,
 } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
-import { GuestActionPrompt } from "@/components/ouma/GuestGate"
 import { loadGuestData, updateGuestData, getGuestRoutine, SKIN_TYPE_LABELS, CONCERN_LABELS } from "@/lib/guest-store"
 
 const INK = "#17211A"
@@ -23,7 +22,6 @@ const ACCENT = "#1E4D3A"
 const CARD = "#FFFFFF"
 const LINE = "rgba(23,33,26,.07)"
 
-const REFERRAL_CODE = "SKIN-FRIEND"
 
 const TONES: { v: NotificationPreferences["reminderTone"]; label: string }[] = [
   { v: "coach", label: "Coach" },
@@ -35,7 +33,6 @@ export function OumaProfileClient() {
   const isGuest = useIsGuest()
   const [me, setMe] = useState<MeResponse | null>(null)
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null)
-  const [copied, setCopied] = useState(false)
   const [productCount, setProductCount] = useState<number | null>(null)
   const [nightSteps, setNightSteps] = useState<RoutineStepDto[]>([])
   const [editingTimes, setEditingTimes] = useState(false)
@@ -81,16 +78,6 @@ export function OumaProfileClient() {
       setPrefs(saved)
     } catch {
       setPrefs(prefs) // revert
-    }
-  }
-
-  async function copyReferral() {
-    try {
-      await navigator.clipboard.writeText(`https://skinlens.in?ref=${REFERRAL_CODE}`)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      /* clipboard denied */
     }
   }
 
@@ -243,35 +230,11 @@ export function OumaProfileClient() {
       </div>
 
       {/* ─── Account ──────────────────────────────────────────────── */}
+      {/* Referral programme removed: it showed the same hardcoded code to everyone, with no backend. */}
       <div style={{ background: CARD, borderRadius: 16, border: `1px solid ${LINE}` }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 16px", borderBottom: `1px solid ${LINE}` }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px 16px" }}>
           <span style={{ fontSize: 14.5 }}>Plan</span>
-          <Link href="/pricing" className="no-underline" style={{ fontSize: 13, color: MUTE }}>
-            Free — scans stay free
-          </Link>
-        </div>
-        <div style={{ padding: "15px 16px" }}>
-          <div className="flex items-center justify-between">
-            <span style={{ fontSize: 14.5 }}>Refer a friend</span>
-            <span style={{ fontSize: 13, color: ACCENT, fontWeight: 600 }}>₹50/friend</span>
-          </div>
-          {isGuest ? (
-            <div style={{ marginTop: 10 }}>
-              <GuestActionPrompt label="Sign in to get your referral code" next="/app/profile" />
-            </div>
-          ) : (
-            <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 8, borderRadius: 10, border: `1px solid ${LINE}`, background: "#F3F5EF", padding: "8px 12px" }}>
-              <code style={{ flex: 1, fontSize: 14, fontWeight: 700, color: ACCENT }}>{REFERRAL_CODE}</code>
-              <button
-                type="button"
-                onClick={copyReferral}
-                style={{ display: "flex", alignItems: "center", gap: 6, borderRadius: 8, background: ACCENT, color: "#fff", border: "none", padding: "6px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
-              >
-                {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                {copied ? "Copied" : "Copy"}
-              </button>
-            </div>
-          )}
+          <span style={{ fontSize: 13, color: MUTE }}>Free — scans stay free</span>
         </div>
       </div>
 
@@ -288,11 +251,11 @@ export function OumaProfileClient() {
         className="no-underline flex items-center justify-between"
         style={{ background: CARD, borderRadius: 16, border: `1px solid ${LINE}`, padding: "15px 16px", color: INK }}
       >
-        <span style={{ fontSize: 14.5 }}>Insights — your safety score over time</span>
+        <span style={{ fontSize: 14.5 }}>Insights — how your saved scans break down</span>
         <ChevronRight className="h-4 w-4" style={{ color: MUTE }} />
       </Link>
 
-      <p style={{ textAlign: "center", fontSize: 11, color: MUTE }}>SkinLens · Made for Indian skin</p>
+      <p style={{ textAlign: "center", fontSize: 11, color: MUTE }}>SkinLens</p>
     </div>
   )
 }

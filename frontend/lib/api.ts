@@ -1,3 +1,30 @@
+import type {
+  AnalyzeIngredientsResponse,
+  ContributionResult,
+  MeResponse,
+  NotificationPreferences,
+  ProductComparison,
+  ProductDetail,
+  RecentScanEntry,
+  RoutineResponse,
+  StreakHistoryDay,
+} from "@skinlens/shared"
+
+// Response shapes are shared with the mobile app; re-exported so existing imports keep working.
+export type {
+  AnalyzeIngredientsResponse,
+  ContributionResult,
+  MeResponse,
+  NotificationPreferences,
+  ProductComparison,
+  ProductDetail,
+  RecentScanEntry,
+  RoutineConflict,
+  RoutineResponse,
+  RoutineStepDto,
+  StreakHistoryDay,
+} from "@skinlens/shared"
+
 /**
  * Thin HTTP layer for the Nest API. All routes assume the global `/api` prefix.
  * Set NEXT_PUBLIC_API_BASE in .env.local (see .env.example).
@@ -92,102 +119,16 @@ export type InsightsSummaryResponse = {
   avgProductScore: number | null
 }
 
-export type ProductDetail = {
-  id: string
-  name: string
-  brand: string
-  imageUrl?: string
-  category?: string
-  volume?: string
-  currentPrice?: number
-  overallScore?: number | null
-  /** Search relevance 0–100 when API ranked results */
-  matchScore?: number
-  matchedIngredients?: string[]
-  /** First INCI names from catalog (search/list) */
-  ingredientPreview?: string[]
-  actives?: string[]
-  fragranceFree?: boolean
-  sulfateFree?: boolean
-  parabenFree?: boolean
-  ingredientRows?: Array<{
-    inciName: string
-    displayName?: string | null
-    zone?: string | null
-    safetyRating?: string | null
-    shortDescription?: string | null
-    isParaben?: boolean
-    isFragrance?: boolean
-  }>
-  prices?: Array<{ retailer: string; amount: number; currency: string; best?: boolean }>
-}
 
-export type ProductComparison = {
-  id: string
-  name: string
-  brand: string
-  similarityScore: number
-  savingsPercent?: number
-  sharedActives?: string[]
-  reason?: string
-  matchType?: string
-}
 
-export type AnalyzeIngredientsResponse = {
-  input: string
-  parsed: string[]
-  foundIngredients: Array<{
-    name: string
-    function?: string
-    zone?: string
-    safetyRating?: string
-    shortDescription?: string
-    isParaben?: boolean
-    isFragrance?: boolean
-    isIrritant?: boolean
-    found: boolean
-  }>
-  unknownIngredients: string[]
-  summary: string
-  tags: string[]
-  actives: string[]
-  /** foundIngredients.length / parsed.length. Below 0.7 the UI shows a refusal instead of a verdict. */
-  coverage: number
-}
 
 // ─── Same-origin Next.js route handlers (session-authenticated, no secrets in the browser) ──────
 // These proxy to guarded Nest endpoints; see frontend/lib/server/backend-client.ts and the plan at
 // .claude/plans for the auth-bridge design. Never call the Nest backend's /ouma/* directly from
 // client code for these — the guard requires a server-resolved user id.
 
-export type RoutineStepDto = {
-  id: string
-  productId: string | null
-  name: string
-  brand: string | null
-  position: number
-  frequency: "daily" | "alternate" | "twice_weekly"
-  waitAfterMins: number | null
-  done: boolean
-  enrich: boolean
-}
 
-export type RoutineConflict = {
-  ingredientAName: string
-  ingredientBName: string
-  severity: "low" | "medium" | "high"
-  reason: string
-  timingNote: string | null
-  stepIds: string[]
-}
 
-export type RoutineResponse = {
-  routineId: string
-  type: "morning" | "night"
-  steps: RoutineStepDto[]
-  allDone: boolean
-  conflicts: RoutineConflict[]
-}
 
 export async function getRoutine(type: "morning" | "night"): Promise<RoutineResponse> {
   const res = await fetch(`/api/routine?type=${type}`, { cache: "no-store" })
@@ -195,14 +136,6 @@ export async function getRoutine(type: "morning" | "night"): Promise<RoutineResp
   return res.json()
 }
 
-export type ContributionResult = {
-  productId: string
-  contributionId: string
-  matched: number
-  aiEnriched: number
-  coverage: number
-  autoPublishAt: string
-}
 
 export async function contributeProduct(input: {
   productName: string
@@ -249,7 +182,6 @@ export async function getStreak(): Promise<{ currentStreak: number; longestStrea
   return res.json()
 }
 
-export type StreakHistoryDay = { date: string; status: "both" | "one" | "paused" | "future" }
 
 export async function getStreakHistory(month: string): Promise<{ days: StreakHistoryDay[] }> {
   const res = await fetch(`/api/streak/history?month=${month}`, { cache: "no-store" })
@@ -271,13 +203,6 @@ export async function getMyProducts(): Promise<{ products: MyProduct[] }> {
   return res.json()
 }
 
-export type NotificationPreferences = {
-  morningTime: string | null
-  nightTime: string | null
-  channel: "push" | "whatsapp"
-  reminderTone: "coach" | "plain" | "off"
-  muted: boolean
-}
 
 export async function getNotificationPreferences(): Promise<NotificationPreferences> {
   const res = await fetch(`/api/notification-preferences`, { cache: "no-store" })
@@ -312,15 +237,6 @@ export async function saveScan(input: {
   return res.json()
 }
 
-export type RecentScanEntry = {
-  id: string
-  productId: string | null
-  rawIngredientText: string | null
-  name: string
-  brand: string | null
-  score: number | null
-  scannedAt: string
-}
 
 export async function getRecentScans(): Promise<RecentScanEntry[]> {
   const res = await fetch(`/api/scans/recent`, { cache: "no-store" })
@@ -328,16 +244,6 @@ export async function getRecentScans(): Promise<RecentScanEntry[]> {
   return res.json()
 }
 
-export type MeResponse = {
-  id: string
-  name: string | null
-  email: string | null
-  phone: string | null
-  avatarUrl: string | null
-  onboardingDone: boolean
-  skinType: { code: string; label: string } | null
-  concerns: { code: string; label: string }[]
-}
 
 export async function getMe(): Promise<MeResponse> {
   const res = await fetch(`/api/me`, { cache: "no-store" })
@@ -461,34 +367,4 @@ export async function getComparisonsList(productId: string): Promise<ProductComp
   if (!res.ok) throw new Error(`comparisons ${res.status}`)
   const data = await parseEnvelope<ProductComparison[]>(res)
   return Array.isArray(data) ? data : []
-}
-
-export async function generateProductSummary(productData: {
-  name: string
-  brand: string
-  category?: string
-  description?: string
-  ingredients?: string[]
-  fragranceFree?: boolean
-  alcoholFree?: boolean
-  parabenFree?: boolean
-  sulfateFree?: boolean
-  crueltyFree?: boolean
-  vegan?: boolean
-}) {
-  const res = await fetch(`${API_BASE}/ai/summary`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(productData),
-    cache: "no-store",
-  })
-
-  if (!res.ok) {
-    const errorText = await res.text()
-    console.error("[api] generateProductSummary failed:", res.status, errorText)
-    throw new Error(`Failed to generate summary: ${res.status} ${errorText}`)
-  }
-
-  const result = await res.json()
-  return result.data || null
 }

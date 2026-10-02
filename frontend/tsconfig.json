@@ -24,6 +24,9 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "@skinlens/shared": [
+        "../packages/shared/src/index.ts"
       ]
     },
     /* Next.js */

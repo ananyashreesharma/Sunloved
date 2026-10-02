@@ -9,6 +9,8 @@ const withPWA = require("next-pwa")({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Lets Next compile ../packages/shared (code shared with the mobile app), which sits outside this folder.
+  experimental: { externalDir: true },
   swcMinify: true,
   eslint: {
     ignoreDuringBuilds: true,

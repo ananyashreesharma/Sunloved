@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss"
+import { colors as skin } from "../packages/shared/src/tokens"
 
 const config = {
   darkMode: ["class"],
@@ -18,6 +19,23 @@ const config = {
     },
     extend: {
       colors: {
+        // SkinLens design tokens, shared with the mobile app (packages/shared/src/tokens.ts).
+        // Prefer these (e.g. text-skin-ink, bg-skin-bone) over hardcoded hex in new code.
+        skin: {
+          ink: skin.ink,
+          mute: skin.mute,
+          accent: skin.accent,
+          bone: skin.bone,
+          card: skin.card,
+          line: skin.line,
+          red: skin.zone.red.fg,
+          "red-soft": skin.zone.red.soft,
+          yellow: skin.zone.yellow.fg,
+          "yellow-soft": skin.zone.yellow.soft,
+          green: skin.zone.green.fg,
+          "green-soft": skin.zone.green.soft,
+          none: skin.zone.none,
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

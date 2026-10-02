@@ -217,7 +217,7 @@
     "leadGeneric": "A short ingredient list",
     "inShortNoFlags": "{{lead}}, with nothing flagged in our reference. Generally fine to use.",
     "inShortFlagged": "{{lead}}. The catch: {{name}} is on the label — {{note}} {{advice}}",
-    "adviceAvoid": "Worth avoiding, or patch-test heavily first.",
+    "adviceAvoid": "Worth avoiding.",
     "adviceTry": "Fine to try; patch-test first."
   },
   "profile": {

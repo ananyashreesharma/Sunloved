@@ -5,26 +5,27 @@ import { useEffect, useState } from "react"
 import { analyzeIngredients, getProduct, saveScan, reportUnknownIngredient, getMe, createRoutineStep, type MeResponse } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
 import { saveGuestScan, addGuestStep } from "@/lib/guest-store"
-import { breakdownFromAnalyze, breakdownFromProduct, type IngredientBreakdown } from "@/lib/ouma-ingredient-ui"
-import { pushRecentScan, riskFromScore } from "@/lib/ouma-recent-scans"
+import {
+  COVERAGE_THRESHOLD,
+  EMPTY_BREAKDOWN,
+  breakdownFromProduct,
+  breakdownFromRows,
+  flaggedRows,
+  riskFromScore,
+  rowsFromAnalyze,
+  rowsFromProduct,
+  verdictFor,
+  type IngredientBreakdown,
+  type IngredientRow,
+  type RowZone,
+  type Zone,
+} from "@skinlens/shared"
+import { pushRecentScan } from "@/lib/ouma-recent-scans"
 import { usePathname } from "next/navigation"
-
-/** Below this fraction of ingredients read, we refuse to render a verdict at all (see Refusal below). */
-const COVERAGE_THRESHOLD = 0.7
 
 type Props = {
   productId?: string | null
   inci?: string | null
-}
-
-type Zone = "RED" | "YELLOW" | "GREEN"
-type IngredientRow = { name: string; zone: Zone; note: string }
-
-function zoneFromAny(z?: string | null): Zone {
-  const v = (z || "").toLowerCase()
-  if (v === "red" || v === "avoid") return "RED"
-  if (v === "yellow" || v === "caution") return "YELLOW"
-  return "GREEN"
 }
 
 const VERDICTS = {
@@ -54,7 +55,7 @@ const VERDICTS = {
   },
 }
 
-const STRIP_HEX: Record<Zone | "NONE", string> = { RED: "#8A2E22", YELLOW: "#7C5410", GREEN: "#1D5C3B", NONE: "#AAB4AB" }
+const STRIP_HEX: Record<RowZone, string> = { RED: "#8A2E22", YELLOW: "#7C5410", GREEN: "#1D5C3B", NONE: "#AAB4AB" }
 
 const CAPS_LABEL: Record<Zone, string> = {
   RED: "AVOID FOR YOU",
@@ -68,7 +69,7 @@ function buildInShort(leadName: string | undefined, flagged: IngredientRow[], ve
     return `${lead}, with nothing flagged in our reference${skinLabel ? ` for ${skinLabel}` : ""}. Generally fine to use.`
   }
   const top = flagged[0]
-  const advice = verdictKey === "RED" ? "Worth avoiding, or patch-test heavily first." : "Fine to try; patch-test first."
+  const advice = verdictKey === "RED" ? "Worth avoiding." : "Fine to try; patch-test first."
   return `${lead}. The catch${skinLabel ? ` for ${skinLabel}` : ""}: ${top.name} is on the label — ${top.note} ${advice}`
 }
 
@@ -80,13 +81,11 @@ export function OumaScanResultClient({ productId, inci }: Props) {
   const [err, setErr] = useState<string | null>(null)
   const [title, setTitle] = useState("Ingredient analysis")
   const [brand, setBrand] = useState("")
-  const [bd, setBd] = useState<IngredientBreakdown>({ high: 0, med: 0, safe: 0, score: 0, warnings: [] })
+  const [bd, setBd] = useState<IngredientBreakdown>(EMPTY_BREAKDOWN)
   const [rows, setRows] = useState<IngredientRow[]>([])
-  const [coverage, setCoverage] = useState(1)
-  const [readCount, setReadCount] = useState(0)
+  const [attempt, setAttempt] = useState(0)
   const [parsedCount, setParsedCount] = useState(0)
   const [rawText, setRawText] = useState("")
-  const [unknownNames, setUnknownNames] = useState<string[]>([])
   const [reported, setReported] = useState<Set<string>>(new Set())
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle")
   const [addToRoutineState, setAddToRoutineState] = useState<"idle" | "saving" | "saved">("idle")
@@ -100,10 +99,11 @@ export function OumaScanResultClient({ productId, inci }: Props) {
     getMe().then(setMe).catch(() => setMe(null))
   }, [isApp, isGuest])
 
-  const riskKey = riskFromScore(bd.score)
-  const verdict =
-    riskKey === "HIGH RISK" ? VERDICTS.RED : riskKey === "CAUTION" ? VERDICTS.YELLOW : VERDICTS.GREEN
-  const verdictKey: Zone = riskKey === "HIGH RISK" ? "RED" : riskKey === "CAUTION" ? "YELLOW" : "GREEN"
+  // null = nothing we can responsibly judge: too little of the label read, or no ingredient list at all.
+  const verdictKey = verdictFor(bd)
+  // Derived from the rows so every unrated ingredient is counted as unread and listed under "No info".
+  const unknownNames = rows.filter((r) => r.zone === "NONE").map((r) => r.name)
+  const readCount = rows.length - unknownNames.length
 
   useEffect(() => {
     const pid = productId?.trim()
@@ -114,47 +114,32 @@ export function OumaScanResultClient({ productId, inci }: Props) {
     }
 
     let cancelled = false
+    setPhase("analyzing")
+    setErr(null)
     ;(async () => {
       try {
         if (pid) {
           const p = await getProduct(pid)
           if (cancelled) return
+          const nextRows = rowsFromProduct(p)
           const b = breakdownFromProduct(p)
           setTitle(p.name)
           setBrand(p.brand)
           setBd(b)
-          const nextRows: IngredientRow[] = (p.ingredientRows || []).map((r) => ({
-            name: r.displayName?.trim() || r.inciName,
-            zone: zoneFromAny(r.zone || r.safetyRating || null),
-            note: r.shortDescription ||
-              (r.isParaben ? "Paraben — consider avoiding for daily leave-on use."
-                : r.isFragrance ? "Fragrance — can trigger irritation for sensitive skin."
-                : "In our ingredient reference."),
-          }))
           setRows(nextRows)
-          pushRecentScan({ productId: p.id, name: p.name, brand: p.brand, at: new Date().toISOString(), riskLabel: riskFromScore(b.score) })
+          if (verdictFor(b)) pushRecentScan({ productId: p.id, name: p.name, brand: p.brand, at: new Date().toISOString(), riskLabel: riskFromScore(b.score) })
         } else if (inc) {
           const api = await analyzeIngredients(inc)
           if (cancelled) return
-          const b = breakdownFromAnalyze(api)
+          const nextRows = rowsFromAnalyze(api)
+          const b = breakdownFromRows(nextRows, api.coverage)
           setTitle("Ingredient analysis")
           setBrand("From your ingredient list")
           setBd(b)
-          setCoverage(api.coverage)
-          setReadCount(api.foundIngredients.length)
           setParsedCount(api.parsed.length)
           setRawText(inc)
-          setUnknownNames(api.unknownIngredients)
-          const nextRows: IngredientRow[] = [
-            ...api.foundIngredients.map((fi) => ({
-              name: fi.name,
-              zone: fi.zone ? zoneFromAny(fi.zone) : fi.safetyRating === "avoid" ? "RED" as Zone : fi.safetyRating === "caution" ? "YELLOW" as Zone : "GREEN" as Zone,
-              note: fi.shortDescription || fi.function || "In our ingredient reference.",
-            })),
-            ...api.unknownIngredients.map((u) => ({ name: u, zone: "YELLOW" as Zone, note: "Not yet in our database — verify on the product pack." })),
-          ]
           setRows(nextRows)
-          pushRecentScan({ inci: inc, name: "INCI analysis", at: new Date().toISOString(), riskLabel: riskFromScore(b.score) })
+          if (verdictFor(b)) pushRecentScan({ inci: inc, name: "INCI analysis", at: new Date().toISOString(), riskLabel: riskFromScore(b.score) })
         }
       } catch (e) {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Analysis failed.")
@@ -164,7 +149,7 @@ export function OumaScanResultClient({ productId, inci }: Props) {
     })()
 
     return () => { cancelled = true }
-  }, [productId, inci])
+  }, [productId, inci, attempt])
 
   // ── ANALYZING PHASE ────────────────────────────────────────────────────────
   if (phase === "analyzing") {
@@ -196,10 +181,79 @@ export function OumaScanResultClient({ productId, inci }: Props) {
     )
   }
 
-  // ── REFUSAL: too few ingredients read to responsibly show a verdict ────────
-  if (coverage < COVERAGE_THRESHOLD) {
-    const totalCount = parsedCount
-    const pct = Math.round(coverage * 100)
+  // ── ERROR: the analysis itself failed (offline, server down). Never fall through to a verdict:
+  // an empty breakdown would otherwise read as a fabricated "Avoid." ─────────────────────────────
+  if (err) {
+    return (
+      <div style={{ minHeight: "100dvh", background: "#F3F5EF", padding: "18px 24px 16px", display: "flex", flexDirection: "column" }}>
+        <Link href={backHref} className="no-underline" style={{ fontSize: 13, color: "#5A6259" }}>
+          ← Scan
+        </Link>
+        <h1 className="ouma-display" style={{ fontSize: 26, lineHeight: 1.1, marginTop: 12, textTransform: "uppercase", color: "#17211A" }}>
+          Couldn&apos;t analyse that
+        </h1>
+        <div style={{ marginTop: 16, background: "#fff", borderRadius: 16, border: "1px solid rgba(23,33,26,.07)", padding: 18 }}>
+          <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#2A342C" }}>
+            We couldn&apos;t reach the ingredient database — check your connection and try again. Nothing has been
+            judged; no verdict is shown when the analysis itself fails.
+          </p>
+        </div>
+        <div style={{ marginTop: "auto", paddingTop: 18, display: "flex", gap: 10 }}>
+          <Link
+            href={backHref}
+            className="no-underline"
+            style={{ flex: 1, border: "1.5px solid rgba(23,33,26,.2)", borderRadius: 12, padding: 15, textAlign: "center", fontSize: 15, fontWeight: 600, color: "#2A342C" }}
+          >
+            Back
+          </Link>
+          <button
+            type="button"
+            onClick={() => setAttempt((a) => a + 1)}
+            style={{ flex: 1.4, background: "#1E4D3A", color: "#fff", borderRadius: 12, padding: 15, fontSize: 15, fontWeight: 600, border: "none", cursor: "pointer" }}
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // ── REFUSAL: too little of the label read (or no ingredient list at all) to show a verdict ──
+  if (!verdictKey) {
+    const totalCount = parsedCount || rows.length
+    const pct = Math.round(bd.coverage * 100)
+    if (productId && rows.length === 0) {
+      return (
+        <div style={{ minHeight: "100dvh", background: "#F3F5EF", padding: "18px 24px 16px" }}>
+          <Link href={backHref} className="no-underline" style={{ fontSize: 13, color: "#5A6259" }}>
+            ← Scan
+          </Link>
+          {brand && (
+            <p className="ouma-mono" style={{ marginTop: 12, fontSize: 13, color: "#5A6259" }}>
+              {brand}
+            </p>
+          )}
+          <h1 className="ouma-display" style={{ fontSize: 26, lineHeight: 1.1, marginTop: 2, textTransform: "uppercase", color: "#17211A" }}>
+            We can&apos;t judge this one yet
+          </h1>
+          <div style={{ marginTop: 16, background: "#fff", borderRadius: 16, border: "1px solid rgba(23,33,26,.07)", padding: 18 }}>
+            <p style={{ fontSize: 14.5, lineHeight: 1.55, color: "#2A342C" }}>
+              We don&apos;t have {title}&apos;s ingredient list yet, so there&apos;s nothing to judge. Paste it from the
+              back of the pack and we&apos;ll analyse it.
+            </p>
+          </div>
+          <div style={{ marginTop: 18, display: "flex", gap: 10 }}>
+            <Link
+              href={backHref}
+              className="no-underline"
+              style={{ flex: 1, background: "#1E4D3A", color: "#fff", borderRadius: 12, padding: 15, textAlign: "center", fontSize: 15, fontWeight: 600 }}
+            >
+              Paste the ingredients
+            </Link>
+          </div>
+        </div>
+      )
+    }
     return (
       <div style={{ minHeight: "100dvh", background: "#F3F5EF", padding: "18px 24px 16px" }}>
         <Link href={backHref} className="no-underline" style={{ fontSize: 13, color: "#5A6259" }}>
@@ -266,9 +320,10 @@ export function OumaScanResultClient({ productId, inci }: Props) {
   const skinLabel = me ? [me.skinType?.label, me.concerns[0]?.label].filter(Boolean).join(", ") : null
   const totalIngredients = parsedCount || rows.length
   const readIngredients = readCount || rows.length
-  const flaggedRows = rows.filter((r) => r.zone !== "GREEN" && !unknownNames.includes(r.name))
-  const fineRows = rows.filter((r) => r.zone === "GREEN" && !unknownNames.includes(r.name))
-  const inShortText = buildInShort(rows[0]?.name, flaggedRows, verdictKey, skinLabel)
+  const verdict = VERDICTS[verdictKey]
+  const flagged = flaggedRows(rows)
+  const fineRows = rows.filter((r) => r.zone === "GREEN")
+  const inShortText = buildInShort(rows[0]?.name, flagged, verdictKey, skinLabel)
   const stickyBottom = isApp ? "calc(5.5rem + env(safe-area-inset-bottom))" : "0px"
 
   return (
@@ -305,7 +360,6 @@ export function OumaScanResultClient({ productId, inci }: Props) {
         <h1 className="ouma-display" style={{ fontSize: 26, lineHeight: 1.1, marginTop: 2, textTransform: "uppercase", color: "#17211A" }}>
           {title}
         </h1>
-        {err && <p style={{ marginTop: 8, fontSize: 12, color: "#8A2E22" }}>{err}</p>}
 
         {/* ── verdict card ── */}
         <div style={{ marginTop: 16, background: "#fff", borderRadius: 16, border: "1px solid rgba(23,33,26,.07)", padding: 18 }}>
@@ -333,7 +387,7 @@ export function OumaScanResultClient({ productId, inci }: Props) {
             {(rows.length > 0 ? rows : Array.from({ length: Math.max(totalIngredients, 1) })).map((r, i) => (
               <div
                 key={i}
-                style={{ flex: 1, background: r ? STRIP_HEX[unknownNames.includes((r as IngredientRow).name) ? "NONE" : (r as IngredientRow).zone] : "#E4EBE2" }}
+                style={{ flex: 1, background: r ? STRIP_HEX[(r as IngredientRow).zone] : "#E4EBE2" }}
               />
             ))}
           </div>
@@ -366,13 +420,13 @@ export function OumaScanResultClient({ productId, inci }: Props) {
         </div>
 
         {/* ── flagged for you ── */}
-        {flaggedRows.length > 0 && (
+        {flagged.length > 0 && (
           <>
             <p className="ouma-display" style={{ marginTop: 16, fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", color: "#5A6259" }}>
               Flagged for you
             </p>
             <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
-              {flaggedRows.map((r) => {
+              {flagged.map((r) => {
                 const pos = rows.indexOf(r) + 1
                 const pillBg = r.zone === "RED" ? "#F8E5E1" : "#F7EDD8"
                 const pillFg = r.zone === "RED" ? "#8A2E22" : "#7C5410"
@@ -400,13 +454,13 @@ export function OumaScanResultClient({ productId, inci }: Props) {
                 )
               })}
             </div>
-            {verdictKey !== "GREEN" && (
+            {verdictKey !== "GREEN" && productId && (
               <Link
-                href={`${pathname?.startsWith("/scan") ? "" : "/app"}/discover?query=${encodeURIComponent(title)}`}
+                href={`${pathname?.startsWith("/scan") ? "" : "/app"}/discover/swap/${productId}`}
                 className="no-underline"
                 style={{ marginTop: 10, display: "inline-block", fontSize: 12.5, fontWeight: 600, color: "#1E4D3A" }}
               >
-                Browse safer swaps →
+                Find a safer swap →
               </Link>
             )}
           </>
@@ -495,7 +549,7 @@ export function OumaScanResultClient({ productId, inci }: Props) {
                 title,
                 brand,
                 flagCount: bd.high + bd.med,
-                coverage,
+                coverage: bd.coverage,
                 score: bd.score,
                 productId: productId ?? undefined,
                 rawIngredientText: rawText || title,
@@ -506,7 +560,7 @@ export function OumaScanResultClient({ productId, inci }: Props) {
             try {
               await saveScan({
                 rawIngredientText: rawText || title,
-                scanResult: { title, brand, bd, rows, coverage },
+                scanResult: { title, brand, bd, rows, coverage: bd.coverage },
                 flagCount: bd.high + bd.med,
                 productId: productId ?? undefined,
               })

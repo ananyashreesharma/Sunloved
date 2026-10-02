@@ -1,3 +1,5 @@
+import type { Risk } from "@skinlens/shared"
+
 const KEY = "ouma-recent-scans"
 const MAX = 8
 
@@ -8,7 +10,7 @@ export type RecentScan = {
   name: string
   brand?: string
   at: string
-  riskLabel: "HIGH RISK" | "CAUTION" | "SAFE"
+  riskLabel: Risk
 }
 
 function load(): RecentScan[] {
@@ -43,8 +45,4 @@ export function pushRecentScan(entry: RecentScan) {
   save(next)
 }
 
-export function riskFromScore(score: number): RecentScan["riskLabel"] {
-  if (score < 45) return "HIGH RISK"
-  if (score < 70) return "CAUTION"
-  return "SAFE"
-}
+export { riskFromScore } from "@skinlens/shared"

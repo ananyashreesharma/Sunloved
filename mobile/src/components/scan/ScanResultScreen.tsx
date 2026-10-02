@@ -14,13 +14,11 @@ import { fonts } from "@/constants/fonts"
 import { BACK_ARROW } from "@/lib/i18n"
 import { analyzeIngredients, reportUnknownIngredient } from "@/lib/api-client"
 import { saveGuestScan } from "@/lib/guest-store"
-import { breakdownFromAnalyze, rowsFromAnalyze, riskFromScore, type IngredientBreakdown, type IngredientRow, type Zone } from "@/lib/ingredient-scoring"
+import { COVERAGE_THRESHOLD, EMPTY_BREAKDOWN, breakdownFromAnalyze, flaggedRows, rowsFromAnalyze, verdictFor, type IngredientBreakdown, type IngredientRow, type RowZone, type Zone } from "@skinlens/shared"
 import { TickIcon, WarningIcon } from "@/components/onboarding/icons"
 import { SoftPressable } from "@/components/shared/SoftPressable"
 
-const COVERAGE_THRESHOLD = 0.7
-
-const STRIP_HEX: Record<Zone | "NONE", string> = { RED: colors.zone.red.fg, YELLOW: colors.zone.yellow.fg, GREEN: colors.zone.green.fg, NONE: colors.zone.none }
+const STRIP_HEX: Record<RowZone, string> = { RED: colors.zone.red.fg, YELLOW: colors.zone.yellow.fg, GREEN: colors.zone.green.fg, NONE: colors.zone.none }
 
 export function ScanResultScreen() {
   const { t } = useTranslation()
@@ -44,12 +42,9 @@ export function ScanResultScreen() {
 
   const [phase, setPhase] = useState<"analyzing" | "reveal">("analyzing")
   const [err, setErr] = useState<string | null>(null)
-  const [bd, setBd] = useState<IngredientBreakdown>({ high: 0, med: 0, safe: 0, score: 0, warnings: [] })
+  const [bd, setBd] = useState<IngredientBreakdown>(EMPTY_BREAKDOWN)
   const [rows, setRows] = useState<IngredientRow[]>([])
-  const [coverage, setCoverage] = useState(1)
-  const [readCount, setReadCount] = useState(0)
   const [parsedCount, setParsedCount] = useState(0)
-  const [unknownNames, setUnknownNames] = useState<string[]>([])
   const [reported, setReported] = useState<Set<string>>(new Set())
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle")
   const [attempt, setAttempt] = useState(0)
@@ -73,10 +68,7 @@ export function ScanResultScreen() {
         if (cancelled) return
         const b = breakdownFromAnalyze(api)
         setBd(b)
-        setCoverage(api.coverage)
-        setReadCount(api.foundIngredients.length)
         setParsedCount(api.parsed.length)
-        setUnknownNames(api.unknownIngredients)
         setRows(rowsFromAnalyze(api))
         setTimeout(() => setPhase("reveal"), 600)
       } catch (e) {
@@ -100,9 +92,11 @@ export function ScanResultScreen() {
     setAttempt((a) => a + 1)
   }
 
-  const riskKey = riskFromScore(bd.score)
-  const verdictKey: Zone = riskKey === "HIGH RISK" ? "RED" : riskKey === "CAUTION" ? "YELLOW" : "GREEN"
-  const verdict = VERDICTS[verdictKey]
+  // null = nothing we can responsibly judge (too little read, or nothing analysed at all).
+  const verdictKey = verdictFor(bd)
+  // Derived from the rows so every unrated ingredient is counted as unread and listed under "No info".
+  const unknownNames = rows.filter((r) => r.zone === "NONE").map((r) => r.name)
+  const readCount = rows.length - unknownNames.length
 
   if (phase === "analyzing") {
     const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] })
@@ -164,9 +158,9 @@ export function ScanResultScreen() {
   }
 
   // ── Coverage refusal ──
-  if (coverage < COVERAGE_THRESHOLD) {
-    const totalCount = parsedCount
-    const pct = Math.round(coverage * 100)
+  if (!verdictKey) {
+    const totalCount = parsedCount || rows.length
+    const pct = Math.round(bd.coverage * 100)
     const swatchCount = Math.max(totalCount, 10)
     return (
       <View style={{ flex: 1, backgroundColor: colors.bone }}>
@@ -216,11 +210,12 @@ export function ScanResultScreen() {
   }
 
   // ── Reveal ──
+  const verdict = VERDICTS[verdictKey]
   const totalIngredients = parsedCount || rows.length
   const readIngredients = readCount || rows.length
-  const flaggedRows = rows.filter((r) => r.zone !== "GREEN" && !unknownNames.includes(r.name))
-  const fineRows = rows.filter((r) => r.zone === "GREEN" && !unknownNames.includes(r.name))
-  const inShortText = buildInShort(rows[0]?.name, flaggedRows, verdictKey)
+  const flagged = flaggedRows(rows)
+  const fineRows = rows.filter((r) => r.zone === "GREEN")
+  const inShortText = buildInShort(rows[0]?.name, flagged, verdictKey)
 
   async function saveScan() {
     setSaveState("saving")
@@ -228,7 +223,7 @@ export function ScanResultScreen() {
       title: t("scanResult.ingredientAnalysis"),
       brand: t("scanResult.fromIngredientList"),
       flagCount: bd.high + bd.med,
-      coverage,
+      coverage: bd.coverage,
       score: bd.score,
       rawIngredientText: inci,
     })
@@ -260,7 +255,7 @@ export function ScanResultScreen() {
             {(rows.length > 0 ? rows : Array.from({ length: Math.max(totalIngredients, 1) })).map((r, i) => (
               <View
                 key={i}
-                style={{ flex: 1, backgroundColor: r ? STRIP_HEX[unknownNames.includes((r as IngredientRow).name) ? "NONE" : (r as IngredientRow).zone] : "#E4EBE2" }}
+                style={{ flex: 1, backgroundColor: r ? STRIP_HEX[(r as IngredientRow).zone] : "#E4EBE2" }}
               />
             ))}
           </View>
@@ -294,13 +289,13 @@ export function ScanResultScreen() {
         </View>
 
         {/* Flagged for you */}
-        {flaggedRows.length > 0 && (
+        {flagged.length > 0 && (
           <>
             <Text style={{ marginTop: 16, fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
               {t("scanResult.flaggedForYou")}
             </Text>
             <View style={{ marginTop: 8, gap: 8 }}>
-              {flaggedRows.map((r) => {
+              {flagged.map((r) => {
                 const pos = rows.indexOf(r) + 1
                 const pillBg = r.zone === "RED" ? colors.zone.red.soft : colors.zone.yellow.soft
                 const pillFg = r.zone === "RED" ? colors.zone.red.fg : colors.zone.yellow.fg

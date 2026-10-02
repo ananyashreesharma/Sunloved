@@ -3,6 +3,7 @@
 // guarded call carries a real Bearer token, refreshed transparently on a 401. See the backend auth
 // plan: this app never sends x-internal-api-key, only Authorization: Bearer <access token>.
 
+import type { AnalyzeIngredientsResponse } from "@skinlens/shared"
 import { getAccessToken, getRefreshToken, setTokens, clearTokens } from "./auth-tokens"
 
 const API_BASE = process.env.EXPO_PUBLIC_API_BASE ?? "http://localhost:3001/api"
@@ -123,27 +124,7 @@ export const api = {
 // Port of frontend/lib/api.ts's analyzeIngredients(). POST /ingredients/analyze has no auth guard
 // on the backend (see backend/src/modules/ingredients/ingredients.controller.ts) — it's a public
 // endpoint, so this works for guests exactly like the web version's guest path does.
-export type AnalyzeIngredientsResponse = {
-  input: string
-  parsed: string[]
-  foundIngredients: Array<{
-    name: string
-    function?: string
-    zone?: string
-    safetyRating?: string
-    shortDescription?: string
-    isParaben?: boolean
-    isFragrance?: boolean
-    isIrritant?: boolean
-    found: boolean
-  }>
-  unknownIngredients: string[]
-  summary: string
-  tags: string[]
-  actives: string[]
-  /** foundIngredients.length / parsed.length. Below 0.7 the UI shows a refusal instead of a verdict. */
-  coverage: number
-}
+export type { AnalyzeIngredientsResponse } from "@skinlens/shared"
 
 export function analyzeIngredients(ingredients: string): Promise<AnalyzeIngredientsResponse> {
   return api.post<AnalyzeIngredientsResponse>("/ingredients/analyze", { ingredients })
