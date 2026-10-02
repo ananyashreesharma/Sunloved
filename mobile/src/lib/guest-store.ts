@@ -16,10 +16,12 @@ import {
   rollDay,
   withScan,
   withStep,
+  withStepFrequency,
   withStepToggled,
   type GuestData,
   type GuestRoutineView,
   type GuestScan,
+  type GuestStep,
   type GuestStreakDay,
   type NewGuestStep,
   type RoutineKind,
@@ -115,8 +117,12 @@ export function addGuestStep(input: NewGuestStep): Promise<GuestData> {
   return mutate((data) => withStep(data, input))
 }
 
-export function toggleGuestStep(stepId: string): Promise<GuestData> {
-  return mutate((data) => withStepToggled(data, stepId))
+export function setGuestStepFrequency(stepId: string, frequency: GuestStep["frequency"]): Promise<GuestData> {
+  return mutate((data) => withStepFrequency(data, stepId, frequency))
+}
+
+export function toggleGuestStep(stepId: string, period: RoutineKind): Promise<GuestData> {
+  return mutate((data) => withStepToggled(data, stepId, period))
 }
 
 export async function getGuestRoutine(type: RoutineKind): Promise<GuestRoutineView> {

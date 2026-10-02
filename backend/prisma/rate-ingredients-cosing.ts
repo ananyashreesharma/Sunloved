@@ -3,8 +3,14 @@
  * their descriptions in our own words.
  *
  *   EU Annex II reference (banned in some form)    → yellow / caution
- *   EU Annex III (allowed only with limits)        → yellow / caution
- *   listed, no restriction, or approved Annex IV–VI → green  / safe   (only fills an empty rating)
+ *   … only poorly refined grades banned ("except") → green  / safe    (refined grades are what's sold)
+ *   EU Annex III with a scent function (allergens) → yellow / caution
+ *   EU Annex III otherwise (pH adjusters, BHT…)    → green  / safe    (used within the EU's limits)
+ *   approved lists only (Annex IV–VI) or unlisted   → green  / safe
+ *
+ * "Caution" means "worth knowing for many people", not "the EU sets a limit". Actives that deserve
+ * caution (exfoliating acids, retinoids, drying alcohols, MIT/MCI) are hand-rated in
+ * seed-critical-ingredients.ts.
  *
  * Why: half the catalogue's ingredients had no rating, ~1,000 descriptions were copied from
  * INCIDecoder (copyright risk, and an off-brand jokey tone), and some unreviewed AI ratings marked
@@ -126,6 +132,9 @@ const FUNCTION_PRIORITY = [
   'SMOOTHING', 'REFRESHING', 'FILM FORMING', 'SURFACTANT', 'FOAMING', 'SOLVENT', 'VISCOSITY CONTROLLING',
 ];
 
+// Roles that only matter for niche products; never worth a second clause in a skincare description.
+const MINOR = new Set(['DENATURANT', 'DEODORANT', 'ORAL CARE', 'FLAVOURING', 'ANTICORROSIVE', 'ANTISTATIC', 'HAIR CONDITIONING', 'HAIR DYEING', 'HAIR FIXING', 'HAIR WAVING OR STRAIGHTENING', 'NAIL CONDITIONING', 'PROPELLANT', 'PLASTICISER', 'REDUCING', 'OXIDISING']);
+
 function rankFunctions(functions: string[]): string[] {
   const rank = (f: string) => {
     const i = FUNCTION_PRIORITY.indexOf(f.toUpperCase());
@@ -198,8 +207,9 @@ function candidates(raw: string): string[] {
   return Array.from(out).slice(0, 5);
 }
 
-function zoneFromAnnexes(annexes: string[]): IngredientZone {
-  if (annexes.includes('II') || annexes.includes('III')) return 'yellow';
+function zoneFromEu(annexes: string[], functions: string[], conditionalBan: boolean): IngredientZone {
+  if (annexes.includes('II')) return conditionalBan ? 'green' : 'yellow';
+  if (annexes.includes('III')) return functions.some((f) => /PERFUMING|MASKING/i.test(f)) ? 'yellow' : 'green';
   return 'green';
 }
 
@@ -228,6 +238,8 @@ function describe(functions: string[], annexes: string[], conditionalBan = false
     if (picked.length === 2) break;
   }
   const phrases = picked.map((f) => FUNCTION_PHRASES[f]);
+  // A secondary role like "denaturant" or "oral care" is noise next to the main one.
+  if (phrases.length === 2 && MINOR.has(picked[1])) phrases.pop();
   const what = phrases.length ? `${phrases.join(' and ')}.` : '';
   const sentence = what ? what.charAt(0).toUpperCase() + what.slice(1) : '';
   return [sentence, regulatorySentence(annexes, conditionalBan)].filter(Boolean).join(' ') || null;
@@ -240,6 +252,25 @@ async function main() {
   const concurrency = Number(args.find((a) => a.startsWith('--concurrency='))?.split('=')[1]) || 4;
 
   const prisma = new PrismaClient();
+
+  // --rezone-only: re-apply the zone policy to rows already matched in CosIng, no network.
+  if (args.includes('--rezone-only')) {
+    const stored = await prisma.ingredient.findMany({
+      where: { OR: [{ source: null }, { source: { not: IngredientSource.manual } }], regulatoryNotes: { startsWith: 'EU CosIng' } },
+      select: { id: true, function: true, regulatoryNotes: true, zone: true },
+    });
+    const counts: Record<string, number> = {};
+    for (const r of stored) {
+      const notes = r.regulatoryNotes ?? '';
+      const annexes = notes.startsWith('EU CosIng: Annex') ? (notes.replace('EU CosIng: Annex', '').match(/\b[IVX]+\b/g) ?? []) : [];
+      const zone = zoneFromEu(annexes, (r.function ?? '').split(/,\s*/).map((f) => f.toUpperCase()), notes.includes('(conditional)'));
+      counts[`${r.zone}→${zone}`] = (counts[`${r.zone}→${zone}`] ?? 0) + 1;
+      if (!dryRun && zone !== r.zone) await prisma.ingredient.update({ where: { id: r.id }, data: { zone, safetyRating: RATING[zone] } });
+    }
+    console.log(`Re-zoned ${stored.length} rows${dryRun ? ' (dry run)' : ''}:`, counts);
+    await prisma.$disconnect();
+    return;
+  }
 
   // --describe-only: rebuild descriptions from the stored function list and EU notes, no network.
   if (args.includes('--describe-only')) {
@@ -303,13 +334,10 @@ async function main() {
       const data: Record<string, unknown> = {};
       if (hit) {
         stats.found++;
-        const euZone = zoneFromAnnexes(hit.annexes);
-        let zone: IngredientZone | null = row.zone;
-        if (euZone !== 'green') zone = euZone;
-        if (zone === 'red') {
-          zone = 'yellow'; // only hand-checked rows may be "red"; an unreviewed AI "red" is too strong
-          stats.demotedRed++;
-        } else if (!row.zone) zone = 'green';
+        // EU-derived rating replaces unreviewed AI guesses; only hand-checked rows (never touched
+        // here) can say otherwise.
+        const zone: IngredientZone = zoneFromEu(hit.annexes, hit.functions, hit.conditionalBan);
+        if (row.zone === 'red') stats.demotedRed++;
         if (zone) {
           data.zone = zone;
           data.safetyRating = RATING[zone];

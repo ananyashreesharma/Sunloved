@@ -41,6 +41,21 @@ const VITAMIN_D =
 const KETOCONAZOLE =
   'Antifungal medicine. Banned in EU cosmetics; it belongs in medicated products used as directed, like prescription or pharmacy dandruff shampoos.';
 
+// Common actives and irritants: "caution" = worth knowing, not dangerous.
+const AHA =
+  'Exfoliating acid (AHA). Smooths and brightens, but can sting at first and makes skin more sun-sensitive, so wear sunscreen.';
+const BHA =
+  'Exfoliating acid (BHA) that works inside pores, useful for breakouts. Can dry or sting at first.';
+const RETINOID =
+  'Retinoid (vitamin A). Helps with texture, marks and fine lines, but can irritate at first and makes skin more sun-sensitive. Not recommended in pregnancy.';
+const DRYING_ALCOHOL =
+  'Drying alcohol. High on a label it can leave skin tight or irritated; low down it is mostly there to help the formula.';
+const MIT =
+  'Preservative and a common skin allergen. The EU no longer allows it in leave-on products.';
+const SLS = 'Strong cleansing agent. Can leave skin tight or irritated, especially if it stays on long.';
+const NIACINAMIDE = 'Vitamin B3. Helps calm redness, even out tone and support the skin barrier. Gentle for most skin.';
+const VITAMIN_C = 'Vitamin C. An antioxidant that helps brighten and even out skin tone.';
+
 const FRAGRANCE =
   'Fragrance: a blend of scent chemicals that brands don\'t have to list individually. Fine for many people, but a common cause of irritation and allergy, especially on sensitive skin.';
 
@@ -82,6 +97,14 @@ const ENTRIES: Entry[] = [
   { names: ['Formaldehyde'], zone: 'red', safetyRating: 'avoid', shortDescription: FORMALDEHYDE },
   { names: ['Cholecalciferol', 'Ergocalciferol'], zone: 'red', safetyRating: 'avoid', shortDescription: VITAMIN_D },
   { names: ['Ketoconazole'], zone: 'red', safetyRating: 'avoid', shortDescription: KETOCONAZOLE },
+  { names: ['Glycolic Acid', 'Lactic Acid', 'L-Lactic Acid', 'Mandelic Acid'], zone: 'yellow', safetyRating: 'caution', shortDescription: AHA },
+  { names: ['Salicylic Acid', 'Capryloyl Salicylic Acid'], zone: 'yellow', safetyRating: 'caution', shortDescription: BHA },
+  { names: ['Retinol', 'Retinal', 'Retinaldehyde', 'Retinyl Palmitate', 'Retinyl Retinoate', 'Hydroxypinacolone Retinoate'], zone: 'yellow', safetyRating: 'caution', shortDescription: RETINOID },
+  { names: ['Alcohol Denat', 'Alcohol Denat.', 'Alcohol Denatured', 'SD Alcohol 40', 'Isopropyl Alcohol'], zone: 'yellow', safetyRating: 'caution', shortDescription: DRYING_ALCOHOL },
+  { names: ['Methylisothiazolinone', 'Methylchloroisothiazolinone'], zone: 'yellow', safetyRating: 'caution', shortDescription: MIT },
+  { names: ['Sodium Lauryl Sulfate'], zone: 'yellow', safetyRating: 'caution', shortDescription: SLS },
+  { names: ['Niacinamide'], zone: 'green', safetyRating: 'safe', shortDescription: NIACINAMIDE },
+  { names: ['Ascorbic Acid', '3-O-Ethyl Ascorbic Acid', 'Ethyl Ascorbic Acid', 'Sodium Ascorbyl Phosphate', 'Magnesium Ascorbyl Phosphate'], zone: 'green', safetyRating: 'safe', shortDescription: VITAMIN_C },
   {
     names: ['Fragrance', 'Parfum', 'Parfum/Fragrance', 'Fragrance/Parfum', 'Fragrance (Parfum)', 'Parfum (Fragrance)'],
     zone: 'yellow',

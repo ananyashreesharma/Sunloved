@@ -1,57 +1,34 @@
-// Port of frontend/components/ouma/app/OumaRoutineClient.tsx. Guest-only for now — mobile has no
-// session/login flow yet (see src/lib/guest-store.ts), so this always reads/writes the on-device
-// guest routine instead of branching on useIsGuest() like the web version does.
+// Routine home, V3 design: huge light "Tonight", the moon (sunrise in the morning) filling as steps
+// are done, numbered steps that get a highlighter when ticked, the retinoid + acid clash note, and a
+// quiet "Done for tonight." Guest-only for now — mobile has no session yet (see guest-store.ts).
 
-import { useCallback, useEffect, useRef, useState } from "react"
-import { View, Text, Pressable, Animated, ScrollView } from "react-native"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { View, Text, Pressable, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
-import { Link, router, useFocusEffect } from "expo-router"
-import { fonts } from "@/constants/fonts"
+import { router, useFocusEffect } from "expo-router"
+import * as Haptics from "expo-haptics"
+import Animated, {
+  FadeIn,
+  FadeInDown,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated"
+import { findRoutineClash, motion, palettes, stepKind, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
 import { FORWARD_ARROW } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
-import { getGuestRoutine, getGuestStreak, toggleGuestStep, type GuestRoutineView } from "@/lib/guest-store"
-import { StreakLeafIcon, WarnTriangleIcon, CameraIcon, CheckIcon } from "./icons"
-import { SoftPressable } from "@/components/shared/SoftPressable"
+import { ease, useReduceMotion, useTheme } from "@/lib/theme"
+import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, setGuestStepFrequency, toggleGuestStep } from "@/lib/guest-store"
+import { Highlight } from "@/components/shared/Highlight"
+import { Moon, Sunrise } from "./Moon"
 
-// Mirrors OumaRoutineClient's LIGHT/DARK theme consts exactly — there's no shared token for these
-// on the web side either (routine screen defines its own palette inline).
-const LIGHT = {
-  bg: "#F3F5EF",
-  ink: "#17211A",
-  mute: "#5A6259",
-  accent: "#1E4D3A",
-  card: "#FFFFFF",
-  line: "rgba(23,33,26,.07)",
-  track: "#E4EBE2",
-  warnBg: "#F7EDD8",
-  warnFg: "#7C5410",
-  doneTint: "rgba(29,92,59,.08)",
-  doneText: "#1D5C3B",
-  enrichBorder: "rgba(23,33,26,.2)",
-  checkBorder: "rgba(23,33,26,.25)",
-  iconTile: "#E4EBE2",
-}
+type Period = "morning" | "night"
 
-const DARK = {
-  bg: "#0E1411",
-  ink: "#E7ECE7",
-  mute: "#9FB0A4",
-  accent: "#5C9977",
-  card: "#202B23",
-  line: "rgba(231,236,231,.09)",
-  track: "#17201A",
-  warnBg: "#33301E",
-  warnFg: "#E3C27E",
-  doneTint: "rgba(92,153,119,.12)",
-  doneText: "#5C9977",
-  enrichBorder: "rgba(231,236,231,.25)",
-  checkBorder: "rgba(231,236,231,.3)",
-  iconTile: "#2A362C",
-}
-
-// Stored/matched by this literal English name (see OnboardingWizard's QUICK_STEPS comment for why —
-// same STEP_ORDER coupling); labelKey is only for the button/chip's display text.
 const QUICK_STEPS = [
   { name: "Cleanser", labelKey: "cleanser" },
   { name: "Toner", labelKey: "toner" },
@@ -60,320 +37,312 @@ const QUICK_STEPS = [
   { name: "SPF", labelKey: "spf" },
 ] as const
 
-function StepCheckbox({ done, T }: { done: boolean; T: typeof LIGHT }) {
-  const scale = useRef(new Animated.Value(done ? 1 : 1)).current
+const KIND_KEY = {
+  cleanse: "kindCleanse",
+  exfoliate: "kindExfoliate",
+  serum: "kindSerum",
+  treat: "kindTreat",
+  moisturise: "kindMoisturise",
+  seal: "kindSeal",
+  sunscreen: "kindSunscreen",
+} as const
+
+const FREQ_KEY = { daily: "freqDaily", alternate: "freqAlternate", twice_weekly: "freqTwice" } as const
+
+/** Western digits → Arabic-Indic for Arabic, so step numerals read naturally. */
+function localDigits(s: string, lang: string) {
+  return lang.startsWith("ar") ? s.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : s
+}
+
+function shiftDay(date: string, days: number) {
+  const d = new Date(`${date}T00:00:00Z`)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+export function RoutineHome() {
+  const { t, i18n } = useTranslation()
+  const insets = useSafeAreaInsets()
+  const { setNight } = useAppChrome()
+  const { T } = useTheme()
+  const reduce = useReduceMotion()
+  const [period, setPeriod] = useState<Period>(() => (new Date().getHours() < 15 ? "morning" : "night"))
+  const [data, setData] = useState<GuestRoutineView | null>(null)
+  const [streak, setStreak] = useState(0)
+  const [week, setWeek] = useState<StreakDayStatus[]>([])
+  const [clashDismissed, setClashDismissed] = useState(false)
+
+  const night = period === "night"
+
+  // Whole palette cross-fades between day and night (600 ms); content dips briefly so text colours
+  // don't visibly snap.
+  const nightV = useSharedValue(night ? 1 : 0)
+  const contentO = useSharedValue(1)
   useEffect(() => {
-    if (!done) return
-    scale.setValue(0.6)
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, friction: 5, tension: 200 }).start()
-  }, [done, scale])
+    nightV.value = reduce ? (night ? 1 : 0) : withTiming(night ? 1 : 0, { duration: motion.ms.themeSwitch, easing: ease.standard })
+    if (!reduce) contentO.value = withSequence(withTiming(0, { duration: 150 }), withDelay(200, withTiming(1, { duration: 250 })))
+  }, [night, reduce, nightV, contentO])
+  const bgStyle = useAnimatedStyle(() => ({ backgroundColor: interpolateColor(nightV.value, [0, 1], [palettes.day.bg, palettes.night.bg]) }))
+  const contentStyle = useAnimatedStyle(() => ({ opacity: contentO.value }))
+
+  const load = useCallback(async (p: Period) => {
+    const routine = await getGuestRoutine(p)
+    setData(routine)
+    setStreak((await getGuestStreak()).currentStreak)
+    // Last seven days for the tally next to the streak.
+    const today = todayKey()
+    const months = Array.from(new Set([shiftDay(today, -6).slice(0, 7), today.slice(0, 7)]))
+    const days = (await Promise.all(months.map((m) => getGuestStreakHistory(m)))).flatMap((h) => h.days)
+    const byDate = new Map(days.map((d) => [d.date, d.status]))
+    const last7 = Array.from({ length: 7 }, (_, i) => byDate.get(shiftDay(today, i - 6)) ?? "paused")
+    // Days before the first completed day aren't "paused" — the user hadn't started yet.
+    const first = last7.findIndex((st) => st === "both" || st === "one")
+    setWeek(last7.map((st, i) => (first === -1 || i < first ? "future" : st)))
+  }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      setNight(night)
+      load(period)
+      return () => setNight(false)
+    }, [night, period, load, setNight]),
+  )
+
+  async function toggle(step: GuestRoutineStepView) {
+    if (step.rest) return
+    if (!step.done) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {})
+    await toggleGuestStep(step.id, period)
+    load(period)
+  }
+
+  const clash = useMemo(() => (data ? findRoutineClash(data.steps) : null), [data])
+
+  async function alternateClash() {
+    if (!clash) return
+    await setGuestStepFrequency(clash.alternateStepId, "alternate")
+    load(period)
+  }
+
+  const due = data?.steps.filter((s) => !s.rest) ?? []
+  const doneN = due.filter((s) => s.done).length
+  const complete = due.length > 0 && doneN === due.length
+  const progress = due.length ? doneN / due.length : 0
+  const countText = t("routine.ofDone", { a: localDigits(String(doneN), i18n.language), b: localDigits(String(due.length), i18n.language) })
+  const dateLabel = new Intl.DateTimeFormat(i18n.language, { weekday: "long", day: "numeric", month: "long" }).format(new Date())
 
   return (
-    <Animated.View
-      style={{
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: done ? T.accent : "transparent",
-        borderWidth: 1.5,
-        borderColor: done ? T.accent : T.checkBorder,
-        transform: [{ scale: done ? scale : 1 }],
-      }}
-    >
-      {done && <CheckIcon />}
+    <Animated.View style={[{ flex: 1 }, bgStyle]}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 6, paddingBottom: 28 }}>
+        <Animated.View style={contentStyle}>
+          {/* Period switch + streak */}
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+            <View accessibilityRole="tablist" style={{ flexDirection: "row", gap: 20 }}>
+              {(["morning", "night"] as const).map((p) => {
+                const on = period === p
+                return (
+                  <Pressable
+                    key={p}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: on }}
+                    onPress={() => setPeriod(p)}
+                    style={{ minHeight: 44, justifyContent: "center", borderBottomWidth: 2, borderBottomColor: on ? T.ink : "transparent" }}
+                  >
+                    <Text style={{ fontFamily: on ? rubik.semibold : rubik.regular, fontSize: 16, color: on ? T.ink : T.ink3 }}>
+                      {p === "morning" ? t("routine.tabMorning") : t("routine.tabNight")}
+                    </Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+            <Pressable
+              onPress={() => router.push("/history")}
+              accessibilityRole="button"
+              accessibilityLabel={t("routine.streakA11y", { count: streak })}
+              style={{ minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8 }}
+            >
+              <View style={{ flexDirection: "row", gap: 3, alignItems: "center", direction: "ltr" }}>
+                {week.map((st, i) => {
+                  const today = i === 6
+                  const filled = st === "both" || st === "one"
+                  return (
+                    <View
+                      key={i}
+                      style={{
+                        width: 3,
+                        height: 13,
+                        borderRadius: 1,
+                        ...(filled
+                          ? { backgroundColor: T.ink }
+                          : today || st === "future"
+                            ? { backgroundColor: T.line }
+                            : { borderWidth: 1, borderStyle: "dashed", borderColor: T.ink2 }),
+                      }}
+                    />
+                  )
+                })}
+              </View>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>
+                {t("routine.nights", { count: streak })} {FORWARD_ARROW}
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Hero */}
+          <View style={{ marginTop: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 16 }}>
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{dateLabel}</Text>
+              <View style={{ marginTop: 4, alignSelf: "stretch" }}>
+                <Highlight
+                  on={complete}
+                  color={T.done}
+                  thickness={0.38}
+                  position={0.88}
+                  duration={motion.ms.doneTitle}
+                  delay={200}
+                  fit
+                  style={{ fontFamily: rubik.light, fontSize: 64, lineHeight: 68, letterSpacing: -3, color: T.ink }}
+                >
+                  {night ? t("routine.heroNight") : t("routine.heroMorning")}
+                </Highlight>
+              </View>
+              {due.length > 0 && (
+                <Text accessibilityLiveRegion="polite" style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 17, color: T.ink2 }}>
+                  {countText}
+                </Text>
+              )}
+            </View>
+            {night ? <Moon progress={progress} label={countText} /> : <Sunrise progress={progress} label={countText} />}
+          </View>
+
+          {/* Clash note: stays still, never bounces */}
+          {clash && !clashDismissed && (
+            <Animated.View
+              entering={reduce ? FadeIn.duration(motion.ms.reducedFade) : FadeIn.duration(400)}
+              style={{ marginTop: 24, paddingTop: 16, paddingBottom: 4, borderTopWidth: 1, borderColor: T.line }}
+            >
+              <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 27, color: T.ink }}>
+                <Text style={{ backgroundColor: T.hiCaution }}>{t("routine.clashAnd", { a: clash.a, b: clash.b })}</Text>
+                {night ? t("routine.clashNight") : t("routine.clashMorning")}
+              </Text>
+              <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, lineHeight: 21, color: T.ink2 }}>{t("routine.clashBody")}</Text>
+              <View style={{ flexDirection: "row", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                <Pressable
+                  onPress={alternateClash}
+                  style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 12, backgroundColor: T.btn, justifyContent: "center" }}
+                >
+                  <Text style={{ fontFamily: rubik.semibold, fontSize: 15, color: T.btnInk }}>{t("routine.alternate")}</Text>
+                </Pressable>
+                <Pressable onPress={() => setClashDismissed(true)} style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: "center" }}>
+                  <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>{t("routine.notNow")}</Text>
+                </Pressable>
+              </View>
+            </Animated.View>
+          )}
+
+          {/* Steps */}
+          {data && data.steps.length > 0 && (
+            <View style={{ marginTop: 20 }}>
+              {data.steps.map((s) => {
+                const numIndex = due.indexOf(s)
+                return <StepRow key={s.id} step={s} num={s.rest ? "—" : localDigits(String(numIndex + 1).padStart(2, "0"), i18n.language)} night={night} onPress={() => toggle(s)} />
+              })}
+              <Pressable
+                onPress={() => router.push({ pathname: "/add-step", params: { type: period } })}
+                style={{ minHeight: 56, flexDirection: "row", alignItems: "center", borderTopWidth: 1, borderTopColor: T.line }}
+              >
+                <Text style={{ width: 72, fontFamily: rubik.light, fontSize: 24, color: T.ink2 }}>+</Text>
+                <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("routine.addStep")}</Text>
+              </Pressable>
+            </View>
+          )}
+
+          {/* Empty routine (not in the design: same language, quick-add steps) */}
+          {data && data.steps.length === 0 && (
+            <View style={{ marginTop: 28, borderTopWidth: 1, borderTopColor: T.line, paddingTop: 20 }}>
+              <Text style={{ fontFamily: rubik.medium, fontSize: 22, letterSpacing: -0.3, color: T.ink }}>
+                {night ? t("routine.emptyNight") : t("routine.emptyMorning")}
+              </Text>
+              <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("routine.emptySub")}</Text>
+              <View style={{ marginTop: 16, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {QUICK_STEPS.map((q) => (
+                  <Pressable
+                    key={q.name}
+                    onPress={() => router.push({ pathname: "/add-step", params: { type: period, name: q.name } })}
+                    style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1, borderColor: T.line, justifyContent: "center" }}
+                  >
+                    <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>+ {t(`common.quickSteps.${q.labelKey}`)}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {complete && (
+            <Animated.View entering={reduce ? FadeIn.duration(motion.ms.reducedFade) : FadeInDown.duration(400).delay(500)} style={{ marginTop: 24 }}>
+              <Text style={{ fontFamily: rubik.medium, fontSize: 28, letterSpacing: -0.5, color: T.ink }}>
+                {night ? t("routine.doneNightTitle") : t("routine.doneMorningTitle")}
+              </Text>
+              <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 16, color: T.ink2 }}>
+                {night ? t("routine.doneNightSub") : t("routine.doneMorningSub")}
+              </Text>
+            </Animated.View>
+          )}
+        </Animated.View>
+      </ScrollView>
     </Animated.View>
   )
 }
 
-export function RoutineHome() {
+function StepRow({ step, num, night, onPress }: { step: GuestRoutineStepView; num: string; night: boolean; onPress: () => void }) {
   const { t } = useTranslation()
-  const insets = useSafeAreaInsets()
-  const [ampm, setAmpm] = useState<"morning" | "night">("night")
-  const [data, setData] = useState<GuestRoutineView | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [streak, setStreak] = useState<number | null>(null)
-  const { setNight } = useAppChrome()
+  const { T } = useTheme()
+  const reduce = useReduceMotion()
+  const dip = useSharedValue(1)
 
-  const night = ampm === "night"
-  const T = night ? DARK : LIGHT
-
-  // AM ↔ PM swaps this screen's entire palette instantly (T.bg/ink/card/... all flip in one frame)
-  // — of everything on this screen, that full-theme snap was the harshest transition to fix, more
-  // than any single button. A real per-token color cross-fade would mean interpolating ~14 separate
-  // tokens across every element below; fading the content out and back in around the swap gets the
-  // same soft "the theme eased in" feeling for a fraction of the risk of touching every color.
-  const contentFade = useRef(new Animated.Value(1)).current
   useEffect(() => {
-    contentFade.setValue(0.3)
-    Animated.timing(contentFade, { toValue: 1, duration: 220, useNativeDriver: true }).start()
-  }, [ampm, contentFade])
+    if (step.done && !reduce) dip.value = withSequence(withTiming(0.9, { duration: 115 }), withTiming(1, { duration: 145 }))
+  }, [step.done, reduce, dip])
+  const numStyle = useAnimatedStyle(() => ({ transform: [{ scale: dip.value }] }))
 
-  const load = useCallback(async (type: "morning" | "night") => {
-    setLoading(true)
-    const res = await getGuestRoutine(type)
-    setData(res)
-    setLoading(false)
-    const s = await getGuestStreak()
-    setStreak(s.currentStreak)
-  }, [])
-
-  // This tab screen stays mounted when Add Step/Products get pushed on top of it (see
-  // app/add-step.tsx, app/products.tsx), so a plain useEffect only ever fires once and never sees a
-  // step added elsewhere. useFocusEffect re-runs on every return to this tab, and — unlike
-  // useEffect — its cleanup fires on blur too, so night-mode chrome doesn't stay stuck dark after
-  // leaving the PM tab for another screen.
-  useFocusEffect(
-    useCallback(() => {
-      setNight(night)
-      load(ampm)
-      return () => setNight(false)
-    }, [night, ampm, load, setNight]),
-  )
-
-  async function toggle(stepId: string) {
-    await toggleGuestStep(stepId)
-    load(ampm)
-  }
-
-  async function markAllDone() {
-    if (!data) return
-    const targets = data.steps.filter((s) => !data.allDone && !s.done)
-    for (const s of targets) await toggleGuestStep(s.id)
-    load(ampm)
-  }
-
-  // Guest routines never carry conflicts (see getGuestRoutine's GuestRoutineView type — conflicts
-  // is always []). This stays an empty map until mobile has a session and swaps this screen's data
-  // source for the real backend RoutineResponse, which does populate conflicts.
-  const conflictsByStep = new Map<string, { ingredientAName: string; ingredientBName: string; timingNote: string | null }[]>()
-
-  const dayLabel = ampm === "night" ? t("routine.tonight") : t("routine.thisMorning")
-  const routineTitle = ampm === "night" ? t("routine.pmRoutine") : t("routine.amRoutine")
-  const missing = data ? QUICK_STEPS.filter((q) => !data.steps.some((s) => s.name === q.name)) : []
+  const kind = stepKind(step.name)
+  const sub = step.rest
+    ? `${night ? t("routine.restNight") : t("routine.restDay")} · ${t(`routine.${FREQ_KEY[step.frequency]}`)}`
+    : `${kind ? `${t(`routine.${KIND_KEY[kind]}`)} · ` : ""}${t(`routine.${FREQ_KEY[step.frequency]}`)}`
 
   return (
-    <View style={{ flex: 1, backgroundColor: T.bg }}>
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: insets.top + 8, paddingBottom: 24 }}
+    <Pressable
+      onPress={onPress}
+      disabled={step.rest}
+      accessibilityRole="checkbox"
+      accessibilityState={{ checked: step.done, disabled: step.rest }}
+      accessibilityLabel={`${step.name}${step.brand ? `, ${step.brand}` : ""}. ${sub}`}
+      accessibilityHint={step.rest ? undefined : step.done ? t("routine.hintDone") : t("routine.hintNotDone")}
+      style={{
+        flexDirection: "row",
+        alignItems: "baseline",
+        gap: 16,
+        minHeight: step.rest ? 60 : 80,
+        paddingVertical: 14,
+        borderTopWidth: 1,
+        borderTopColor: T.line,
+        opacity: step.rest ? 0.6 : 1,
+      }}
+    >
+      <Animated.Text
+        style={[
+          { width: 56, fontFamily: rubik.light, fontSize: step.rest ? 24 : 40, letterSpacing: -1, color: step.done ? T.ink : T.ink3 },
+          numStyle,
+        ]}
+        numberOfLines={1}
       >
-        <Animated.View style={{ opacity: contentFade }}>
-        <View style={{ flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between" }}>
-          <View>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: T.mute }}>{dayLabel}</Text>
-            <Text style={{ fontFamily: fonts.display, fontSize: 28, textTransform: "uppercase", lineHeight: 30, color: T.ink }}>
-              {routineTitle}
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => router.push("/history")}
-            accessibilityRole="button"
-            accessibilityLabel={t("routine.streakLabel", { count: streak ?? 0 })}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 6,
-              backgroundColor: T.card,
-              borderWidth: 1,
-              borderColor: T.line,
-              borderRadius: 999,
-              paddingVertical: 6,
-              paddingHorizontal: 12,
-            }}
-          >
-            <StreakLeafIcon size={12} color={T.accent} />
-            <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 13, color: T.accent }}>{streak ?? "–"}</Text>
-          </Pressable>
-        </View>
-
-        {!loading && data && data.steps.length > 0 && (
-          <View style={{ marginTop: 14, gap: 8 }}>
-            {data.steps.map((step, i) => {
-              const stepConflicts = conflictsByStep.get(step.id) ?? []
-              return (
-                <View key={step.id} style={{ backgroundColor: T.card, borderRadius: 14, borderWidth: 1, borderColor: T.line, padding: 14 }}>
-                  <Pressable
-                    onPress={() => toggle(step.id)}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: step.done }}
-                    accessibilityLabel={`${step.name}${step.brand ? `, ${step.brand}` : ""}`}
-                    accessibilityHint={step.done ? t("routine.hintDone") : t("routine.hintNotDone")}
-                    style={{ flexDirection: "row", alignItems: "center", gap: 12 }}
-                  >
-                    <Text style={{ fontFamily: fonts.mono, fontSize: 13, color: T.mute, width: 12 }}>{i + 1}</Text>
-                    <View style={{ width: 40, height: 40, borderRadius: 9, backgroundColor: T.iconTile }} />
-                    <View style={{ flex: 1, minWidth: 0 }}>
-                      <Text
-                        style={{
-                          fontFamily: fonts.bodySemiBold,
-                          fontSize: 15,
-                          color: step.done ? T.mute : T.ink,
-                          textDecorationLine: step.done ? "line-through" : "none",
-                        }}
-                      >
-                        {step.name}
-                      </Text>
-                      {step.brand && <Text style={{ fontFamily: fonts.body, fontSize: 12, color: T.mute }}>{step.brand}</Text>}
-                    </View>
-                    <StepCheckbox done={step.done} T={T} />
-                  </Pressable>
-
-                  {stepConflicts.map((c, ci) => (
-                    <View key={ci} style={{ marginTop: 10, flexDirection: "row", gap: 8, backgroundColor: T.warnBg, borderRadius: 9, padding: 11 }}>
-                      <WarnTriangleIcon color={T.warnFg} />
-                      <Text style={{ flex: 1, fontFamily: fonts.body, fontSize: 12.5, color: T.warnFg, lineHeight: 17 }}>
-                        {t("routine.conflictNote", {
-                          a: c.ingredientAName,
-                          b: c.ingredientBName,
-                          when: ampm === "night" ? t("routine.night") : t("routine.morning"),
-                          timing: c.timingNote ? ` — ${c.timingNote}` : "",
-                        })}{" "}
-                        <Text style={{ fontWeight: "600", textDecorationLine: "underline" }}>{t("routine.splitAcrossNights")}</Text>
-                      </Text>
-                    </View>
-                  ))}
-
-                  {step.enrich && (
-                    <Link href="/scan" asChild>
-                      <Pressable
-                        style={{
-                          marginTop: 10,
-                          alignSelf: "flex-start",
-                          flexDirection: "row",
-                          alignItems: "center",
-                          gap: 6,
-                          borderWidth: 1,
-                          borderStyle: "dashed",
-                          borderColor: T.enrichBorder,
-                          borderRadius: 999,
-                          paddingVertical: 5,
-                          paddingHorizontal: 11,
-                        }}
-                      >
-                        <CameraIcon color={T.mute} />
-                        <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: T.mute }}>{t("routine.scanToCheck")}</Text>
-                      </Pressable>
-                    </Link>
-                  )}
-                </View>
-              )
-            })}
-
-            <SoftPressable
-              onPress={markAllDone}
-              disabled={data.allDone}
-              style={{
-                marginTop: 6,
-                borderWidth: 1.5,
-                borderColor: T.accent,
-                backgroundColor: data.allDone ? T.doneTint : "transparent",
-                borderRadius: 12,
-                paddingVertical: 14,
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: data.allDone ? T.doneText : T.accent }}>
-                {data.allDone ? t("routine.allDone") : t("routine.markAllDone")}
-              </Text>
-            </SoftPressable>
-            {data.allDone && (
-              <Text style={{ textAlign: "center", fontFamily: fonts.bodyMedium, fontSize: 13, color: T.doneText }}>
-                {ampm === "night" ? t("routine.doneTonight") : t("routine.doneToday")}
-              </Text>
-            )}
-
-            {missing.length > 0 && (
-              <View style={{ marginTop: 10 }}>
-                <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: T.mute }}>{t("routine.alsoUse")}</Text>
-                <View style={{ marginTop: 8, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                  {missing.map((q) => (
-                    <Link key={q.name} href={{ pathname: "/add-step", params: { type: ampm, name: q.name } }} asChild>
-                      <Pressable style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: T.enrichBorder, backgroundColor: T.card }}>
-                        <Text style={{ fontFamily: fonts.body, fontSize: 13, color: T.ink }}>+ {t(`common.quickSteps.${q.labelKey}`)}</Text>
-                      </Pressable>
-                    </Link>
-                  ))}
-                </View>
-              </View>
-            )}
-          </View>
-        )}
-
-        {!loading && data && data.steps.length === 0 && (
-          <View style={{ marginTop: 40, alignItems: "center", paddingHorizontal: 12 }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 22, textTransform: "uppercase", color: T.ink, textAlign: "center" }}>
-              {ampm === "night" ? t("routine.addWhatYouUseNight") : t("routine.addWhatYouUseMorning")}
-            </Text>
-            <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 14, color: T.mute, textAlign: "center" }}>
-              {t("routine.justType")}
-            </Text>
-            <View style={{ marginTop: 18, flexDirection: "row", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-              {QUICK_STEPS.map((q) => (
-                <Link key={q.name} href={{ pathname: "/add-step", params: { type: ampm, name: q.name } }} asChild>
-                  <Pressable style={{ paddingVertical: 9, paddingHorizontal: 15, borderRadius: 999, borderWidth: 1, borderColor: T.enrichBorder, backgroundColor: T.card }}>
-                    <Text style={{ fontFamily: fonts.body, fontSize: 13, color: T.ink }}>{t(`common.quickSteps.${q.labelKey}`)}</Text>
-                  </Pressable>
-                </Link>
-              ))}
-            </View>
-          </View>
-        )}
-
-        <View style={{ marginTop: 16, flexDirection: "row", backgroundColor: T.track, borderRadius: 12, padding: 4 }}>
-          <SoftPressable
-            onPress={() => setAmpm("morning")}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: ampm === "morning" }}
-            accessibilityLabel="Morning routine"
-            scaleTo={0.98}
-            style={{
-              flex: 1,
-              alignItems: "center",
-              paddingVertical: 9,
-              borderRadius: 9,
-              backgroundColor: ampm === "morning" ? (night ? T.card : "#fff") : "transparent",
-            }}
-          >
-            <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.3, color: ampm === "morning" ? T.ink : T.mute }}>
-              {t("routine.amTab")}
-            </Text>
-          </SoftPressable>
-          <SoftPressable
-            onPress={() => setAmpm("night")}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: ampm === "night" }}
-            accessibilityLabel="Night routine"
-            scaleTo={0.98}
-            style={{
-              flex: 1,
-              alignItems: "center",
-              paddingVertical: 9,
-              borderRadius: 9,
-              backgroundColor: ampm === "night" ? (night ? T.card : "#fff") : "transparent",
-            }}
-          >
-            <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.3, color: ampm === "night" ? T.ink : T.mute }}>
-              {t("routine.pmTab")}
-            </Text>
-          </SoftPressable>
-        </View>
-
-        <View style={{ marginTop: 14, flexDirection: "row", justifyContent: "space-between" }}>
-          <Pressable onPress={() => router.push("/products")}>
-            <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 13, color: T.accent }}>
-              {t("routine.myProducts")} {FORWARD_ARROW}
-            </Text>
-          </Pressable>
-          <Link href={{ pathname: "/add-step", params: { type: ampm } }} asChild>
-            <Pressable>
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 13, color: T.accent }}>+ {t("routine.addStep")}</Text>
-            </Pressable>
-          </Link>
-        </View>
-        </Animated.View>
-      </ScrollView>
-    </View>
+        {num}
+      </Animated.Text>
+      <View style={{ flex: 1, minWidth: 0 }}>
+        <Highlight on={step.done} color={T.done} style={{ fontFamily: rubik.medium, fontSize: step.rest ? 17 : 22, lineHeight: step.rest ? 22 : 28, letterSpacing: -0.2, color: step.rest ? T.ink2 : T.ink }}>
+          {step.name}
+        </Highlight>
+        <Text style={{ marginTop: 5, fontFamily: rubik.regular, fontSize: 12, letterSpacing: 0.7, textTransform: "uppercase", color: T.ink2 }}>{sub}</Text>
+      </View>
+    </Pressable>
   )
 }

@@ -4,10 +4,10 @@ const { withNativeWind } = require("nativewind/metro")
 
 const config = getDefaultConfig(__dirname)
 
-// Code shared with the web app lives outside this project (../packages/shared). Metro has to watch
-// that folder and know where the "@skinlens/shared" import points, since it isn't in node_modules.
+// Code shared with the web app lives outside this project (../packages/shared). It's installed as a
+// "file:" dependency (node_modules/@skinlens/shared is a symlink to it); Metro must also watch the
+// real folder so edits there trigger reloads.
 const sharedRoot = path.resolve(__dirname, "../packages/shared")
 config.watchFolders = [...(config.watchFolders ?? []), sharedRoot]
-config.resolver.extraNodeModules = { ...(config.resolver.extraNodeModules ?? {}), "@skinlens/shared": sharedRoot }
 
 module.exports = withNativeWind(config, { input: "./src/global.css" })

@@ -19,6 +19,26 @@ import {
   JetBrainsMono_500Medium,
   JetBrainsMono_600SemiBold,
 } from "@expo-google-fonts/jetbrains-mono"
+import {
+  useFonts as useRubikFonts,
+  Rubik_300Light,
+  Rubik_400Regular,
+  Rubik_500Medium,
+  Rubik_600SemiBold,
+  Rubik_700Bold,
+} from "@expo-google-fonts/rubik"
+
+/**
+ * V3 design: one family, Rubik, which also covers Arabic. Light (300) for large display type
+ * ("Tonight", verdict headlines), medium/semibold for names and actions.
+ */
+export const rubik = {
+  light: "Rubik_300Light",
+  regular: "Rubik_400Regular",
+  medium: "Rubik_500Medium",
+  semibold: "Rubik_600SemiBold",
+  bold: "Rubik_700Bold",
+} as const
 
 export const fonts = {
   displayMedium: "ArchivoNarrow_500Medium",
@@ -46,5 +66,6 @@ export function useOumaFonts() {
     JetBrainsMono_500Medium,
     JetBrainsMono_600SemiBold,
   })
-  return displayLoaded && bodyLoaded && monoLoaded
+  const [rubikLoaded] = useRubikFonts({ Rubik_300Light, Rubik_400Regular, Rubik_500Medium, Rubik_600SemiBold, Rubik_700Bold })
+  return displayLoaded && bodyLoaded && monoLoaded && rubikLoaded
 }

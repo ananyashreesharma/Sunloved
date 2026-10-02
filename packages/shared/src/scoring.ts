@@ -139,18 +139,22 @@ export function zoneFromRisk(risk: Risk): Zone {
   return risk === "HIGH RISK" ? "RED" : risk === "CAUTION" ? "YELLOW" : "GREEN"
 }
 
+/** "Looks fine" needs at least this share of the label rated; between 70% and this, it's "caution". */
+export const FINE_COVERAGE = 0.9
+
 /**
  * The verdict to show, or null when we must not show one: nothing analysed yet, or too little of
  * the label rated. Callers render the "can't judge yet" state for null — never a default.
  *
- * "Looks fine" also needs every ingredient rated: a missing ingredient never silently reads as
- * safe, so a list with any "no info" ingredient tops out at caution.
+ * Unrated ingredients are never called fine individually (they show as "No information"), and the
+ * result text must name them. A label that is only 70–90% rated can't be "looks fine" overall: too
+ * much of it is unknown to vouch for.
  */
 export function verdictFor(bd: IngredientBreakdown): Zone | null {
   if (bd.high + bd.med + bd.safe === 0) return null
   if (bd.coverage < COVERAGE_THRESHOLD) return null
   const zone = zoneFromRisk(riskFromScore(bd.score))
-  return zone === "GREEN" && bd.unknown > 0 ? "YELLOW" : zone
+  return zone === "GREEN" && bd.coverage < FINE_COVERAGE ? "YELLOW" : zone
 }
 
 /** Flagged rows worst-first (avoid before caution), label order within each. */

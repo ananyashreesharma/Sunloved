@@ -88,8 +88,8 @@ export function addGuestStep(input: NewGuestStep): GuestData {
   return save(withStep(loadGuestData(), input))
 }
 
-export function toggleGuestStep(stepId: string): GuestData {
-  return save(withStepToggled(loadGuestData(), stepId))
+export function toggleGuestStep(stepId: string, period: RoutineKind): GuestData {
+  return save(withStepToggled(loadGuestData(), stepId, period))
 }
 
 export function getGuestRoutine(type: RoutineKind): GuestRoutineView {

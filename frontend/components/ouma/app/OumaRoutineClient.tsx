@@ -107,7 +107,7 @@ export function OumaRoutineClient() {
   async function toggle(stepId: string) {
     if (!data) return
     if (isGuest) {
-      toggleGuestStep(stepId)
+      toggleGuestStep(stepId, ampm)
       load(ampm, true)
       return
     }
@@ -128,7 +128,7 @@ export function OumaRoutineClient() {
     if (!data) return
     const targets = data.steps.filter((s) => !data.allDone && !s.done)
     if (isGuest) {
-      for (const s of targets) toggleGuestStep(s.id)
+      for (const s of targets) toggleGuestStep(s.id, ampm)
       load(ampm, true)
       return
     }

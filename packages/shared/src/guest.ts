@@ -4,6 +4,8 @@
 
 import type { StepFrequency, StreakDayStatus, StreakSummary, RoutineKind } from "./types"
 import { daysBetween, streakFromDates, todayKey } from "./streak"
+import { isDueOn } from "./schedule"
+import { stepKind, type StepKind } from "./kinds"
 
 export type GuestStep = {
   id: string
@@ -38,8 +40,15 @@ export const MAX_GUEST_SCANS = 20
 // thinnest first, SPF last.
 export const STEP_ORDER: Record<string, number> = { Cleanser: 0, Toner: 2, Serum: 4, Moisturiser: 6, SPF: 7 }
 
+// Slots between the quick-step positions above (Cleanser 0, Toner 2, Serum 4, Moisturiser 6, SPF 7).
+const KIND_SORT: Record<StepKind, number> = { cleanse: 0, exfoliate: 2, serum: 4, treat: 5, moisturise: 6, seal: 6.5, sunscreen: 7 }
+
+/** Sort key for a step: exact quick-step names first, else the kind guessed from its name. */
 export function stepSortKey(name: string): number {
-  return STEP_ORDER[name] ?? 99
+  const exact = STEP_ORDER[name]
+  if (exact !== undefined) return exact
+  const kind = stepKind(name)
+  return kind ? KIND_SORT[kind] : 99
 }
 
 export function defaultGuestData(): GuestData {
@@ -75,10 +84,12 @@ export function hasGuestProfile(data: GuestData): boolean {
 
 /** "both" when morning and night are both fully done today, "one" when either is, else null. */
 export function dayStatus(data: GuestData): "both" | "one" | null {
-  const nightSteps = data.steps.filter((s) => s.when !== "morning")
-  const morningSteps = data.steps.filter((s) => s.when !== "night")
-  const nightDone = nightSteps.length > 0 && nightSteps.every((s) => data.doneToday[s.id])
-  const morningDone = morningSteps.length > 0 && morningSteps.every((s) => data.doneToday[s.id])
+  // Only steps due that day count; rest days of every-other-day steps never block "done".
+  const due = data.steps.filter((s) => isDueOn(s.frequency, data.doneDate))
+  const nightSteps = due.filter((s) => s.when !== "morning")
+  const morningSteps = due.filter((s) => s.when !== "night")
+  const nightDone = nightSteps.length > 0 && nightSteps.every((s) => data.doneToday[doneKey(s.id, "night")])
+  const morningDone = morningSteps.length > 0 && morningSteps.every((s) => data.doneToday[doneKey(s.id, "morning")])
   if (!nightDone && !morningDone) return null
   return nightDone && morningDone ? "both" : "one"
 }
@@ -114,8 +125,18 @@ export function withStep(data: GuestData, input: NewGuestStep): GuestData {
   return { ...data, steps: [...data.steps, step] }
 }
 
-export function withStepToggled(data: GuestData, stepId: string): GuestData {
-  return { ...data, doneToday: { ...data.doneToday, [stepId]: !data.doneToday[stepId] } }
+export function withStepFrequency(data: GuestData, stepId: string, frequency: StepFrequency): GuestData {
+  return { ...data, steps: data.steps.map((s) => (s.id === stepId ? { ...s, frequency } : s)) }
+}
+
+/** A step used morning and night is ticked separately for each, so ticks are keyed by period. */
+export function doneKey(stepId: string, period: RoutineKind): string {
+  return `${stepId}@${period}`
+}
+
+export function withStepToggled(data: GuestData, stepId: string, period: RoutineKind): GuestData {
+  const key = doneKey(stepId, period)
+  return { ...data, doneToday: { ...data.doneToday, [key]: !data.doneToday[key] } }
 }
 
 export type GuestRoutineStepView = {
@@ -128,6 +149,8 @@ export type GuestRoutineStepView = {
   waitAfterMins: null
   done: boolean
   enrich: false
+  /** Not due today (rest day of an every-other-day or twice-a-week step). */
+  rest: boolean
 }
 
 export type GuestRoutineView = {
@@ -151,10 +174,12 @@ export function guestRoutine(data: GuestData, type: RoutineKind): GuestRoutineVi
       position: i,
       frequency: s.frequency,
       waitAfterMins: null,
-      done: !!data.doneToday[s.id],
+      done: !!data.doneToday[doneKey(s.id, type)],
       enrich: false,
+      rest: !isDueOn(s.frequency, data.doneDate),
     }))
-  return { routineId: "guest", type, steps, allDone: steps.length > 0 && steps.every((s) => s.done), conflicts: [] }
+  const due = steps.filter((s) => !s.rest)
+  return { routineId: "guest", type, steps, allDone: due.length > 0 && due.every((s) => s.done), conflicts: [] }
 }
 
 function completedDates(data: GuestData): string[] {
