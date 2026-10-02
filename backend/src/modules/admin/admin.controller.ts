@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards, BadRequestException } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { AdminGuard } from '../../common/guards/admin.guard';
 
@@ -47,6 +47,9 @@ export class AdminController {
       volume?: string;
       description?: string;
       category?: string;
+      /** Optional taxonomy leaf — set `categoryId` or `categorySlug` (slug resolved to id) */
+      categoryId?: string;
+      categorySlug?: string;
       pricePerUnit?: number;
       currentPrice?: number;
       imageUrl?: string;
@@ -90,6 +93,14 @@ export class AdminController {
         }
       }
 
+      let resolvedCategoryId: string | null = body.categoryId ?? null;
+      if (!resolvedCategoryId && body.categorySlug) {
+        const cat = await this.prisma.productCategory.findUnique({
+          where: { slug: body.categorySlug },
+        });
+        resolvedCategoryId = cat?.id ?? null;
+      }
+
       const product = await this.prisma.product.upsert({
         where: { id: body.id || 'new-product-' + Date.now() },
         update: {
@@ -98,7 +109,8 @@ export class AdminController {
           volumeValue: volumeValue,
           volumeUnit: volumeUnit,
           description: body.description,
-          category: body.category || 'Serum',
+          categoryLegacy: body.category || 'Serum',
+          ...(resolvedCategoryId ? { categoryId: resolvedCategoryId } : {}),
           pricePerUnit: body.pricePerUnit,
           price: body.currentPrice,
           imageUrl: body.imageUrl,
@@ -112,7 +124,8 @@ export class AdminController {
           volumeValue: volumeValue,
           volumeUnit: volumeUnit,
           description: body.description || '',
-          category: body.category || 'Serum',
+          categoryLegacy: body.category || 'Serum',
+          categoryId: resolvedCategoryId,
           pricePerUnit: body.pricePerUnit,
           price: body.currentPrice,
           imageUrl: body.imageUrl,
@@ -155,6 +168,8 @@ export class AdminController {
       retailerId: string;
       amount: number;
       currency?: string;
+      /** IN / AE / US — defaults to US */
+      market?: string;
     },
   ) {
     try {
@@ -182,11 +197,13 @@ export class AdminController {
         );
       }
 
+      const market = body.market || 'US';
       const price = await this.prisma.productPrice.upsert({
         where: {
-          productId_retailerId: {
+          productId_retailerId_market: {
             productId: body.productId,
             retailerId: body.retailerId,
+            market,
           },
         },
         update: {
@@ -197,6 +214,7 @@ export class AdminController {
         create: {
           productId: body.productId,
           retailerId: body.retailerId,
+          market,
           amount: body.amount,
           currency: body.currency || 'USD',
           lastCheckedAt: new Date(),
@@ -275,6 +293,61 @@ export class AdminController {
         error instanceof Error ? error.message : 'Failed to upsert ingredient',
       );
     }
+  }
+
+  /**
+   * GET /api/admin/contributions?status=pending
+   * List crowdsourced product contributions awaiting review (defaults to pending).
+   */
+  @Get('contributions')
+  async listContributions(@Query('status') status?: 'pending' | 'approved' | 'rejected') {
+    const contributions = await this.prisma.productContribution.findMany({
+      where: { status: status ?? 'pending' },
+      include: {
+        product: { include: { brand: true } },
+        user: { select: { id: true, name: true, email: true, phone: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return { data: contributions, meta: { count: contributions.length }, error: null };
+  }
+
+  /**
+   * POST /api/admin/contributions/:id/approve
+   * Publishes all ProductIngredient rows from this contribution immediately (instead of waiting for the 24h auto-publish).
+   */
+  @Post('contributions/:id/approve')
+  async approveContribution(@Param('id') id: string) {
+    await this.prisma.$transaction([
+      this.prisma.productIngredient.updateMany({
+        where: { contributionId: id, moderationStatus: 'pending' },
+        data: { moderationStatus: 'approved' },
+      }),
+      this.prisma.productContribution.update({
+        where: { id },
+        data: { status: 'approved', reviewedAt: new Date() },
+      }),
+    ]);
+    return { data: { id, status: 'approved' }, meta: null, error: null };
+  }
+
+  /**
+   * POST /api/admin/contributions/:id/reject
+   * Excludes this contribution's ProductIngredient rows from all user-facing reads.
+   */
+  @Post('contributions/:id/reject')
+  async rejectContribution(@Param('id') id: string) {
+    await this.prisma.$transaction([
+      this.prisma.productIngredient.updateMany({
+        where: { contributionId: id, moderationStatus: 'pending' },
+        data: { moderationStatus: 'rejected' },
+      }),
+      this.prisma.productContribution.update({
+        where: { id },
+        data: { status: 'rejected', reviewedAt: new Date() },
+      }),
+    ]);
+    return { data: { id, status: 'rejected' }, meta: null, error: null };
   }
 }
 

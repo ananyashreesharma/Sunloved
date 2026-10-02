@@ -51,13 +51,32 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        /** Sunloved semantic palette — prefer these over raw hex for new UI */
+
+        /** SkinLens semantic palette */
+        sl: {
+          bone: "#F3F5EF",
+          "bone-deep": "#E4EBE2",
+          night: "#0E1411",
+          ink: "#17211A",
+          "ink-soft": "#2A342C",
+          "ink-mute": "#5A6259",
+          line: "#DDE3DA",
+          card: "#FFFFFF",
+          accent: "#1E4D3A",
+          "accent-hover": "#16382B",
+          green: "#1D5C3B",
+          "green-soft": "#DFF0E4",
+          amber: "#7C5410",
+          "amber-soft": "#F7EDD8",
+          red: "#8A2E22",
+          "red-soft": "#F8E5E1",
+        },
+
+        /** Legacy sun.* aliases (for components not yet migrated) */
         sun: {
           html: "hsl(var(--sun-html))",
-          mesh: "hsl(var(--sun-mesh-page-shell) / 0.68)",
           ink: "hsl(var(--sun-ink))",
           "ink-muted": "hsl(var(--sun-ink-muted))",
-          /** Brand palette #6B7A8F #F7882F #F7C331 #DCC7AA */
           blueberry: "hsl(var(--sun-blueberry))",
           apricot: "hsl(var(--sun-apricot))",
           citrus: "hsl(var(--sun-citrus))",
@@ -66,7 +85,6 @@ const config = {
           "apricot-wash": "hsl(var(--sun-apricot-wash))",
           "citrus-wash": "hsl(var(--sun-citrus-wash))",
           "apple-wash": "hsl(var(--sun-apple-wash))",
-          /** Aliases used by scroll-story */
           clay: "hsl(var(--sun-clay))",
           sage: "hsl(var(--sun-sage))",
           slate: "hsl(var(--sun-slate))",
@@ -74,6 +92,11 @@ const config = {
           wheat: "hsl(var(--sun-wheat))",
           olive: "hsl(var(--sun-olive))",
         },
+      },
+      fontFamily: {
+        display: ["var(--font-ouma-display)", "Instrument Serif", "Georgia", "serif"],
+        body: ["var(--font-ouma-body)", "Inter Tight", "system-ui", "sans-serif"],
+        mono: ["var(--font-ouma-mono)", "JetBrains Mono", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -86,5 +109,3 @@ const config = {
 } satisfies Config
 
 export default config
-
-

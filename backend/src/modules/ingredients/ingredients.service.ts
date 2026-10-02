@@ -9,6 +9,13 @@ export interface AnalyzedIngredient {
   isIrritant: boolean;
   fungalAcneSafe: boolean;
   found: boolean; // Whether ingredient was found in DB
+  /** DB traffic-light zone when present */
+  zone?: string;
+  safetyRating?: string;
+  shortDescription?: string;
+  isParaben?: boolean;
+  isFragrance?: boolean;
+  isSulfate?: boolean;
 }
 
 export interface IngredientAnalysis {
@@ -19,22 +26,40 @@ export interface IngredientAnalysis {
   summary: string;
   actives: string[]; // Active ingredients found
   tags: string[];
+  /** foundIngredients.length / parsed.length — below 0.7 the UI shows a "can't judge yet" refusal instead of a verdict */
+  coverage: number;
 }
 
 @Injectable()
 export class IngredientsService {
   constructor(private prisma: PrismaService) {}
 
+  /** Split a raw comma/newline-separated ingredient list into trimmed names. Shared by analyze() and contributions. */
+  parseIngredientNames(raw: string): string[] {
+    return raw
+      .split(/[,\n]/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  /** Case-insensitive lookup against inciName/displayName. Shared by analyze() and contributions. */
+  findIngredientByName(name: string) {
+    return this.prisma.ingredient.findFirst({
+      where: {
+        OR: [
+          { inciName: { equals: name, mode: 'insensitive' } },
+          { displayName: { equals: name, mode: 'insensitive' } },
+        ],
+      },
+    });
+  }
+
   /**
    * Analyze a comma-separated or newline-separated ingredient list
    * Returns data from DB when available
    */
   async analyze(raw: string): Promise<IngredientAnalysis> {
-    // Parse input - support both commas and newlines
-    const parsed = raw
-      .split(/[,\n]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    const parsed = this.parseIngredientNames(raw);
 
     if (parsed.length === 0) {
       return {
@@ -45,6 +70,7 @@ export class IngredientsService {
         summary: 'No ingredients provided',
         actives: [],
         tags: [],
+        coverage: 0,
       };
     }
 
@@ -53,25 +79,25 @@ export class IngredientsService {
     const unknownIngredients: string[] = [];
 
     for (const ingredientName of parsed) {
-      // Case-insensitive search
-      const dbIngredient = await this.prisma.ingredient.findFirst({
-        where: {
-          OR: [
-            { inciName: { contains: ingredientName, mode: 'insensitive' } },
-            { displayName: { contains: ingredientName, mode: 'insensitive' } },
-          ],
-        },
-      });
+      const dbIngredient = await this.findIngredientByName(ingredientName);
 
       if (dbIngredient) {
+        const irritant =
+          dbIngredient.irritancyRating != null && dbIngredient.irritancyRating >= 3;
         foundIngredients.push({
           name: dbIngredient.inciName,
           scientificName: dbIngredient.displayName || undefined,
-          category: undefined, // Removed from schema
+          category: undefined,
           function: dbIngredient.function || undefined,
-          isIrritant: false, // TODO: Calculate from irritancyRating
-          fungalAcneSafe: false, // TODO: Calculate from sensitivityFlags
+          isIrritant: irritant,
+          fungalAcneSafe: false,
           found: true,
+          zone: dbIngredient.zone ?? undefined,
+          safetyRating: dbIngredient.safetyRating ?? undefined,
+          shortDescription: dbIngredient.shortDescription ?? undefined,
+          isParaben: dbIngredient.isParaben,
+          isFragrance: dbIngredient.isFragrance,
+          isSulfate: dbIngredient.isSulfate,
         });
       } else {
         unknownIngredients.push(ingredientName);
@@ -100,6 +126,9 @@ export class IngredientsService {
       if (ing.category) tags.add(ing.category);
       if (!ing.isIrritant) tags.add('Non-irritating');
       if (ing.fungalAcneSafe) tags.add('Fungal-acne safe');
+      if (ing.isParaben) tags.add('Paraben');
+      if (ing.isFragrance) tags.add('Fragrance');
+      if (ing.isSulfate) tags.add('Sulfate');
       actives.push(ing.name);
     });
 
@@ -111,6 +140,22 @@ export class IngredientsService {
       summary,
       actives,
       tags: Array.from(tags),
+      coverage: foundIngredients.length / parsed.length,
     };
+  }
+
+  /** A parsed ingredient name nobody recognized — logged so the catalog can be filled in. */
+  async reportUnknown(name: string, context?: string): Promise<{ ok: true }> {
+    const trimmed = name.trim();
+    if (!trimmed) {
+      return { ok: true };
+    }
+    await this.prisma.analyticsEvent.create({
+      data: {
+        eventType: 'ingredient_reported_unknown',
+        properties: { name: trimmed, context: context?.trim() || undefined },
+      },
+    });
+    return { ok: true };
   }
 }

@@ -31,7 +31,7 @@ export function usePopularProductsQuery(initialData?: unknown[]) {
     queryKey: queryKeys.products.popular(),
     queryFn: async () => {
       const results = await searchProducts("niacinamide", 1, 20)
-      const arr = results.products || results.data || []
+      const arr = results.products
       return Array.isArray(arr) ? arr : []
     },
     staleTime: stale.products,

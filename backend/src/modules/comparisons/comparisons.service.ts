@@ -210,12 +210,12 @@ export class ComparisonsService {
       where: { id: productId },
       include: {
         brand: true,
+        category: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethics: true,
       },
     });
 
@@ -240,12 +240,12 @@ export class ComparisonsService {
       },
       include: {
         brand: true,
+        category: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethics: true,
       },
     });
 
@@ -291,12 +291,15 @@ export class ComparisonsService {
           savingsPercent = Math.round((1 - priceRatio) * 100);
         }
 
-        // Determine match type
+        // Fungal-acne-safe: no fragrance, no sulfates, no isSulfate ingredients
+        const isFungalAcneSafe = (ings: typeof baseProduct.ingredients) =>
+          ings.every((pi) => !pi.ingredient.isFragrance && !pi.ingredient.isSulfate);
+
         const matchType = this.determineMatchType(
           similarity,
           priceRatio,
-          false, // TODO: Calculate from ingredients
-          false, // TODO: Calculate from ingredients
+          isFungalAcneSafe(baseProduct.ingredients),
+          isFungalAcneSafe(candidate.ingredients),
         );
 
         // Generate human-readable reason
@@ -324,7 +327,8 @@ export class ComparisonsService {
           id: candidate.id,
           name: candidate.name,
           brand: candidate.brand.name,
-          category: candidate.category || undefined,
+          category:
+            (candidate.category?.name ?? candidate.categoryLegacy) || undefined,
           imageUrl: candidate.imageUrl || undefined,
           pricePerUnit: candidate.pricePerUnit ? Number(candidate.pricePerUnit) : undefined,
           currentPrice: candidate.price ? Number(candidate.price) : undefined,

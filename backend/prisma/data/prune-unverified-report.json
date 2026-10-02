@@ -1,0 +1,15 @@
+{
+  "mode": "dry_run",
+  "at": "2026-04-05T03:26:18.724Z",
+  "delayMs": 800,
+  "counts": {
+    "scanned": 3,
+    "verified": 3,
+    "not_found": 0,
+    "ambiguous": 0,
+    "skipped_non_cosmetic": 0,
+    "soft_deleted": 0
+  },
+  "removedIds": [],
+  "samples": []
+}

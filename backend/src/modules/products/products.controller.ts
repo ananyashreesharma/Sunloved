@@ -14,7 +14,7 @@ export class ProductsController {
    * Query Parameters:
    * - query (optional): Text search by name, brand, description, or ingredients
    * - brand (optional): Filter by brand name
-   * - category (optional): Filter by category (serum, moisturizer, sunscreen, etc.)
+   * - category (optional): Legacy label, taxonomy leaf name, or leaf slug (e.g. face-serum)
    * - minPrice (optional): Minimum price filter
    * - maxPrice (optional): Maximum price filter
    * - page (optional, default=1): Page number for pagination

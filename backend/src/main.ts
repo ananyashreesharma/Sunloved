@@ -7,6 +7,19 @@ import { resolve } from 'path';
 
 loadEnv({ path: resolve(process.cwd(), '.env'), override: true });
 
+if (!process.env.DATABASE_URL?.trim()) {
+  console.error(
+    '\n❌ DATABASE_URL is not set. Copy backend/.env.example → backend/.env and add your Postgres connection string (e.g. from Supabase).\n',
+  );
+} else {
+  const dbUrl = process.env.DATABASE_URL.trim();
+  if (dbUrl.includes('supabase.co') && !/[?&]sslmode=/i.test(dbUrl)) {
+    console.warn(
+      '\n⚠️  DATABASE_URL uses Supabase but has no sslmode= in the query string. Add ?sslmode=require so Prisma can connect over TLS.\n',
+    );
+  }
+}
+
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
@@ -27,14 +40,22 @@ async function bootstrap() {
     'http://localhost:5000',
     process.env.FRONTEND_URL || 'http://localhost:3001',
   ];
-  
+
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) {
         callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
+        return;
       }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      if (/^http:\/\/127\.0\.0\.1:\d+$/.test(origin) || /^http:\/\/localhost:\d+$/.test(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: true,
   });
@@ -69,6 +90,7 @@ async function bootstrap() {
   📍 Local:            http://localhost:${port}
   🌐 API Base:         http://localhost:${port}/api
   🎯 Health Check:     http://localhost:${port}/api/health
+  🗄️  DB Check:        http://localhost:${port}/api/health/db
   
   📝 Environment:      ${process.env.NODE_ENV || 'development'}
   🔗 Frontend URL:     ${process.env.FRONTEND_URL || 'http://localhost:5000'}

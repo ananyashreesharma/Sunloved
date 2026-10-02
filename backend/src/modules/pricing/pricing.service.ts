@@ -18,7 +18,10 @@ export class PricingService {
   /**
    * Get all prices for a product, sorted by amount (cheapest first)
    */
-  async getPricesForProduct(productId: string): Promise<RetailerPrice[]> {
+  async getPricesForProduct(
+    productId: string,
+    market: string = 'US',
+  ): Promise<RetailerPrice[]> {
     // Verify product exists
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
@@ -28,21 +31,17 @@ export class PricingService {
       throw new NotFoundException(`Product with ID ${productId} not found`);
     }
 
-    // Get all prices for this product with retailer info
     const prices = await this.prisma.productPrice.findMany({
-      where: { productId },
+      where: { productId, market },
       include: { retailer: true },
-      orderBy: { amount: 'asc' }, // Cheapest first
+      orderBy: { amount: 'asc' },
     });
 
     if (prices.length === 0) {
       return [];
     }
 
-    // Find the minimum price to mark as "best"
-    const minPrice = prices[0].amount;
-
-    // Transform to response format
+    // Transform to response format — first entry is cheapest (sorted asc)
     return prices.map((price, index) => ({
       id: price.id,
       retailer: price.retailer.name,

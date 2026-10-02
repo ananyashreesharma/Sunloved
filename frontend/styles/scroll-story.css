@@ -8,8 +8,9 @@
 .sunloved-scroll-story {
   --ss-text: hsl(var(--sun-ink));
   --ss-header-bg: var(--sun-glass-header);
-  --ss-section: hsl(var(--sun-white) / 55%);
-  --ss-section-even: hsl(85 28% 98% / 50%);
+  /* Calm, editorial surfaces — no glass tints over imagery */
+  --ss-section: hsl(var(--sun-html));
+  --ss-section-even: hsl(var(--sun-html));
   --ss-red: hsl(var(--sun-clay));
   --ss-green: hsl(var(--sun-sage));
   --ss-blue: hsl(var(--sun-slate));
@@ -49,25 +50,19 @@
 }
 
 .ss-pastel-stack > .ss-section.ss-section--tiles::before {
-  background: linear-gradient(
-    to bottom,
-    hsl(var(--sun-apple-wash) / 0.38) 0%,
-    hsl(var(--sun-mesh-page-shell) / 0.28) 2.5rem,
-    hsl(var(--sun-apple-wash) / 0.42) 6rem,
-    hsl(var(--sun-apple-wash) / 0.48) 100%
-  );
+  background: hsl(var(--sun-html));
 }
 
 .ss-pastel-stack > .ss-section.ss-section--text::before {
-  background: hsl(var(--sun-apple-wash) / 0.42);
+  background: hsl(var(--muted));
 }
 
 .ss-pastel-stack > .ss-section.ss-section--two-columns::before {
-  background: hsl(var(--sun-apple-wash) / 0.36);
+  background: hsl(var(--sun-html));
 }
 
 .ss-pastel-stack > .ss-section.ss-section--subscribe::before {
-  background: hsl(var(--sun-apple-wash) / 0.42);
+  background: hsl(var(--muted));
 }
 
 /* Masthead floating squares (hero only) — outside @supports so all browsers get them */
@@ -337,23 +332,23 @@
 
   .ss-section.ss-section--tiles {
     view-timeline-name: --tiles-s;
-    --ss-section: hsl(0 0% 100% / 42%);
+    --ss-section: transparent;
     min-height: auto;
   }
 
   .ss-section--text {
     view-timeline-name: --text-s;
-    --ss-section: hsl(210 50% 97% / 48%);
+    --ss-section: transparent;
   }
 
   .ss-section--two-columns {
     view-timeline-name: --two-columns-s;
-    --ss-section: hsl(0 0% 100% / 42%);
+    --ss-section: transparent;
   }
 
   .ss-section--subscribe {
     view-timeline-name: --subscribe-s;
-    --ss-section: hsl(210 50% 97% / 48%);
+    --ss-section: transparent;
   }
 
   /* Masthead title */
@@ -376,14 +371,14 @@
 
   @keyframes ss-scale-up {
     100% {
-      scale: 1.08;
-      filter: blur(2px);
+      scale: 1.02;
+      filter: none;
     }
   }
 
   @keyframes ss-fade-away {
     100% {
-      opacity: 0.35;
+      opacity: 0.72;
     }
   }
 
@@ -398,14 +393,7 @@
     text-align: right;
     white-space: nowrap;
     padding: 0.125rem 0.5rem 0.125rem 0;
-    background: linear-gradient(
-      0.25turn,
-      var(--ss-red),
-      var(--ss-yellow),
-      var(--ss-green),
-      var(--ss-blue),
-      hsl(var(--sun-olive))
-    );
+    background: hsl(var(--sun-ink) / 0.88);
     opacity: 0;
     animation: ss-read-text both linear;
     animation-timeline: --text-s;
@@ -413,7 +401,7 @@
   }
 
   .ss-read-inner {
-    filter: invert(1);
+    color: hsl(var(--sun-white));
     font-size: 0.65rem;
     font-weight: 800;
     text-transform: uppercase;

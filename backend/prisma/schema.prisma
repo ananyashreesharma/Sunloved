@@ -1,455 +1,821 @@
-// Sunloved Database Schema - Reshaped
-// Comprehensive schema for catalog, ethics, skin fit, comparisons, and user features
+// Sunloved — redesigned schema (habits, subscriptions, multi-market, analytics)
+// Legacy product/listing fields kept optional for API compatibility until fully migrated.
 
 generator client {
   provider = "prisma-client-js"
 }
 
+// Connection strings live in backend/.env. For Supabase, include ?sslmode=require on both URLs.
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-// ============================================================================
-// 1. CATALOG TABLES
-// ============================================================================
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum SubscriptionStatus {
+  trial
+  active
+  cancelled
+  expired
+}
+
+enum SubscriptionPlan {
+  monthly
+  annual
+  student
+}
+
+enum ConflictSeverity {
+  low
+  medium
+  high
+}
+
+enum ClimateType {
+  humid
+  dry_heat
+  temperate
+  cold
+}
+
+enum IngredientSource {
+  manual
+  ai_generated
+  community
+  dermatologist_verified
+}
+
+enum RoutineType {
+  morning
+  night
+  weekly
+}
+
+/// How often a single step within a routine should be done, independent of the routine's own cadence
+enum StepFrequency {
+  daily
+  alternate
+  twice_weekly
+}
+
+/// Wording style for reminder notification copy (distinct from AffirmationTone, which styles Affirmation content)
+enum ReminderTone {
+  coach
+  plain
+  off
+}
+
+enum ReminderChannel {
+  push
+  whatsapp
+}
+
+enum AffirmationTone {
+  gentle
+  bold
+  spiritual
+  funny
+}
+
+enum IngredientSafetyRating {
+  safe
+  caution
+  avoid
+}
+
+/// UI traffic-light zone (orthogonal to numeric/detail fields; can mirror safetyRating in app)
+enum IngredientZone {
+  red
+  yellow
+  green
+}
+
+/// Crowdsourced-content review state — currently only gates ProductIngredient rows
+enum ModerationStatus {
+  pending
+  approved
+  rejected
+}
+
+enum SwapType {
+  better_ingredients
+  cheaper
+  vegan_alternative
+}
+
+// ─── Catalog reference ───────────────────────────────────────────────────────
 
 model Brand {
-  id      String  @id @default(uuid())
-  name    String  @unique
-  country String?
-  website String? @db.Text
-
-  // Brand-level ethics
+  id                       String    @id @default(uuid())
+  name                     String    @unique
+  country                  String?
+  website                  String?   @db.Text
   isCrueltyFree            Boolean   @default(false)
-  isVeganBrand             Boolean   @default(false) // True only if ALL products are vegan
-  crueltyFreeSource        String? // 'PETA', 'Leaping Bunny', 'Self-reported'
-  crueltyFreeLastCheckedAt DateTime?
+  isVeganBrand             Boolean   @default(false)
+  crueltyFreeSource        String?
+  crueltyFreeLastCheckedAt DateTime? @db.Timestamptz(6)
   notes                    String?   @db.Text
 
-  // Relations
-  products Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  products  Product[]
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @db.Timestamptz(6)
 
   @@index([isCrueltyFree])
   @@map("brands")
+}
+
+model Retailer {
+  id        String         @id @default(uuid())
+  name      String         @unique
+  slug      String         @unique
+  url       String?        @db.Text
+  prices    ProductPrice[]
+  createdAt DateTime       @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime       @updatedAt @db.Timestamptz(6)
+
+  @@map("retailers")
+}
+
+/// Hierarchical navigation taxonomy (department → group → leaf). Products point at a leaf via `categoryId`.
+/// Legacy text columns on `Product` remain until backfill is complete.
+model ProductCategory {
+  id          String  @id @default(uuid())
+  name        String
+  slug        String  @unique
+  description String? @db.Text
+  depth       Int     @default(0)
+  sortOrder   Int     @default(0)
+  isActive    Boolean @default(true)
+
+  parentId String?
+  parent   ProductCategory?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  children ProductCategory[] @relation("CategoryTree")
+
+  products Product[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([parentId])
+  @@index([depth, sortOrder])
+  @@map("product_categories")
+}
+
+/// Product filter tags (skin-type fit, concern tags, product form) are not modeled here on purpose:
+/// `SkinType` / `SkinConcern` already exist as catalog tables for *users*; adding duplicate enums on
+/// `Product` would collide by name. Prefer a future `product_skin_types` / `product_skin_concerns`
+/// join table or namespaced enums (e.g. `ProductSkinFit`) when you implement filters.
+
+model SkinType {
+  id               String                      @id @default(uuid())
+  code             String                      @unique
+  label            String
+  description      String?                     @db.Text
+  users            User[]
+  profileOverrides ProfileIngredientOverride[]
+  createdAt        DateTime                    @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime                    @updatedAt @db.Timestamptz(6)
+
+  @@map("skin_types")
+}
+
+model SkinConcern {
+  id               String                      @id @default(uuid())
+  code             String                      @unique
+  label            String
+  description      String?                     @db.Text
+  userSkinConcerns UserSkinConcern[]
+  profileOverrides ProfileIngredientOverride[]
+  createdAt        DateTime                    @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime                    @updatedAt @db.Timestamptz(6)
+
+  @@map("skin_concerns")
+}
+
+// ─── Users & subscription ───────────────────────────────────────────────────
+
+model User {
+  id              String       @id @default(uuid())
+  email           String?      @unique
+  phone           String?      @unique
+  name            String?
+  avatarUrl       String?      @db.Text
+  username        String       @unique
+  passwordHash    String?
+  /// OAuth provider IDs for deduplication
+  googleId        String?      @unique
+  appleId         String?      @unique
+  locale          String       @default("IN")
+  skinTypeId      String?
+  skinType        SkinType?    @relation(fields: [skinTypeId], references: [id])
+  climateZoneId   String?
+  climateZone     ClimateZone? @relation(fields: [climateZoneId], references: [id], onDelete: SetNull)
+  isPregnancyMode Boolean      @default(false)
+  onboardingDone  Boolean      @default(false)
+  deletedAt       DateTime?    @db.Timestamptz(6)
+  createdAt       DateTime     @default(now()) @db.Timestamptz(6)
+  updatedAt       DateTime     @updatedAt @db.Timestamptz(6)
+
+  subscriptions          Subscription[]
+  skinConcerns           UserSkinConcern[]
+  routines               Routine[]
+  routineLogs            RoutineLog[]
+  streak                 Streak?
+  notificationPreference NotificationPreference?
+  skinScanHistory        SkinScanHistory[]
+  analyticsEvents        AnalyticsEvent[]
+  affirmationDeliveries  AffirmationDelivery[]
+  milestoneBadgesEarned  UserMilestoneBadge[]
+  swapRequests           UserSwapRequest[]
+  productContributions   ProductContribution[]
+  refreshTokens          RefreshToken[]
+
+  @@index([skinTypeId])
+  @@index([climateZoneId])
+  @@map("users")
+}
+
+model Subscription {
+  id             String             @id @default(uuid())
+  userId         String
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status         SubscriptionStatus
+  plan           SubscriptionPlan
+  market         String
+  startsAt       DateTime           @db.Timestamptz(6)
+  expiresAt      DateTime           @db.Timestamptz(6)
+  storeProductId String?
+  receiptData    Json?
+  createdAt      DateTime           @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("subscriptions")
+}
+
+model UserSkinConcern {
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skinConcernId String
+  skinConcern   SkinConcern @relation(fields: [skinConcernId], references: [id], onDelete: Cascade)
+  severity      Int?
+  createdAt     DateTime    @default(now()) @db.Timestamptz(6)
+
+  @@id([userId, skinConcernId])
+  @@map("user_skin_concerns")
+}
+
+// ─── Routines & habits ──────────────────────────────────────────────────────
+
+model Routine {
+  id                     String      @id @default(uuid())
+  userId                 String
+  user                   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                   String
+  type                   RoutineType
+  reminderTime           DateTime?   @db.Time(6)
+  reminderEnabled        Boolean     @default(true)
+  isActive               Boolean     @default(true)
+  conflictCheckLastRunAt DateTime?   @db.Timestamptz(6)
+  deletedAt              DateTime?   @db.Timestamptz(6)
+  createdAt              DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt              DateTime    @updatedAt @db.Timestamptz(6)
+
+  steps RoutineStep[]
+  logs  RoutineLog[]
+
+  @@index([userId])
+  @@map("routines")
+}
+
+model RoutineStep {
+  id            String        @id @default(uuid())
+  routineId     String
+  routine       Routine       @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       Product?      @relation(fields: [productId], references: [id], onDelete: SetNull)
+  stepOrder     Int
+  customName    String?
+  notes         String?       @db.Text
+  frequency     StepFrequency @default(daily)
+  /// Minutes to wait after this step before the next (e.g. vitamin C → SPF)
+  waitAfterMins Int?
+
+  @@unique([routineId, stepOrder])
+  @@index([routineId])
+  @@map("routine_steps")
+}
+
+model RoutineLog {
+  id               String    @id @default(uuid())
+  userId           String
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  routineId        String
+  routine          Routine   @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  logDate          DateTime  @db.Date
+  completedAt      DateTime? @db.Timestamptz(6)
+  skipped          Boolean   @default(false)
+  mood             Int?
+  /// RoutineStep ids checked off so far for this routine+day; completedAt is set once this covers every step
+  completedStepIds String[]  @default([])
+
+  @@unique([userId, routineId, logDate])
+  @@index([userId])
+  @@index([routineId])
+  @@index([logDate])
+  @@map("routine_logs")
+}
+
+model Streak {
+  userId             String   @id
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentStreak      Int      @default(0)
+  longestStreak      Int      @default(0)
+  lastActiveDate     DateTime @default(now()) @db.Date
+  totalDaysCompleted Int      @default(0)
+  updatedAt          DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("streaks")
+}
+
+model NotificationPreference {
+  userId              String          @id
+  user                User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  morningTime         DateTime?       @db.Time(6)
+  nightTime           DateTime?       @db.Time(6)
+  affirmationsEnabled Boolean         @default(true)
+  streakAlertsEnabled Boolean         @default(true)
+  affirmationTone     AffirmationTone @default(gentle)
+  timezone            String          @default("UTC")
+  pushToken           String?
+  channel             ReminderChannel @default(push)
+  reminderTone        ReminderTone    @default(coach)
+  muted               Boolean         @default(false)
+  updatedAt           DateTime        @updatedAt @db.Timestamptz(6)
+
+  @@map("notification_preferences")
+}
+
+// ─── Affirmations & milestones (habit retention) ───────────────────────────
+
+model Affirmation {
+  id           String           @id @default(uuid())
+  body         String           @db.Text
+  tone         AffirmationTone?
+  locale       String?
+  triggerEvent String?
+  sortOrder    Int              @default(0)
+  isActive     Boolean          @default(true)
+  createdAt    DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime         @updatedAt @db.Timestamptz(6)
+
+  deliveries AffirmationDelivery[]
+
+  @@index([isActive, tone, locale])
+  @@map("affirmations")
+}
+
+model AffirmationDelivery {
+  id            String      @id @default(uuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  affirmationId String
+  affirmation   Affirmation @relation(fields: [affirmationId], references: [id], onDelete: Cascade)
+  deliveredAt   DateTime    @default(now()) @db.Timestamptz(6)
+  channel       String?
+
+  @@index([userId, deliveredAt])
+  @@index([userId, affirmationId])
+  @@map("affirmation_deliveries")
+}
+
+model MilestoneBadge {
+  id                 String   @id @default(uuid())
+  code               String   @unique
+  label              String
+  description        String?  @db.Text
+  streakDaysRequired Int?
+  criteria           Json?
+  createdAt          DateTime @default(now()) @db.Timestamptz(6)
+
+  earnedBy UserMilestoneBadge[]
+
+  @@map("milestone_badges")
+}
+
+model UserMilestoneBadge {
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  milestoneBadgeId String
+  milestoneBadge   MilestoneBadge @relation(fields: [milestoneBadgeId], references: [id], onDelete: Cascade)
+  earnedAt         DateTime       @default(now()) @db.Timestamptz(6)
+
+  @@id([userId, milestoneBadgeId])
+  @@map("user_milestone_badges")
+}
+
+// ─── Ingredients & products ────────────────────────────────────────────────
+
+model Ingredient {
+  id               String                  @id @default(uuid())
+  inciName         String                  @unique
+  displayName      String?
+  /// One-liner shown in ingredient analyser UI
+  shortDescription String?                 @db.Text
+  zone             IngredientZone?
+  aliases          String[]                @default([])
+  function         String?
+  safetyRating     IngredientSafetyRating?
+  comedogenicScore Int?
+  isVegan          Boolean                 @default(false)
+  isCrueltyFree    Boolean                 @default(false)
+  isOrganic        Boolean                 @default(false)
+  isPregnancySafe  Boolean                 @default(false)
+  isFragrance      Boolean                 @default(false)
+  isParaben        Boolean                 @default(false)
+  isSulfate        Boolean                 @default(false)
+  isAyurvedic      Boolean                 @default(false)
+  regionNotes      Json?
+  /// Legacy scraper / analysis fields (optional)
+  isPhthalate      Boolean                 @default(false)
+  isTalc           Boolean                 @default(false)
+  isPfas           Boolean                 @default(false)
+  irritancyRating  Int?
+  sensitivityFlags Json?
+  regulatoryNotes  String?                 @db.Text
+  source           IngredientSource?
+  lastReviewedAt   DateTime?               @db.Timestamptz(6)
+  description      String?                 @db.Text
+
+  productIngredients ProductIngredient[]
+  conflictsAsA       IngredientConflict[]        @relation("ConflictA")
+  conflictsAsB       IngredientConflict[]        @relation("ConflictB")
+  profileOverrides   ProfileIngredientOverride[]
+  createdAt          DateTime                    @default(now()) @db.Timestamptz(6)
+  updatedAt          DateTime                    @updatedAt @db.Timestamptz(6)
+
+  @@index([inciName])
+  @@index([isFragrance])
+  @@index([isParaben])
+  @@index([isSulfate])
+  @@index([isAyurvedic])
+  @@index([zone])
+  @@index([isVegan])
+  @@index([isPregnancySafe])
+  @@index([aliases], type: Gin, map: "ingredients_aliases_gin")
+  @@map("ingredients")
 }
 
 model Product {
   id      String @id @default(uuid())
   brandId String
   brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  name    String
 
-  name        String
-  category    String // 'cleanser', 'serum', 'moisturizer', 'sunscreen', etc.
-  subCategory String? // 'gel cleanser', 'cream cleanser', 'matte lipstick'
+  categoryId        String?
+  category          ProductCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+  /// Scraped / legacy label before taxonomy backfill (e.g. old Open Beauty Facts mapping)
+  categoryLegacy    String           @map("categoryLegacy")
+  subCategoryLegacy String?          @map("subCategoryLegacy")
 
-  // Volume & packaging
-  volumeValue Decimal? @db.Decimal(10, 2)
-  volumeUnit  String? // 'ml', 'g', 'oz'
+  /// ISO country code for the specific formulation this row represents (e.g. "IN"/"US"/"GB") — a
+  /// product name can have a different ingredient list per country, so this scopes identity alongside brand+name
+  country        String?
+  markets        String[]                 @default([])
+  barcode        String?
+  overallScore   Decimal?                 @db.Decimal(5, 2)
+  discontinuedAt DateTime?                @db.Timestamptz(6)
+  deletedAt      DateTime?                @db.Timestamptz(6)
+  searchVector   Unsupported("tsvector")? @map("search_vector")
 
-  // Description & media
-  description String? @db.Text
-  imageUrl    String? @db.Text
-  url         String? @db.Text // Canonical product page
-  barcode     String? // EAN/UPC
-
-  // Pricing
-  price        Decimal? @db.Decimal(10, 2)
-  currency     String?  @default("USD") // 'USD', 'INR'
-  pricePerUnit Decimal? @db.Decimal(10, 4) // Derived: price / volumeValue
-
-  // Relationships & metadata
-  originalProductId String? // FK to products.id if this is a dupe
+  /// Legacy listing fields (API / scraper) — trim when clients move to prices-only + new shape
+  volumeValue       Decimal?  @db.Decimal(10, 2)
+  volumeUnit        String?
+  description       String?   @db.Text
+  imageUrl          String?   @db.Text
+  url               String?   @db.Text
+  price             Decimal?  @db.Decimal(10, 2)
+  currency          String?   @default("USD")
+  pricePerUnit      Decimal?  @db.Decimal(10, 4)
+  originalProductId String?
   originalProduct   Product?  @relation("ProductDupes", fields: [originalProductId], references: [id])
   dupes             Product[] @relation("ProductDupes")
+  source            String?
+  sourceProductId   String?
+  isDiscontinued    Boolean   @default(false)
+  lastScrapedAt     DateTime? @db.Timestamptz(6)
 
-  source          String? // 'OpenBeautyFacts', 'Sephora', 'Amazon'
-  sourceProductId String? // Original external ID
-  isDiscontinued  Boolean   @default(false)
-  lastScrapedAt   DateTime?
+  ingredients     ProductIngredient[]
+  comparisonsBase Comparison[]          @relation("BaseProduct")
+  comparisonsAlt  Comparison[]          @relation("AltProduct")
+  routineSteps    RoutineStep[]
+  skinScanHistory SkinScanHistory[]
+  prices          ProductPrice[]
+  swapRequests    UserSwapRequest[]
+  contributions   ProductContribution[]
 
-  // Relations
-  ingredients       ProductIngredient[]
-  ethics            ProductEthics?
-  skinTypes         ProductSkinType[]
-  skinConcerns      ProductSkinConcern[]
-  comparisonsAsBase Comparison[]         @relation("BaseProduct")
-  comparisonsAsAlt  Comparison[]         @relation("AltProduct")
-  priceHistory      PriceHistory[]
-  prices            ProductPrice[]
-  reviews           ProductReview[]
-  wishlistItems     WishlistItem[]
-  favorites         Favorite[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
   @@index([brandId])
+  @@index([categoryId])
+  @@index([categoryLegacy])
   @@index([barcode])
-  @@index([category, subCategory])
-  @@index([price])
+  @@index([markets], type: Gin, map: "products_markets_gin")
+  @@index([originalProductId])
   @@index([source])
+  @@index([brandId, name, country])
   @@map("products")
 }
 
-model Ingredient {
-  id          String  @id @default(uuid())
-  inciName    String  @unique // Canonical INCI name
-  displayName String? // Nice user-facing name
-  aliases     Json? // Alternate spellings / trade names
-
-  // Function & role
-  function    String? // 'humectant', 'emollient', 'preservative', 'UV filter', 'pigment'
-  description String? @db.Text
-
-  // Safety & classification flags
-  isFragrance Boolean @default(false)
-  isParaben   Boolean @default(false)
-  isPhthalate Boolean @default(false)
-  isSulfate   Boolean @default(false)
-  isTalc      Boolean @default(false)
-  isPfas      Boolean @default(false)
-
-  // Sensitivity / safety metadata
-  comedogenicRating Int? // 0-5
-  irritancyRating   Int? // 0-5
-  sensitivityFlags  Json? // {"rosacea": true, "fungal_acne": false}
-  regulatoryNotes   String? @db.Text // "EU: max 1% in leave-on", "Rinse-off only"
-
-  // Metadata
-  source         String?
-  lastReviewedAt DateTime?
-
-  // Relations
-  products ProductIngredient[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([isFragrance])
-  @@index([isParaben])
-  @@index([isSulfate])
-  @@map("ingredients")
-}
-
 model ProductIngredient {
-  id           String     @id @default(uuid())
-  productId    String
-  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  ingredientId String
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  id            String     @id @default(uuid())
+  productId     String
+  product       Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  ingredientId  String
+  ingredient    Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Restrict)
+  position      Int
+  isStar        Boolean    @default(false)
+  concentration Decimal?   @db.Decimal(10, 6)
+  rawText       String?
 
-  position          Int // 1-based order from ingredient list
-  concentration     Decimal? @db.Decimal(7, 4) // If known
-  concentrationUnit String? // '%', 'ppm'
-  isStarIngredient  Boolean  @default(false)
-  rawText           String? // Original raw label substring for debugging
+  /// Gates whether this specific product-ingredient claim is shown in user-facing verdicts.
+  /// Existing/admin/scraper rows default to approved; crowdsourced contributions start pending.
+  moderationStatus ModerationStatus     @default(approved)
+  contributionId   String?
+  contribution     ProductContribution? @relation(fields: [contributionId], references: [id], onDelete: SetNull)
 
-  createdAt DateTime @default(now())
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
 
   @@unique([productId, ingredientId])
   @@unique([productId, position])
   @@index([productId])
   @@index([ingredientId])
+  @@index([contributionId])
+  @@index([moderationStatus])
   @@map("product_ingredients")
 }
 
-// ============================================================================
-// 2. ETHICS & SAFETY
-// ============================================================================
+/// One crowdsourced "here's a product + its ingredient list" submission. Tracks the 24h
+/// auto-publish window and groups the ProductIngredient rows it created for bulk approve/reject.
+model ProductContribution {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-model ProductEthics {
-  id        String  @id @default(uuid())
-  productId String  @unique
+  productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  // Ethics flags (null = inherit from brand)
-  isCrueltyFree Boolean? // If null → inherit from brand
-  isVegan       Boolean? // If null → inherit from brand
-  isOrganic     Boolean?
+  rawIngredientText String @db.Text
 
-  // Free-from style tags (can be computed or stored)
-  isFragranceFree    Boolean @default(false)
-  isAlcoholFree      Boolean @default(false)
-  isEssentialOilFree Boolean @default(false)
-  isParabenFree      Boolean @default(false)
-  isSulfateFree      Boolean @default(false)
-  isPhthalateFree    Boolean @default(false)
-  isTalcFree         Boolean @default(false)
-  isPfasFree         Boolean @default(false)
+  status        ModerationStatus @default(pending)
+  autoPublishAt DateTime         @db.Timestamptz(6)
+  reviewedAt    DateTime?        @db.Timestamptz(6)
 
-  // Metadata
-  source         String? // 'computed', 'brand_claim', 'user_verified'
-  lastVerifiedAt DateTime?
-  notes          String?   @db.Text
+  productIngredients ProductIngredient[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
 
-  @@index([isVegan])
-  @@index([isCrueltyFree])
-  @@index([isFragranceFree])
-  @@index([isParabenFree])
-  @@map("product_ethics")
+  @@index([userId])
+  @@index([productId])
+  @@index([status, autoPublishAt])
+  @@map("product_contributions")
 }
-
-// ============================================================================
-// 3. SKIN FIT: TYPES & CONCERNS
-// ============================================================================
-
-model SkinType {
-  id          String  @id @default(uuid())
-  code        String  @unique // 'normal', 'oily', 'dry', 'combination', 'sensitive'
-  label       String // 'Normal', 'Oily'
-  description String? @db.Text
-
-  // Relations
-  products ProductSkinType[]
-  users    User[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("skin_types")
-}
-
-model SkinConcern {
-  id          String  @id @default(uuid())
-  code        String  @unique // 'acne', 'hyperpigmentation', 'aging', 'redness', etc.
-  label       String
-  description String? @db.Text
-
-  // Relations
-  products ProductSkinConcern[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("skin_concerns")
-}
-
-model ProductSkinType {
-  id         String   @id @default(uuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  skinTypeId String
-  skinType   SkinType @relation(fields: [skinTypeId], references: [id], onDelete: Restrict)
-
-  score  Int? // 1-5 indicating how suitable
-  source String? // 'algorithm', 'expert', 'user_votes'
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([productId, skinTypeId])
-  @@index([skinTypeId, productId])
-  @@map("product_skin_types")
-}
-
-model ProductSkinConcern {
-  id            String      @id @default(uuid())
-  productId     String
-  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  skinConcernId String
-  skinConcern   SkinConcern @relation(fields: [skinConcernId], references: [id], onDelete: Restrict)
-
-  role   String? // 'targets', 'safe_for', 'avoid_if'
-  score  Int? // 1-5
-  source String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([productId, skinConcernId, role])
-  @@index([skinConcernId, productId])
-  @@map("product_skin_concerns")
-}
-
-// ============================================================================
-// 4. COMPARISONS / DUPES
-// ============================================================================
 
 model Comparison {
-  id            String  @id @default(uuid())
-  baseProductId String
-  baseProduct   Product @relation("BaseProduct", fields: [baseProductId], references: [id], onDelete: Cascade)
-  altProductId  String
-  altProduct    Product @relation("AltProduct", fields: [altProductId], references: [id], onDelete: Cascade)
+  id                     String   @id @default(uuid())
+  baseProductId          String
+  baseProduct            Product  @relation("BaseProduct", fields: [baseProductId], references: [id], onDelete: Cascade)
+  altProductId           String
+  altProduct             Product  @relation("AltProduct", fields: [altProductId], references: [id], onDelete: Cascade)
+  swapType               SwapType @default(better_ingredients)
+  swapReason             String?  @db.Text
+  ingredientImprovements Json?
+  similarityScore        Int
+  priceDelta             Decimal  @db.Decimal(12, 2)
+  overlapPct             Decimal  @db.Decimal(5, 2)
+  sharedKeyIngredients   Json?
+  marketAvailability     String[] @default([])
 
-  // Scores
-  similarityScore  Decimal  @db.Decimal(5, 2) // 0-100
-  ecoScore         Decimal? @db.Decimal(5, 2) // Higher = more eco-friendly
-  sensitivityScore Decimal? @db.Decimal(5, 2) // Higher = better for sensitive skin
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 
-  // Metadata
-  matchType            String // 'ingredient_similarity', 'eco_friendly', 'sensitive_skin', 'mixed'
-  overlapPercentage    Decimal? @db.Decimal(5, 2) // Percentage of shared ingredients
-  sharedKeyIngredients Json? // List of ingredient_ids or names
-  priceDiff            Decimal? @db.Decimal(10, 2) // alt_price - base_price
-  pricePerUnitDiff     Decimal? @db.Decimal(10, 4)
-  notes                String?  @db.Text
+  userSwapRequests UserSwapRequest[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([baseProductId, altProductId])
+  @@unique([baseProductId, altProductId, swapType])
   @@index([baseProductId])
   @@index([altProductId])
-  @@index([baseProductId, matchType, similarityScore(sort: Desc)])
+  @@index([swapType])
   @@map("comparisons")
 }
 
-// ============================================================================
-// 5. USER-FACING TABLES
-// ============================================================================
+model UserSwapRequest {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  swapType     SwapType?
+  notes        String?     @db.Text
+  comparisonId String?
+  comparison   Comparison? @relation(fields: [comparisonId], references: [id], onDelete: SetNull)
+  createdAt    DateTime    @default(now()) @db.Timestamptz(6)
 
-model User {
-  id           String    @id @default(uuid())
-  email        String?   @unique // Nullable if using OAuth
-  username     String    @unique
-  passwordHash String? // Nullable if using external auth
-  displayName  String?
-  skinTypeId   String?
-  skinType     SkinType? @relation(fields: [skinTypeId], references: [id])
-  skinConcerns Json? // Or link via join table if needed
-
-  // Relations
-  reviews       ProductReview[]
-  wishlistItems WishlistItem[]
-  favorites     Favorite[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("users")
+  @@index([userId, createdAt])
+  @@index([productId])
+  @@map("user_swap_requests")
 }
 
-model ProductReview {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+model SkinScanHistory {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId         String?
+  product           Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  rawIngredientText String   @db.Text
+  scannedAt         DateTime @default(now()) @db.Timestamptz(6)
+  scanResult        Json
+  flagCount         Int      @default(0)
 
-  rating  Int // 1-5
-  title   String?
-  comment String? @db.Text
-
-  // Optional context fields
-  userSkinTypeId   String? // Snapshot at review time
-  userSkinConcerns Json? // Snapshot
-  usedForDuration  String? // '1 week', '3 months'
-  wouldRepurchase  Boolean?
-
-  // Moderation
-  isVerifiedPurchase Boolean @default(false)
-  isHidden           Boolean @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, productId])
-  @@index([productId, rating])
   @@index([userId])
-  @@map("product_reviews")
+  @@index([scannedAt])
+  @@map("skin_scan_history")
 }
 
-model Wishlist {
-  id     String @id @default(uuid())
-  userId String
-  name   String // 'Morning routine', 'Wishlist – Sephora sale'
-
-  // Relations
-  items WishlistItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("wishlists")
-}
-
-model WishlistItem {
+model AnalyticsEvent {
   id         String   @id @default(uuid())
-  wishlistId String
-  wishlist   Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  eventType  String
+  properties Json?
+  occurredAt DateTime @default(now()) @db.Timestamptz(6)
+  sessionId  String?
 
-  createdAt DateTime @default(now())
-  user      User?    @relation(fields: [userId], references: [id])
-  userId    String?
-
-  @@unique([wishlistId, productId])
-  @@index([wishlistId])
-  @@index([productId])
-  @@map("wishlist_items")
-}
-
-model Favorite {
-  id        String  @id @default(uuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([userId, productId])
   @@index([userId])
-  @@index([productId])
-  @@map("favorites")
-}
-
-// ============================================================================
-// 6. PRICING & RETAILERS (keeping existing structure)
-// ============================================================================
-
-model Retailer {
-  id   String  @id @default(uuid())
-  name String  @unique
-  slug String  @unique
-  url  String? @db.Text
-
-  // Relations
-  prices ProductPrice[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("retailers")
+  @@index([eventType])
+  @@index([occurredAt])
+  @@map("analytics_events")
 }
 
 model ProductPrice {
-  id         String   @id @default(uuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  retailerId String
-  retailer   Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
-
+  id            String   @id @default(uuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  retailerId    String
+  retailer      Retailer @relation(fields: [retailerId], references: [id], onDelete: Cascade)
+  market        String
   amount        Decimal  @db.Decimal(10, 2)
   currency      String   @default("USD")
-  lastCheckedAt DateTime @default(now())
+  url           String?  @db.Text
+  lastCheckedAt DateTime @default(now()) @db.Timestamptz(6)
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(6)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([productId, retailerId])
+  @@unique([productId, retailerId, market])
   @@index([productId])
-  @@index([retailerId])
+  @@index([market])
   @@map("product_prices")
 }
 
-model PriceHistory {
-  id         String   @id @default(uuid())
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  price      Decimal  @db.Decimal(10, 2)
-  recordedAt DateTime @default(now())
+// ─── Ingredient conflicts ───────────────────────────────────────────────────
 
-  @@index([productId, recordedAt])
-  @@map("price_history")
+model IngredientConflict {
+  id            String           @id @default(uuid())
+  ingredientAId String
+  ingredientA   Ingredient       @relation("ConflictA", fields: [ingredientAId], references: [id], onDelete: Cascade)
+  ingredientBId String
+  ingredientB   Ingredient       @relation("ConflictB", fields: [ingredientBId], references: [id], onDelete: Cascade)
+  severity      ConflictSeverity @default(medium)
+  reason        String           @db.Text
+  timingNote    String?          @db.Text
+  source        String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([ingredientAId, ingredientBId])
+  @@index([ingredientAId])
+  @@index([ingredientBId])
+  @@map("ingredient_conflicts")
+}
+
+// ─── Profile ingredient overrides ──────────────────────────────────────────
+
+model ProfileIngredientOverride {
+  id             String         @id @default(uuid())
+  skinTypeId     String?
+  skinType       SkinType?      @relation(fields: [skinTypeId], references: [id], onDelete: SetNull)
+  skinConcernId  String?
+  skinConcern    SkinConcern?   @relation(fields: [skinConcernId], references: [id], onDelete: SetNull)
+  ingredientId   String
+  ingredient     Ingredient     @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  overrideZone   IngredientZone
+  overrideReason String?        @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@unique([skinTypeId, skinConcernId, ingredientId])
+  @@index([ingredientId])
+  @@map("profile_ingredient_overrides")
+}
+
+// ─── Climate zones ─────────────────────────────────────────────────────────
+
+model ClimateZone {
+  id          String      @id @default(uuid())
+  cityName    String
+  state       String?
+  climateType ClimateType
+
+  users User[]
+
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@unique([cityName, state])
+  @@index([climateType])
+  @@map("climate_zones")
+}
+
+// ─── Phone OTP (WhatsApp Verify) ───────────────────────────────────────────
+
+/// Short-lived OTP records for WhatsApp phone login.
+/// Entries expire after 10 minutes and are deleted on use.
+model PhoneOtp {
+  id        String   @id @default(uuid())
+  phone     String
+  /// bcrypt hash of the 6-digit code
+  codeHash  String
+  expiresAt DateTime @db.Timestamptz(6)
+  used      Boolean  @default(false)
+  /// Failed verify attempts against this code. Hitting MAX_OTP_ATTEMPTS (see auth.service.ts)
+  /// invalidates the row so the code can't be brute-forced — a fresh send is required after.
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([phone])
+  @@index([expiresAt])
+  @@map("phone_otps")
+}
+
+// ─── Email OTP (mobile login) ──────────────────────────────────────────────
+
+/// Short-lived OTP records for email login — mobile's alternative to WhatsApp phone login,
+/// since SMS/WhatsApp delivery costs money per message and the phone flow's +91-only field
+/// locked out anyone outside India. Same shape and lifetime as PhoneOtp.
+model EmailOtp {
+  id        String   @id @default(uuid())
+  email     String
+  /// bcrypt hash of the 6-digit code
+  codeHash  String
+  expiresAt DateTime @db.Timestamptz(6)
+  used      Boolean  @default(false)
+  /// Failed verify attempts against this code. Hitting MAX_OTP_ATTEMPTS (see auth.service.ts)
+  /// invalidates the row so the code can't be brute-forced — a fresh send is required after.
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([email])
+  @@index([expiresAt])
+  @@map("email_otps")
+}
+
+// ─── Refresh tokens (mobile sessions) ──────────────────────────────────────
+
+/// Backs mobile's JWT refresh tokens so they're actually revocable — a bare signed JWT with no
+/// DB record can't be killed short of rotating the whole signing secret (see token.util.ts).
+/// Each row is one issued refresh token; the raw token is never stored, only its hash.
+/// Rotated on every use (auth.service.ts's refreshSession) — old row gets revokedAt set, a new
+/// row is created — so reuse of an already-rotated token is detectable as likely theft.
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// sha256 hex digest of the raw refresh token
+  tokenHash String    @unique
+  expiresAt DateTime  @db.Timestamptz(6)
+  revokedAt DateTime? @db.Timestamptz(6)
+  createdAt DateTime  @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// ─── AI response cache ─────────────────────────────────────────────────────
+
+model AiCache {
+  id        String   @id @default(uuid())
+  cacheKey  String   @unique
+  prompt    String   @db.Text
+  response  String   @db.Text
+  model     String
+  hitCount  Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@index([cacheKey])
+  @@map("ai_cache")
 }

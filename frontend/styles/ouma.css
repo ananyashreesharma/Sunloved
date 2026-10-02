@@ -1,0 +1,341 @@
+/* SkinLens — design system (botanical green on cream, Archivo Narrow display) */
+
+.ouma-root {
+  /* Prototype palette */
+  --ouma-bone: #F3F5EF;
+  --ouma-bone-deep: #E4EBE2;
+  --ouma-ink: #17211A;
+  --ouma-ink-soft: #2A342C;
+  --ouma-ink-mute: #5A6259;
+  --ouma-line: #DDE3DA;
+  --ouma-card: #FFFFFF;
+
+  /* Primary accent (buttons, links, active states) — distinct from body-text ink */
+  --ouma-accent: #1E4D3A;
+  --ouma-accent-hover: #16382B;
+
+  /* Verdict zones */
+  --ouma-zone-green: #1D5C3B;
+  --ouma-zone-green-soft: #DFF0E4;
+  --ouma-zone-amber: #7C5410;
+  --ouma-zone-amber-soft: #F7EDD8;
+  --ouma-zone-red: #8A2E22;
+  --ouma-zone-red-soft: #F8E5E1;
+
+  /* Legacy aliases (for older components) */
+  --ouma-terracotta: #1E4D3A;
+  --ouma-terracotta-hover: #16382B;
+  --ouma-terracotta-bright: #2A342C;
+  --ouma-forest: #1E4D3A;
+  --ouma-forest-deep: #16382B;
+  --ouma-yellow: #F7EDD8;
+  --ouma-cream: #F3F5EF;
+  --ouma-paper: #F3F5EF;
+  --ouma-soft-terracotta: #DFF0E4;
+  --ouma-peach-badge: #E4EBE2;
+  --ouma-white: #ffffff;
+  --ouma-border: #DDE3DA;
+  --ouma-red-bg: #F8E5E1;
+  --ouma-yellow-bg: #F7EDD8;
+  --ouma-green-bg: #DFF0E4;
+
+  --ouma-max: 480px;
+  --ouma-pad-x: 24px;
+  --ouma-section-y: 56px;
+  --ouma-font-body: var(--font-ouma-body), 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --ouma-font-display: var(--font-ouma-display), 'Archivo Narrow', Georgia, serif;
+  --ouma-font-mono: var(--font-ouma-mono), 'JetBrains Mono', 'Courier New', monospace;
+  --ouma-cta-cursor: pointer;
+
+  background: var(--ouma-bone);
+  color: var(--ouma-ink);
+  font-family: var(--ouma-font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-text-size-adjust: 100%;
+}
+
+.ouma-root * {
+  box-sizing: border-box;
+}
+
+.ouma-display {
+  font-family: var(--ouma-font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.ouma-mono {
+  font-family: var(--ouma-font-mono);
+}
+
+/* Wider shell for desktop marketing + app */
+.ouma-shell-wide {
+  --ouma-max: 1200px;
+}
+
+@media (min-width: 768px) {
+  .ouma-root:not(.ouma-app-mode) {
+    --ouma-pad-x: 32px;
+    --ouma-section-y: 80px;
+    --ouma-max: 640px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ouma-root:not(.ouma-app-mode) {
+    --ouma-max: 720px;
+  }
+}
+
+.ouma-container {
+  width: 100%;
+  max-width: var(--ouma-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--ouma-pad-x);
+  padding-right: var(--ouma-pad-x);
+}
+
+.ouma-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: var(--ouma-ink);
+  transform-origin: left;
+  z-index: 10050;
+  pointer-events: none;
+}
+
+.ouma-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 400ms ease, transform 400ms ease;
+}
+
+.ouma-reveal.ouma-reveal--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouma-root .ouma-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .ouma-root *,
+  .ouma-root *::before,
+  .ouma-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Primary CTA — accent green button */
+.ouma-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 54px;
+  padding: 0 28px;
+  border: none;
+  border-radius: 100px;
+  background: var(--ouma-accent);
+  color: #fff;
+  font-family: var(--ouma-font-body);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(30, 77, 58, 0.2);
+  transition: transform 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.ouma-btn-primary:hover {
+  background: var(--ouma-accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(30, 77, 58, 0.28);
+}
+
+.ouma-btn-primary:focus-visible {
+  outline: 2px solid var(--ouma-zone-green);
+  outline-offset: 3px;
+}
+
+.ouma-btn-analyze {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 54px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 100px;
+  background: var(--ouma-accent);
+  color: #fff;
+  font-family: var(--ouma-font-body);
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.ouma-btn-analyze:hover {
+  background: var(--ouma-accent-hover);
+  transform: translateY(-1px);
+}
+
+.ouma-btn-analyze:focus-visible {
+  outline: 2px solid var(--ouma-zone-green);
+  outline-offset: 2px;
+}
+
+.ouma-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 24px;
+  border-radius: 100px;
+  border: 1.5px solid var(--ouma-line);
+  background: transparent;
+  color: var(--ouma-ink);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  transition: transform 200ms ease, background 200ms ease;
+}
+
+.ouma-btn-ghost:hover {
+  background: var(--ouma-bone-deep);
+  transform: translateY(-2px);
+}
+
+.ouma-btn-outline-terra {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  padding: 0 24px;
+  border-radius: 100px;
+  border: 1.5px solid var(--ouma-ink);
+  background: transparent;
+  color: var(--ouma-ink);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+}
+
+.ouma-btn-white-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  width: 100%;
+  max-width: 280px;
+  padding: 0 32px;
+  border-radius: 100px;
+  background: var(--ouma-bone);
+  color: var(--ouma-ink);
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ouma-marquee-wrap {
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+
+.ouma-marquee {
+  display: flex;
+  width: max-content;
+  animation: ouma-marquee 30s linear infinite;
+}
+
+.ouma-marquee-wrap:hover .ouma-marquee {
+  animation-play-state: paused;
+}
+
+@keyframes ouma-marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouma-marquee { animation: none; }
+}
+
+@keyframes oumaFadeInDelay {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ouma-social-proof {
+  opacity: 0;
+  animation: oumaFadeInDelay 400ms ease 300ms forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouma-social-proof { opacity: 1; animation: none; }
+}
+
+@keyframes oumaSlideIn {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.ouma-demo-card {
+  opacity: 0;
+  transform: translateX(12px);
+  animation: oumaSlideIn 280ms ease forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ouma-demo-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+}
+
+.ouma-app-mode {
+  --ouma-cream: #F3F5EF;
+  background: #F3F5EF;
+}
+
+.ouma-snap-x {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none;
+}
+
+.ouma-snap-x::-webkit-scrollbar { display: none; }
+
+.ouma-snap-item {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* Spinning loader animation */
+@keyframes kb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes kb-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes kb-rise-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

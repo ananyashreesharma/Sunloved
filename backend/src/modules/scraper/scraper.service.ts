@@ -19,7 +19,7 @@ export interface OpenBeautyFactsProduct {
   ingredients?: Array<{ name: string }>;
 }
 
-export interface KaggeSephora {
+export interface KaggleSephora {
   Product_Name: string;
   Brand: string;
   Product_Type: string;
@@ -346,7 +346,7 @@ export class ScraperService {
   /**
    * Parse Kaggle Sephora product to standardized format
    */
-  parseKaggleSephoraProduct(product: KaggeSephora): ScrapedProduct {
+  parseKaggleSephoraProduct(product: KaggleSephora): ScrapedProduct {
     return {
       name: product.Product_Name || 'Unknown Product',
       brand: product.Brand || 'Unknown',
@@ -779,7 +779,8 @@ export class ScraperService {
           data: {
             name: scraped.name,
             brandId: brandId,
-            category: scraped.category,
+            categoryLegacy: scraped.category,
+            markets: ['US'],
             volumeValue: volumeValue,
             volumeUnit: volumeUnit,
             description: `Sourced from ${scraped.source}`,
@@ -828,6 +829,7 @@ export class ScraperService {
     const products = await this.prisma.product.findMany({
       include: {
         ingredients: true,
+        category: true,
       },
     });
 
@@ -841,8 +843,8 @@ export class ScraperService {
 
     const categoryBreakdown: Record<string, number> = {};
     products.forEach((p) => {
-      categoryBreakdown[p.category || 'Unknown'] =
-        (categoryBreakdown[p.category || 'Unknown'] || 0) + 1;
+      const key = p.category?.name ?? p.categoryLegacy ?? 'Unknown';
+      categoryBreakdown[key] = (categoryBreakdown[key] || 0) + 1;
     });
 
     return {
@@ -1029,21 +1031,21 @@ export class ScraperService {
           const correctCategory = this.analyzeProductNameForCategory(product.name);
 
           // Only update if category is different
-          if (correctCategory !== product.category) {
+          if (correctCategory !== product.categoryLegacy) {
             await this.prisma.product.update({
               where: { id: product.id },
-              data: { category: correctCategory },
+              data: { categoryLegacy: correctCategory },
             });
 
             result.productsFixed++;
             result.categoryChanges.push({
               productId: product.id,
-              oldCategory: product.category || 'Unknown',
+              oldCategory: product.categoryLegacy || 'Unknown',
               newCategory: correctCategory,
             });
 
             this.logger.log(
-              `Fixed category: ${product.name} - ${product.category} → ${correctCategory}`,
+              `Fixed category: ${product.name} - ${product.categoryLegacy} → ${correctCategory}`,
             );
           }
         } catch (error) {
@@ -1217,7 +1219,7 @@ export class ScraperService {
       // Also delete orphaned ingredients (not linked to any product)
       const orphanedIngredients = await this.prisma.ingredient.findMany({
         where: {
-          products: {
+          productIngredients: {
             none: {},
           },
         },

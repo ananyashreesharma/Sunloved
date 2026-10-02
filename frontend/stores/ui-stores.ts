@@ -3,17 +3,6 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
 
-/** Which mega-menu category row is open (desktop nav). */
-type HeaderNavState = {
-  openDropdown: string | null
-  setOpenDropdown: (key: string | null) => void
-}
-
-export const useHeaderNavStore = create<HeaderNavState>((set) => ({
-  openDropdown: null,
-  setOpenDropdown: (openDropdown) => set({ openDropdown }),
-}))
-
 type SearchHistoryState = {
   recentSearches: string[]
   addRecentSearch: (q: string) => void

@@ -1,0 +1,1001 @@
+id,product_name,brand,category,subcategory,product_type,price_inr,market_segment,source_notes
+1,L'Oreal Paris Total Repair 5 Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+2,L'Oreal Paris Fall Resist 3x Anti-Hair Fall Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+3,L'Oreal Paris Hyaluron Moisture Anti-Frizz Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+4,L'Oreal Paris Hyaluron Pure 72H Purifying Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,479,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+5,L'Oreal Paris Colour Protecting Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,229,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+6,L'Oreal Paris Extraordinary Oil Nourishing Shampoo,L'Oreal Paris,haircare,cleansers,shampoo,229,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+7,Dove Daily Shine Shampoo,Dove,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+8,Dove Hair Fall Rescue Shampoo,Dove,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+9,Dove Intense Repair Shampoo,Dove,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+10,Dove Dryness & Shine Shampoo,Dove,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+11,Head & Shoulders Anti-Dandruff Shampoo Classic Clean,Head & Shoulders,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+12,Head & Shoulders Smooth & Silky Shampoo,Head & Shoulders,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+13,Head & Shoulders Anti-Hairfall Anti-Dandruff Shampoo,Head & Shoulders,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+14,Pantene Pro-V Long & Strong Shampoo,Pantene,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+15,Pantene Pro-V Silky Smooth Care Shampoo,Pantene,haircare,cleansers,shampoo,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+16,Pantene Pro-V Anti-Hairfall Shampoo,Pantene,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+17,TRESemme Keratin Smooth Shampoo,TRESemme,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+18,TRESemme Smooth & Shine Shampoo,TRESemme,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+19,TRESemme Climate Protection Shampoo,TRESemme,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+20,Mamaearth Onion Shampoo for Hair Fall Control,Mamaearth,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+21,Mamaearth Bhringraj Shampoo for Hair Fall,Mamaearth,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+22,Mamaearth Tea Tree Shampoo for Dandruff Control,Mamaearth,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+23,Mamaearth Rice Water Shampoo for Damage Repair,Mamaearth,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+24,WOW Apple Cider Vinegar Shampoo,WOW Skin Science,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+25,WOW Red Onion Black Seed Oil Shampoo,WOW Skin Science,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+26,WOW Coconut & Avocado Shampoo,WOW Skin Science,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+27,Love Beauty & Planet Argan Oil & Lavender Sulfate-Free Shampoo,Love Beauty & Planet,haircare,cleansers,shampoo,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+28,Love Beauty & Planet Coconut Water & Mimosa Flower Shampoo,Love Beauty & Planet,haircare,cleansers,shampoo,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+29,Biotique Bio Green Apple Purifying Shampoo,Biotique,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+30,Biotique Bio Kelp Protein Shampoo,Biotique,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+31,Himalaya Anti-Dandruff Shampoo,Himalaya,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+32,Himalaya Protein Shampoo Damage Repair & Intense Moisture,Himalaya,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+33,Indulekha Bringha Shampoo,Indulekha,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+34,Matrix Biolage Smoothproof Shampoo,Matrix,haircare,cleansers,shampoo,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+35,Matrix Mega Smooth Professional Shampoo,Matrix,haircare,cleansers,shampoo,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+36,Schwarzkopf Bonacure Repair Rescue Shampoo,Schwarzkopf Professional,haircare,cleansers,shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+37,Schwarzkopf Bonacure Color Freeze Shampoo,Schwarzkopf Professional,haircare,cleansers,shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+38,L'Oreal Professionnel Absolut Repair Shampoo,L'Oreal Professionnel,haircare,cleansers,shampoo,750,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+39,L'Oreal Professionnel Vitamino Color Shampoo,L'Oreal Professionnel,haircare,cleansers,shampoo,750,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+40,L'Oreal Professionnel Scalp Advanced Anti-Dandruff Shampoo,L'Oreal Professionnel,haircare,cleansers,shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+41,L'Oreal Professionnel Inforcer Shampoo,L'Oreal Professionnel,haircare,cleansers,shampoo,750,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+42,Bare Anatomy Anti-Dandruff Shampoo Salicylic Acid,Bare Anatomy,haircare,cleansers,shampoo,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+43,Bare Anatomy Ultra Smoothing Shampoo,Bare Anatomy,haircare,cleansers,shampoo,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+44,Pilgrim Redensyl Hair Fall Control Shampoo,Pilgrim,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+45,mCaffeine Coffee Scalp Cleansing Shampoo,mCaffeine,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+46,Khadi Natural Amla & Bhringraj Shampoo,Khadi Natural,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+47,Kama Ayurveda Rose & Jasmine Hair Cleanser,Kama Ayurveda,haircare,cleansers,shampoo,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+48,Forest Essentials Conditioning Hair Cleanser Japapatti & Brahmi,Forest Essentials,haircare,cleansers,shampoo,1450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+49,Arata Zero Chemicals Conditioning Shampoo,Arata,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+50,Redken Extreme Shampoo for Damaged Hair,Redken,haircare,cleansers,shampoo,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+51,Neutrogena Anti-Residue Clarifying Shampoo,Neutrogena,haircare,cleansers,clarifying-shampoo,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+52,Soulflower Rosemary Clarifying Shampoo,Soulflower,haircare,cleansers,clarifying-shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+53,WOW Apple Cider Vinegar Clarifying Shampoo,WOW Skin Science,haircare,cleansers,clarifying-shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+54,Mamaearth Charcoal Purifying Shampoo,Mamaearth,haircare,cleansers,clarifying-shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+55,mCaffeine Deep Cleanse Coffee Shampoo,mCaffeine,haircare,cleansers,clarifying-shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+56,Biotique Bio Mud Fresh Cleansing Shampoo,Biotique,haircare,cleansers,clarifying-shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+57,Pilgrim Micellar Scalp Cleansing Shampoo,Pilgrim,haircare,cleansers,clarifying-shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+58,L'Oreal Professionnel Pure Resource Shampoo,L'Oreal Professionnel,haircare,cleansers,clarifying-shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+59,As I Am Coconut CoWash Cleansing Conditioner,As I Am,haircare,cleansers,co-wash,999,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+60,Love Beauty & Planet Coconut Water CoWash,Love Beauty & Planet,haircare,cleansers,co-wash,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+61,Tresemme Botanique Nourish & Replenish CoWash,TRESemme,haircare,cleansers,co-wash,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+62,Arata Cleansing CoWash Conditioner,Arata,haircare,cleansers,co-wash,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+63,Aunt Jackie's Flaxseed Recipes CoWash,Aunt Jackie's,haircare,cleansers,co-wash,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+64,Batiste Dry Shampoo Original,Batiste,haircare,cleansers,dry-shampoo,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+65,Batiste Dry Shampoo Beautiful Brunette,Batiste,haircare,cleansers,dry-shampoo,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+66,TRESemme Fresh Start Dry Shampoo,TRESemme,haircare,cleansers,dry-shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+67,Dove Refresh + Care Dry Shampoo,Dove,haircare,cleansers,dry-shampoo,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+68,Not Your Mother's Clean Freak Dry Shampoo,Not Your Mother's,haircare,cleansers,dry-shampoo,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+69,Klorane Dry Shampoo with Oat Milk,Klorane,haircare,cleansers,dry-shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+70,L'Oreal Paris Fall Resist 3x Anti-Hair Fall Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+71,L'Oreal Paris Total Repair 5 Rapid Reviver Deep Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,240,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+72,L'Oreal Paris Hyaluron Moisture Anti-Frizz Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+73,L'Oreal Paris Extraordinary Oil Nourishing Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,279,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+74,L'Oreal Paris Colour Protecting Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,279,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+75,L'Oreal Paris Hyaluron Moisture 72H Moisture Sealing Conditioner,L'Oreal Paris,haircare,conditioning,conditioner,549,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+76,Dove Daily Shine Conditioner,Dove,haircare,conditioning,conditioner,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+77,Dove Hair Fall Rescue Conditioner,Dove,haircare,conditioning,conditioner,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+78,Dove Intense Repair Conditioner,Dove,haircare,conditioning,conditioner,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+79,TRESemme Keratin Smooth Conditioner,TRESemme,haircare,conditioning,conditioner,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+80,TRESemme Smooth & Shine Conditioner,TRESemme,haircare,conditioning,conditioner,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+81,Pantene Pro-V Long & Strong Conditioner,Pantene,haircare,conditioning,conditioner,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+82,Mamaearth Onion Conditioner,Mamaearth,haircare,conditioning,conditioner,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+83,Mamaearth Bhringraj Conditioner,Mamaearth,haircare,conditioning,conditioner,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+84,WOW Red Onion Black Seed Oil Conditioner,WOW Skin Science,haircare,conditioning,conditioner,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+85,Love Beauty & Planet Argan Oil & Lavender Conditioner,Love Beauty & Planet,haircare,conditioning,conditioner,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+86,Biotique Bio Green Apple Conditioner,Biotique,haircare,conditioning,conditioner,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+87,Matrix Mega Smooth Professional Conditioner,Matrix,haircare,conditioning,conditioner,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+88,L'Oreal Professionnel Absolut Repair Conditioner,L'Oreal Professionnel,haircare,conditioning,conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+89,L'Oreal Professionnel Vitamino Color Conditioner,L'Oreal Professionnel,haircare,conditioning,conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+90,Wella Professionals Fusion Intense Repair Conditioner,Wella Professionals,haircare,conditioning,conditioner,1040,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+91,Schwarzkopf Bonacure Repair Rescue Conditioner,Schwarzkopf Professional,haircare,conditioning,conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+92,Forest Essentials Hair Conditioner Bhringraj & Shikakai,Forest Essentials,haircare,conditioning,conditioner,1875,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+93,Forest Essentials Hair Conditioner Japapatti & Brahmi,Forest Essentials,haircare,conditioning,conditioner,1875,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+94,Redken Acidic Bonding Concentrate Conditioner,Redken,haircare,conditioning,conditioner,2500,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+95,GK Hair Moisturizing Color Protection Conditioner,GK Hair,haircare,conditioning,conditioner,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+96,Bare Anatomy Deep Repair Conditioner,Bare Anatomy,haircare,conditioning,conditioner,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+97,L'Oreal Professionnel Absolut Repair Hair Mask,L'Oreal Professionnel,haircare,conditioning,hair-mask,990,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+98,L'Oreal Professionnel Xtenso Care Sulfate-Free Masque,L'Oreal Professionnel,haircare,conditioning,hair-mask,1290,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+99,L'Oreal Paris Total Repair 5 Hair Mask,L'Oreal Paris,haircare,conditioning,hair-mask,325,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+100,Dove Intense Repair Hair Mask,Dove,haircare,conditioning,hair-mask,325,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+101,Mamaearth Onion Hair Mask,Mamaearth,haircare,conditioning,hair-mask,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+102,WOW Hair Revitalizer Hair Mask,WOW Skin Science,haircare,conditioning,hair-mask,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+103,TRESemme Hair Mask Deep Repair,TRESemme,haircare,conditioning,hair-mask,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+104,Biotique Bio Seaweed Revitalizing Hair Mask,Biotique,haircare,conditioning,hair-mask,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+105,Kama Ayurveda Damaged Hair Repair Hair Mask,Kama Ayurveda,haircare,conditioning,hair-mask,1195,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+106,Streax Professional Vitariche Gloss Hair Mask,Streax Professional,haircare,conditioning,hair-mask,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+107,Wella Professionals Invigo Nutri-Enrich Deep Nourishing Mask,Wella Professionals,haircare,conditioning,hair-mask,1250,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+108,OGX Argan Oil of Morocco Hydrating Hair Mask,OGX,haircare,conditioning,hair-mask,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+109,Schwarzkopf Bonacure Scalp Genesis Spa Essence,Schwarzkopf Professional,haircare,conditioning,hair-mask,2188,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+110,Pilgrim Macadamia Hydrating Hair Mask,Pilgrim,haircare,conditioning,hair-mask,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+111,mCaffeine Coffee Hair Mask with Argan Oil,mCaffeine,haircare,conditioning,hair-mask,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+112,BBlunt Intense Moisture Leave-In Conditioner,BBlunt,haircare,conditioning,leave-in,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+113,Cantu Shea Butter Leave-In Conditioning Repair Cream,Cantu,haircare,conditioning,leave-in,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+114,WOW Coconut Milk Leave-In Conditioner,WOW Skin Science,haircare,conditioning,leave-in,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+115,Mamaearth Argan Oil Leave-In Conditioner,Mamaearth,haircare,conditioning,leave-in,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+116,TRESemme Botanique Detox & Restore Leave-In,TRESemme,haircare,conditioning,leave-in,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+117,Dove Leave-In Smoothing Cream,Dove,haircare,conditioning,leave-in,325,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+118,As I Am Leave-In Conditioner,As I Am,haircare,conditioning,leave-in,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+119,Kama Ayurveda Conditioning Hair Rinse,Kama Ayurveda,haircare,conditioning,leave-in,675,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+120,Soulflower Apple Cider Vinegar Hair Rinse,Soulflower,haircare,conditioning,hair-rinse,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+121,WOW Apple Cider Vinegar Hair Rinse,WOW Skin Science,haircare,conditioning,hair-rinse,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+122,Forest Essentials Hair Rinse with Reetha & Shikakai,Forest Essentials,haircare,conditioning,hair-rinse,1250,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+123,Khadi Natural Reetha & Shikakai Hair Rinse,Khadi Natural,haircare,conditioning,hair-rinse,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+124,OGX Moroccan Argan Oil Penetrating Oil Deep Conditioner,OGX,haircare,conditioning,deep-conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+125,Wella Professionals Fusion Intense Repair Mask,Wella Professionals,haircare,conditioning,deep-conditioner,1500,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+126,Redken Extreme Mega Mask,Redken,haircare,conditioning,deep-conditioner,1999,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+127,Tresemme Protein Thickness Deep Conditioning Mask,TRESemme,haircare,conditioning,deep-conditioner,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+128,Pantene Milky Damage Repair Deep Conditioning Mask,Pantene,haircare,conditioning,deep-conditioner,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+129,Himalaya Damage Repair Protein Conditioner,Himalaya,haircare,conditioning,deep-conditioner,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+130,Minimalist Hair Growth Actives 18% Serum,Minimalist,haircare,scalp-care,scalp-serum,589,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+131,The Ordinary Multi-Peptide Serum for Hair Density,The Ordinary,haircare,scalp-care,scalp-serum,2150,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+132,Pilgrim 3% Redensyl + 4% Anagain Hair Growth Serum,Pilgrim,haircare,scalp-care,scalp-serum,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+133,Be Bodywise Hair Growth Serum Roll On 3% Rosemary & Redensyl,Be Bodywise,haircare,scalp-care,scalp-serum,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+134,Wishcare Hair Growth Serum Concentrate Redensyl,Wishcare,haircare,scalp-care,scalp-serum,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+135,Bare Anatomy Advanced Hair Growth Serum with Redensyl,Bare Anatomy,haircare,scalp-care,scalp-serum,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+136,Mamaearth Rosemary Scalp Serum for Hair Growth,Mamaearth,haircare,scalp-care,scalp-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+137,Vedix Customized Scalp Serum,Vedix,haircare,scalp-care,scalp-serum,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+138,Soulflower Rosemary Hair Growth Scalp Serum,Soulflower,haircare,scalp-care,scalp-serum,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+139,mCaffeine Scalp Detox Serum with Caffeine,mCaffeine,haircare,scalp-care,scalp-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+140,Biotique Bio Kelp Scalp Serum,Biotique,haircare,scalp-care,scalp-serum,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+141,The Derma Co 5% Minoxidil-Free Hair Growth Serum,The Derma Co,haircare,scalp-care,scalp-serum,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+142,mCaffeine Coffee Scalp Scrub,mCaffeine,haircare,scalp-care,scalp-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+143,WOW Scalp Scrub with Tea Tree & Witch Hazel,WOW Skin Science,haircare,scalp-care,scalp-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+144,Arata Scalp Scrub with Zinc,Arata,haircare,scalp-care,scalp-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+145,Pilgrim Salicylic Acid Scalp Scrub,Pilgrim,haircare,scalp-care,scalp-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+146,Kama Ayurveda Scalp Mask & Scrub,Kama Ayurveda,haircare,scalp-care,scalp-scrub,1495,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+147,L'Oreal Professionnel Scalp Advanced Anti-Oiliness Exfoliating Scrub,L'Oreal Professionnel,haircare,scalp-care,scalp-scrub,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+148,Soulflower Rosemary Scalp Scrub,Soulflower,haircare,scalp-care,scalp-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+149,Kiehl's Magic Elixir Scalp Tonic with Rosemary & Avocado Oils,Kiehl's,haircare,scalp-care,scalp-tonic,2950,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+150,Aveda Scalp Benefits Balancing Conditioner,Aveda,haircare,scalp-care,scalp-tonic,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+151,Vichy Dercos Energising Stimulating Shampoo Treatment,Vichy,haircare,scalp-care,scalp-tonic,1200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+152,Kama Ayurveda Bringadi Scalp Tonic,Kama Ayurveda,haircare,scalp-care,scalp-tonic,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+153,Indulekha Bringha Scalp Tonic,Indulekha,haircare,scalp-care,scalp-tonic,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+154,Head & Shoulders Classic Clean Anti-Dandruff Shampoo,Head & Shoulders,haircare,scalp-care,anti-dandruff,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+155,Nizoral Anti-Dandruff Shampoo 2% Ketoconazole,Nizoral,haircare,scalp-care,anti-dandruff,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+156,Selsun Blue Medicated Anti-Dandruff Shampoo,Selsun Blue,haircare,scalp-care,anti-dandruff,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+157,Sebamed Anti-Dandruff Shampoo pH 5.5,Sebamed,haircare,scalp-care,anti-dandruff,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+158,Himalaya Anti-Dandruff Shampoo,Himalaya,haircare,scalp-care,anti-dandruff,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+159,L'Oreal Professionnel Scalp Advanced Anti-Dandruff Dermo-Clarifier Shampoo,L'Oreal Professionnel,haircare,scalp-care,anti-dandruff,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+160,Bare Anatomy Salicylic Acid Anti-Dandruff Shampoo,Bare Anatomy,haircare,scalp-care,anti-dandruff,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+161,Mamaearth Tea Tree Anti-Dandruff Shampoo,Mamaearth,haircare,scalp-care,anti-dandruff,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+162,Biotique Bio Neem Margosa Anti-Dandruff Shampoo,Biotique,haircare,scalp-care,anti-dandruff,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+163,Tresemme Anti-Dandruff Shampoo,TRESemme,haircare,scalp-care,anti-dandruff,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+164,Arata Anti-Dandruff Shampoo with Piroctone Olamine,Arata,haircare,scalp-care,anti-dandruff,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+165,Ketomac Dandruff Treatment Shampoo Ketoconazole 2%,Ketomac,haircare,scalp-care,anti-dandruff,375,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+166,Kama Ayurveda Bringadi Thailam Intensive Hair Oil,Kama Ayurveda,haircare,hair-treatments,hair-oil,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+167,Indulekha Bringha Hair Oil Selfie Bottle,Indulekha,haircare,hair-treatments,hair-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+168,Mamaearth Onion Hair Oil for Hair Regrowth,Mamaearth,haircare,hair-treatments,hair-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+169,Soulflower Rosemary Hair Growth Oil,Soulflower,haircare,hair-treatments,hair-oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+170,WOW Red Onion Black Seed Oil Hair Oil,WOW Skin Science,haircare,hair-treatments,hair-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+171,Parachute Advansed Jasmine Hair Oil,Parachute,haircare,hair-treatments,hair-oil,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+172,Parachute Advansed Ayurvedic Hair Oil,Parachute,haircare,hair-treatments,hair-oil,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+173,Bajaj Almond Drops Hair Oil,Bajaj,haircare,hair-treatments,hair-oil,159,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+174,Dabur Amla Hair Oil,Dabur,haircare,hair-treatments,hair-oil,129,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+175,Vatika Enriched Coconut Hair Oil,Vatika,haircare,hair-treatments,hair-oil,169,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+176,Vatika Black Seed Enriched Hair Oil,Vatika,haircare,hair-treatments,hair-oil,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+177,Biotique Bio Bhringraj Therapeutic Hair Oil,Biotique,haircare,hair-treatments,hair-oil,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+178,Forest Essentials Japapatti & Brahmi Hair Oil,Forest Essentials,haircare,hair-treatments,hair-oil,1975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+179,Vedix Customized Ayurvedic Hair Oil,Vedix,haircare,hair-treatments,hair-oil,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+180,Khadi Natural Bhringraj & Amla Hair Oil,Khadi Natural,haircare,hair-treatments,hair-oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+181,Moroccan Argan Oil Hair Treatment,OGX,haircare,hair-treatments,hair-oil,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+182,Schwartz Professional Bonacure Hair Oil,Schwarzkopf Professional,haircare,hair-treatments,hair-oil,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+183,Streax Vitalized Hair Serum with Walnut Oil,Streax,haircare,hair-treatments,hair-oil,165,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+184,Be Bodywise Bhringraj Hair Oil for Hair Fall,Be Bodywise,haircare,hair-treatments,hair-oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+185,Deyga Hair Growth Oil Amla & Bhringraj,Deyga,haircare,hair-treatments,hair-oil,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+186,L'Oreal Paris Extraordinary Oil Hair Serum,L'Oreal Paris,haircare,hair-treatments,hair-serum,620,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+187,Streax Hair Serum with Walnut Oil,Streax,haircare,hair-treatments,hair-serum,153,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+188,TRESemme Keratin Smooth Hair Serum,TRESemme,haircare,hair-treatments,hair-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+189,Pantene Open Hair Miracle Serum Oil,Pantene,haircare,hair-treatments,hair-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+190,BBlunt Serum Smoothing Serum,BBlunt,haircare,hair-treatments,hair-serum,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+191,Schwarzkopf Gliss Kur Liquid Silk Serum,Schwarzkopf,haircare,hair-treatments,hair-serum,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+192,Wella Professionals Oil Reflections Luminous Smoothening Serum,Wella Professionals,haircare,hair-treatments,hair-serum,1200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+193,Kama Ayurveda Extra Virgin Coconut Oil,Kama Ayurveda,haircare,hair-treatments,hair-serum,595,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+194,Matrix Opti.Care Smooth Straight Serum,Matrix,haircare,hair-treatments,hair-serum,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+195,Moroccanoil Treatment Original,Moroccanoil,haircare,hair-treatments,hair-serum,2900,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+196,Dove Damage Solutions Rescue Serum,Dove,haircare,hair-treatments,hair-serum,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+197,BBlunt Hot Shot Heat Protection Hair Mist,BBlunt,haircare,hair-treatments,heat-protectant,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+198,Tresemme Thermal Creations Heat Tamer Spray,TRESemme,haircare,hair-treatments,heat-protectant,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+199,L'Oreal Professionnel Mythic Oil Blow Dry Primer,L'Oreal Professionnel,haircare,hair-treatments,heat-protectant,1199,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+200,Schwarzkopf Osis+ Flatliner Heat Protection Serum,Schwarzkopf Professional,haircare,hair-treatments,heat-protectant,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+201,Matrix Opti.Care Professional Smoothening Serum,Matrix,haircare,hair-treatments,heat-protectant,399,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+202,Wella EIMI Thermal Image Heat Protection Spray,Wella Professionals,haircare,hair-treatments,heat-protectant,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+203,Dove Style+Care Heat Protect Spray,Dove,haircare,hair-treatments,heat-protectant,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+204,Mamaearth Heat Protect Spray for Hair,Mamaearth,haircare,hair-treatments,heat-protectant,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+205,Moroccanoil Perfect Defense Heat Protection Spray,Moroccanoil,haircare,hair-treatments,heat-protectant,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+206,Minimalist Hair Growth Actives 18% Serum,Minimalist,haircare,hair-treatments,hair-growth,589,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+207,Pilgrim Redensyl + Anagain Hair Growth Serum,Pilgrim,haircare,hair-treatments,hair-growth,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+208,Be Bodywise 3% Rosemary Hair Growth Roll-On,Be Bodywise,haircare,hair-treatments,hair-growth,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+209,Wishcare Hair Growth Serum with Redensyl,Wishcare,haircare,hair-treatments,hair-growth,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+210,The Ordinary Multi-Peptide Serum for Hair Density,The Ordinary,haircare,hair-treatments,hair-growth,2150,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+211,Indulekha Bringha Hair Oil Selfie Bottle,Indulekha,haircare,hair-treatments,hair-growth,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+212,Mamaearth Rosemary Oil for Hair Growth,Mamaearth,haircare,hair-treatments,hair-growth,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+213,Soulflower Rosemary Essential Oil for Hair Growth,Soulflower,haircare,hair-treatments,hair-growth,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+214,Biotique Bio Bhringraj Fresh Growth Elixir,Biotique,haircare,hair-treatments,hair-growth,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+215,Vedix Hair Fall Rescue Kit,Vedix,haircare,hair-treatments,hair-growth,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+216,The Derma Co 5% Minoxidil Hair Serum Spray,The Derma Co,haircare,hair-treatments,hair-growth,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+217,Kama Ayurveda Bringadi Intense Hair Treatment,Kama Ayurveda,haircare,hair-treatments,hair-growth,1195,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+218,Bare Anatomy Advanced Hair Growth Serum,Bare Anatomy,haircare,hair-treatments,hair-growth,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+219,BBlunt High Shine Gel Cream,BBlunt,haircare,hair-treatments,hair-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+220,Cantu Shea Butter Coconut Curling Cream,Cantu,haircare,hair-treatments,hair-cream,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+221,Dove Style+Care Smooth and Shine Cream Serum,Dove,haircare,hair-treatments,hair-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+222,Garnier Fructis Sleek & Shine Anti-Frizz Serum,Garnier,haircare,hair-treatments,hair-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+223,Wella Professionals Smoothen Cream,Wella Professionals,haircare,hair-treatments,hair-cream,999,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+224,Gatsby Water Gloss Gel Super Hard,Gatsby,haircare,styling,gel,150,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+225,Brylcreem Original Hair Cream,Brylcreem,haircare,styling,gel,129,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+226,Streax Pro Styling Gel Extraordinary Hold,Streax Pro,haircare,styling,gel,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+227,Schwarzkopf Taft Ultra Strong Hold Gel,Schwarzkopf,haircare,styling,gel,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+228,L'Oreal Paris Studio Line Strong Gel,L'Oreal Paris,haircare,styling,gel,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+229,Set Wet Extreme Hold Hair Gel,Set Wet,haircare,styling,gel,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+230,Wella Professionals EIMI Shape Control Gel,Wella Professionals,haircare,styling,gel,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+231,BBlunt Back to Life Dry Shampoo & Gel,BBlunt,haircare,styling,gel,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+232,L'Oreal Paris Studio Line Elnett Mousse,L'Oreal Paris,haircare,styling,mousse,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+233,Schwarzkopf Osis+ Soft Glam Finishing Mousse,Schwarzkopf Professional,haircare,styling,mousse,749,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+234,Wella EIMI Volume Body Crafter Mousse,Wella Professionals,haircare,styling,mousse,949,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+235,TRESemme Extra Hold Mousse,TRESemme,haircare,styling,mousse,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+236,Garnier Fructis Style Curl Construct Mousse,Garnier,haircare,styling,mousse,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+237,L'Oreal Paris Elnett Satin Hairspray Strong Hold,L'Oreal Paris,haircare,styling,spray,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+238,Schwarzkopf Got2b Glued Blasting Freeze Spray,Schwarzkopf,haircare,styling,spray,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+239,Wella EIMI Stay Firm Finishing Spray,Wella Professionals,haircare,styling,spray,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+240,TRESemme Ultra Fine Shine Hairspray,TRESemme,haircare,styling,spray,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+241,Schwarzkopf Taft Ultimate Hairspray,Schwarzkopf,haircare,styling,spray,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+242,Matrix Biolage Styling Freeze Fix Mousse,Matrix,haircare,styling,spray,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+243,Gatsby Moving Rubber Loose Shuffle Wax,Gatsby,haircare,styling,wax,350,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+244,Schwarzkopf Osis+ Wax Craft Flexible Wax,Schwarzkopf Professional,haircare,styling,wax,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+245,Wella Professionals EIMI Grip Cream Styling Wax,Wella Professionals,haircare,styling,wax,749,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+246,Ustraa Hair Wax Matte Finish,Ustraa,haircare,styling,wax,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+247,Park Avenue Good Morning Hair Wax,Park Avenue,haircare,styling,wax,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+248,BBlunt High Shine Gel Wax,BBlunt,haircare,styling,wax,399,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+249,Fiama Body Wash Shower Gel Golden Sandalwood & Patchouli,Fiama,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+250,Fiama Body Wash Shower Gel Blackcurrant & Bearberry,Fiama,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+251,Fiama Body Wash Shower Gel Patchouli & Macadamia,Fiama,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+252,Dove Deeply Nourishing Body Wash,Dove,bodycare,cleansers,body-wash,295,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+253,Dove Glow Recharge Serum Body Wash with Vitamin C,Dove,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+254,Dove Gentle Exfoliating Body Wash,Dove,bodycare,cleansers,body-wash,295,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+255,Pears 98% Pure Glycerin Soft & Fresh Glow Body Wash,Pears,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+256,Pears Pure & Gentle Body Wash,Pears,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+257,Dettol Lime Fresh Body Wash,Dettol,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+258,Dettol Sensitive Body Wash,Dettol,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+259,Nivea Waterlily & Oil Body Wash,Nivea,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+260,Nivea Creme Soft Body Wash with Almond Oil,Nivea,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+261,Nivea Lemon & Oil Refreshing Body Wash,Nivea,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+262,Palmolive Aroma Morning Tonic Body Wash,Palmolive,bodycare,cleansers,body-wash,189,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+263,Palmolive Aroma Absolute Relax Body Wash,Palmolive,bodycare,cleansers,body-wash,189,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+264,Vivel Lavender & Almond Oil Body Wash,Vivel,bodycare,cleansers,body-wash,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+265,Cinthol Lime Foam Body Wash,Cinthol,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+266,mCaffeine Coffee Exfoliating Body Wash,mCaffeine,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+267,mCaffeine 7% Exfoliating Body Wash with Salicylic & Lactic Acid,mCaffeine,bodycare,cleansers,body-wash,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+268,mCaffeine 1% Glycolic Acid Detan Body Wash,mCaffeine,bodycare,cleansers,body-wash,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+269,Biotique Bio Apricot Refreshing Body Wash,Biotique,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+270,Biotique Almond Oil Ultra Rich Body Wash,Biotique,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+271,Be Bodywise 5% Niacinamide Brightening Body Wash,Be Bodywise,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+272,Mamaearth Vitamin C Brightening Body Wash,Mamaearth,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+273,Mamaearth Charcoal Brightening Body Wash,Mamaearth,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+274,The Body Shop British Rose Shower Gel,The Body Shop,bodycare,cleansers,body-wash,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+275,The Body Shop Mango Shower Gel,The Body Shop,bodycare,cleansers,body-wash,795,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+276,Bath & Body Works Gingham Shower Gel,Bath & Body Works,bodycare,cleansers,body-wash,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+277,Bath & Body Works Japanese Cherry Blossom Shower Gel,Bath & Body Works,bodycare,cleansers,body-wash,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+278,Neutrogena Rainbath Shower & Bath Gel,Neutrogena,bodycare,cleansers,body-wash,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+279,Dabur Gulabari Rose Shower Gel,Dabur,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+280,St. Botanica Bulgarian Rose Otto Glow Body Wash,St. Botanica,bodycare,cleansers,body-wash,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+281,Chemist At Play Brightening Body Wash Vitamin C,Chemist At Play,bodycare,cleansers,body-wash,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+282,The Derma Co 1% Salicylic Acid Daily Exfoliating Body Wash,The Derma Co,bodycare,cleansers,body-wash,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+283,Fixderma Salyzap 2% Salicylic Acid Body Wash,Fixderma,bodycare,cleansers,body-wash,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+284,PLIX Pineapple 5% Lactic Acid Exfoliating Body Wash,PLIX,bodycare,cleansers,body-wash,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+285,Forest Essentials Silkening Shower Wash Mogra,Forest Essentials,bodycare,cleansers,body-wash,1575,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+286,Kama Ayurveda Lavender & Neroli Shower Wash,Kama Ayurveda,bodycare,cleansers,body-wash,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+287,Ghar Soaps Magic De-Tan Body Wash with Saffron & Lactic Acid,Ghar Soaps,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+288,Aveeno Skin Relief Fragrance-Free Body Wash,Aveeno,bodycare,cleansers,body-wash,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+289,Cetaphil Ultra Gentle Refreshing Body Wash,Cetaphil,bodycare,cleansers,body-wash,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+290,Dove Original Beauty Cream Bar,Dove,bodycare,cleansers,soap-bar,70,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+291,Dove Gentle Exfoliating Body Bar,Dove,bodycare,cleansers,soap-bar,70,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+292,Pears Soft & Fresh Soap Bar,Pears,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+293,Pears Pure & Gentle Soap Bar,Pears,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+294,Lifebuoy Total 10 Germ Protection Soap,Lifebuoy,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+295,Dettol Original Antibacterial Soap Bar,Dettol,bodycare,cleansers,soap-bar,55,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+296,Cinthol Original Soap,Cinthol,bodycare,cleansers,soap-bar,50,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+297,Lux Soft Glow Soap Bar,Lux,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+298,Himalaya Herbals Neem & Turmeric Soap,Himalaya,bodycare,cleansers,soap-bar,60,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+299,Khadi Natural Neem & Tulsi Soap,Khadi Natural,bodycare,cleansers,soap-bar,125,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+300,The Body Shop Shea Soap,The Body Shop,bodycare,cleansers,soap-bar,595,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+301,Forest Essentials Luxury Sugar Soap Gulab & Honey,Forest Essentials,bodycare,cleansers,soap-bar,450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+302,Kama Ayurveda Rose & Jasmine Soap,Kama Ayurveda,bodycare,cleansers,soap-bar,395,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+303,mCaffeine Coffee Body Soap Bar,mCaffeine,bodycare,cleansers,soap-bar,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+304,Biotique Bio Morning Nectar Flawless Skin Soap,Biotique,bodycare,cleansers,soap-bar,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+305,Medimix Ayurvedic Soap 18 Herbs,Medimix,bodycare,cleansers,soap-bar,60,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+306,Margo Original Neem Soap,Margo,bodycare,cleansers,soap-bar,45,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+307,Santoor Sandal & Turmeric Soap,Santoor,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+308,Fiama Di Wills Gel Bathing Bar Exotic Dream,Fiama,bodycare,cleansers,soap-bar,75,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+309,Savlon Herbal Sensitive Soap,Savlon,bodycare,cleansers,soap-bar,50,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+310,The Body Shop Ginger Warming Shower Oil,The Body Shop,bodycare,cleansers,shower-oil,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+311,Forest Essentials Shower Oil Nagakesar & Coconut,Forest Essentials,bodycare,cleansers,shower-oil,1575,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+312,Kama Ayurveda Kumkumadi Miracle Shower Oil,Kama Ayurveda,bodycare,cleansers,shower-oil,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+313,Palmer's Coconut Oil Formula Body Oil,Palmer's,bodycare,cleansers,shower-oil,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+314,St. Botanica Argan & Rose Hip Shower Oil,St. Botanica,bodycare,cleansers,shower-oil,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+315,Dove Nourishing Secrets Shower Oil Rose & Almond,Dove,bodycare,cleansers,shower-oil,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+316,Biotique Bio Almond Oil Body Oil Wash,Biotique,bodycare,cleansers,shower-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+317,mCaffeine Coffee Body Scrub,mCaffeine,bodycare,cleansers,body-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+318,mCaffeine Brightening Raspberry Body Scrub with AHAs,mCaffeine,bodycare,cleansers,body-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+319,Mamaearth Ubtan Body Scrub with Turmeric & Saffron,Mamaearth,bodycare,cleansers,body-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+320,WOW Skin Science Arabica Coffee Body Scrub,WOW Skin Science,bodycare,cleansers,body-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+321,The Body Shop Coconut Energising Body Scrub,The Body Shop,bodycare,cleansers,body-scrub,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+322,The Body Shop Strawberry Body Scrub,The Body Shop,bodycare,cleansers,body-scrub,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+323,"Forest Essentials Body Scrub Mashobra Honey, Lemon & Chickweed",Forest Essentials,bodycare,cleansers,body-scrub,1375,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+324,Kama Ayurveda Himalayan Deodar Body Scrub,Kama Ayurveda,bodycare,cleansers,body-scrub,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+325,Pilgrim Sea Salt & Lemongrass Body Scrub,Pilgrim,bodycare,cleansers,body-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+326,St. Botanica Vitamin C & Green Tea Body Scrub,St. Botanica,bodycare,cleansers,body-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+327,Biotique Bio Papaya Revitalizing Tan Removal Scrub,Biotique,bodycare,cleansers,body-scrub,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+328,Soulflower Coffee Body Scrub,Soulflower,bodycare,cleansers,body-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+329,Bath & Body Works Aromatherapy Lavender Honey Body Scrub,Bath & Body Works,bodycare,cleansers,body-scrub,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+330,Jovees Herbal Fruit AHA Scrub,Jovees,bodycare,cleansers,body-scrub,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+331,O3+ Brightening & Polishing Body Scrub,O3+,bodycare,cleansers,body-scrub,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+332,Nivea Nourishing Milk Body Lotion,Nivea,bodycare,moisturisers,lotion,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+333,Nivea 50x Vitamin C Body Lotion with SPF 15,Nivea,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+334,Nivea Aloe Hydration Body Lotion,Nivea,bodycare,moisturisers,lotion,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+335,Nivea Cocoa Nourish Body Lotion with Cocoa Butter,Nivea,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+336,Vaseline Intensive Care Deep Restore Lotion,Vaseline,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+337,Vaseline Gluta-Hya Dewy Radiance Serum-In-Lotion,Vaseline,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+338,Vaseline Healthy Bright SPF 10 Body Lotion,Vaseline,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+339,Dove Nourishing Body Lotion,Dove,bodycare,moisturisers,lotion,275,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+340,Parachute Advansed Body Lotion Soft Touch,Parachute,bodycare,moisturisers,lotion,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+341,Parachute Advansed Refresh Body Lotion Coconut Milk,Parachute,bodycare,moisturisers,lotion,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+342,Himalaya Cocoa Butter Intensive Body Lotion,Himalaya,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+343,Pond's Triple Vitamin Moisturising Body Lotion,Pond's,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+344,Mamaearth Vitamin C Daily Glow Body Lotion,Mamaearth,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+345,Mamaearth Rice Water Hydrating Body Lotion,Mamaearth,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+346,Be Bodywise 5% AHA Lactic Acid Body Lotion,Be Bodywise,bodycare,moisturisers,lotion,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+347,Be Bodywise 20% Urea Body Lotion for Very Dry Skin,Be Bodywise,bodycare,moisturisers,lotion,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+348,Cetaphil Moisturising Lotion for Dry to Normal Sensitive Skin,Cetaphil,bodycare,moisturisers,lotion,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+349,Chemist At Play AHA Body Lotion with Niacinamide & Ceramides,Chemist At Play,bodycare,moisturisers,lotion,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+350,Chemist At Play Daily Hydrating Body Lotion Oatmeal & PGA,Chemist At Play,bodycare,moisturisers,lotion,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+351,Chemist At Play Retinol Body Lotion,Chemist At Play,bodycare,moisturisers,lotion,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+352,The Derma Co 1% Kojic Acid Daily Glow Body Serum Lotion,The Derma Co,bodycare,moisturisers,lotion,649,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+353,Sotrue Moisture Rich AHA BHA Body Lotion,Sotrue,bodycare,moisturisers,lotion,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+354,Kiehl's Creme de Corps Body Lotion,Kiehl's,bodycare,moisturisers,lotion,2900,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+355,The Body Shop Shea Body Lotion,The Body Shop,bodycare,moisturisers,lotion,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+356,The Body Shop Mango Body Lotion,The Body Shop,bodycare,moisturisers,lotion,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+357,Bath & Body Works Ultra Shea Body Cream,Bath & Body Works,bodycare,moisturisers,lotion,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+358,L'Occitane Shea Butter Ultra Rich Body Cream,L'Occitane,bodycare,moisturisers,lotion,3500,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+359,Biotique Bio Coconut Whitening & Brightening Cream,Biotique,bodycare,moisturisers,lotion,189,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+360,Nivea Soft Light Moisturising Cream,Nivea,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+361,Palmer's Cocoa Butter Formula Body Lotion,Palmer's,bodycare,moisturisers,lotion,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+362,The Body Shop Shea Butter Body Butter,The Body Shop,bodycare,moisturisers,butter,1295,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+363,The Body Shop Mango Body Butter,The Body Shop,bodycare,moisturisers,butter,1295,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+364,The Body Shop Coconut Body Butter,The Body Shop,bodycare,moisturisers,butter,1295,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+365,The Body Shop Strawberry Body Butter,The Body Shop,bodycare,moisturisers,butter,1295,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+366,Bath & Body Works Warm Vanilla Sugar Body Butter,Bath & Body Works,bodycare,moisturisers,butter,1495,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+367,Palmer's Cocoa Butter Formula Whipped Body Butter,Palmer's,bodycare,moisturisers,butter,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+368,WOW Skin Science Shea & Cocoa Body Butter,WOW Skin Science,bodycare,moisturisers,butter,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+369,Mamaearth Cocoa Butter Body Butter,Mamaearth,bodycare,moisturisers,butter,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+370,St. Botanica Shea Butter & Honey Body Butter,St. Botanica,bodycare,moisturisers,butter,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+371,Kama Ayurveda Jasmine Body Butter,Kama Ayurveda,bodycare,moisturisers,butter,1495,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+372,Soulflower Lavender Body Butter,Soulflower,bodycare,moisturisers,butter,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+373,Forest Essentials Silkening Body Milk Mashobra Honey & Vanilla,Forest Essentials,bodycare,moisturisers,butter,2275,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+374,Kama Ayurveda Sesame & Coconut Body Oil,Kama Ayurveda,bodycare,moisturisers,oil,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+375,Forest Essentials Soundarya Radiance Cream Body Oil,Forest Essentials,bodycare,moisturisers,oil,2650,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+376,Palmer's Cocoa Butter Formula Moisturizing Body Oil,Palmer's,bodycare,moisturisers,oil,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+377,Mamaearth Body Milk with Shea Butter & Argan Oil,Mamaearth,bodycare,moisturisers,oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+378,The Body Shop Oils of Life Body Oil,The Body Shop,bodycare,moisturisers,oil,1595,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+379,Soulflower Almond Body Oil,Soulflower,bodycare,moisturisers,oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+380,Biotique Bio Almond Oil Nourishing Body Oil,Biotique,bodycare,moisturisers,oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+381,WOW Skin Science Almond Body Oil,WOW Skin Science,bodycare,moisturisers,oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+382,Khadi Natural Lavender & Rose Body Oil,Khadi Natural,bodycare,moisturisers,oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+383,The Body Shop Dewberry Body Yogurt,The Body Shop,bodycare,moisturisers,gel,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+384,Mamaearth Aloe Vera Gel for Skin & Hair,Mamaearth,bodycare,moisturisers,gel,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+385,WOW Aloe Vera Multipurpose Gel,WOW Skin Science,bodycare,moisturisers,gel,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+386,Patanjali Saundarya Aloe Vera Gel,Patanjali,bodycare,moisturisers,gel,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+387,Blossom Kochhar Aroma Magic Aloe Vera Gel,Aroma Magic,bodycare,moisturisers,gel,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+388,Himalaya Soothing & Moisturizing Aloe Vera Gel,Himalaya,bodycare,moisturisers,gel,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+389,Biotique Bio Aloe Vera Ultra Soothing Face & Body Gel,Biotique,bodycare,moisturisers,gel,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+390,Nivea Soft Light Moisturising Cream,Nivea,bodycare,moisturisers,cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+391,Cetaphil Moisturising Cream for Dry & Sensitive Skin,Cetaphil,bodycare,moisturisers,cream,649,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+392,CeraVe Moisturising Cream,CeraVe,bodycare,moisturisers,cream,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+393,Kiehl's Creme de Corps Soy Milk & Honey Body Cream,Kiehl's,bodycare,moisturisers,cream,2900,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+394,The Body Shop Vitamin E Moisture-Protect Body Cream,The Body Shop,bodycare,moisturisers,cream,995,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+395,Bath & Body Works Shea & Vitamin E Lotion,Bath & Body Works,bodycare,moisturisers,cream,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+396,Himalaya Soothing & Moisturizing Body Cream,Himalaya,bodycare,moisturisers,cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+397,Dove Intensive Cream,Dove,bodycare,moisturisers,cream,325,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+398,Lotus Herbals Shea & Wheat Germ Butter Ultra Moisturising Body Cream,Lotus Herbals,bodycare,moisturisers,cream,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+399,Biotique Bio Dandelion Ageless Lightening Body Cream,Biotique,bodycare,moisturisers,cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+400,Nivea Sun Moisturising Body Lotion SPF 50,Nivea,bodycare,body-sun-care,body-spf,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+401,Vaseline Sun + Pollution Protection Body Lotion SPF 30,Vaseline,bodycare,body-sun-care,body-spf,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+402,Biotique Bio Carrot Moisturizing Sunscreen Lotion SPF 40,Biotique,bodycare,body-sun-care,body-spf,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+403,Lotus Herbals Safe Sun UV Screen Matte Gel SPF 50,Lotus Herbals,bodycare,body-sun-care,body-spf,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+404,Banana Boat Ultra Sport Sunscreen Lotion SPF 50+,Banana Boat,bodycare,body-sun-care,body-spf,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+405,Neutrogena Ultra Sheer Body Mist Sunscreen SPF 45,Neutrogena,bodycare,body-sun-care,body-spf,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+406,The Derma Co Body Sunscreen SPF 50 PA+++,The Derma Co,bodycare,body-sun-care,body-spf,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+407,Re'equil Oxybenzone & OMC Free Sunscreen SPF 50 PA++++,Re'equil,bodycare,body-sun-care,body-spf,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+408,Mamaearth Ultra Light Indian Sunscreen SPF 50 PA+++,Mamaearth,bodycare,body-sun-care,body-spf,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+409,Pilgrim Korean Sunscreen SPF 55 PA++++,Pilgrim,bodycare,body-sun-care,body-spf,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+410,Soltan After Sun Soothing Moisturiser,Soltan,bodycare,body-sun-care,after-sun-body,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+411,Aloe Pura Aloe Vera After Sun Gel,Aloe Pura,bodycare,body-sun-care,after-sun-body,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+412,The Body Shop Aloe After Sun Jelly,The Body Shop,bodycare,body-sun-care,after-sun-body,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+413,WOW Aloe Vera After Sun Gel,WOW Skin Science,bodycare,body-sun-care,after-sun-body,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+414,Mamaearth After Sun Soothing Gel with Aloe Vera,Mamaearth,bodycare,body-sun-care,after-sun-body,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+415,Biotique Bio Coconut Whitening & Brightening After-Sun Cream,Biotique,bodycare,body-sun-care,after-sun-body,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+416,Kama Ayurveda Pure Rose Water After Sun Spray,Kama Ayurveda,bodycare,body-sun-care,after-sun-body,495,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+417,Palmer's Cocoa Butter Formula Massage Lotion for Stretch Marks,Palmer's,bodycare,body-treatments,stretch-mark,749,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+418,Bio-Oil Multiuse Skincare Oil,Bio-Oil,bodycare,body-treatments,stretch-mark,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+419,Himalaya Cocoa Butter Intensive Body Lotion (Stretch Marks),Himalaya,bodycare,body-treatments,stretch-mark,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+420,Mamaearth Stretch Marks Cream,Mamaearth,bodycare,body-treatments,stretch-mark,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+421,Mama's Earth Belly Butter for Stretch Marks,Mama's Earth,bodycare,body-treatments,stretch-mark,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+422,Weleda Stretch Mark Massage Oil,Weleda,bodycare,body-treatments,stretch-mark,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+423,Mom & World Stretch Mark Oil,Mom & World,bodycare,body-treatments,stretch-mark,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+424,Mustela Stretch Marks Cream,Mustela,bodycare,body-treatments,stretch-mark,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+425,Mederma Cream Plus SPF 30 for Stretch Marks & Scars,Mederma,bodycare,body-treatments,stretch-mark,999,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+426,The Derma Co 1% Kojic Acid Body Serum Lotion,The Derma Co,bodycare,body-treatments,body-serum,649,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+427,Chemist At Play Brightening Boost Body Lotion Vitamin C,Chemist At Play,bodycare,body-treatments,body-serum,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+428,Minimalist Alpha Arbutin 2% + HA Body Serum,Minimalist,bodycare,body-treatments,body-serum,649,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+429,The Ordinary Glycolic Acid 7% Toning Solution (body use),The Ordinary,bodycare,body-treatments,body-serum,749,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+430,Be Bodywise Niacinamide 10% Body Serum,Be Bodywise,bodycare,body-treatments,body-serum,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+431,Pilgrim Body Brightening Serum with Kojic Acid,Pilgrim,bodycare,body-treatments,body-serum,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+432,Mamaearth Vitamin C Glow Body Serum,Mamaearth,bodycare,body-treatments,body-serum,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+433,St. Botanica Vitamin C Body Serum,St. Botanica,bodycare,body-treatments,body-serum,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+434,mCaffeine Coffee Body Scrub Exfoliator,mCaffeine,bodycare,body-treatments,body-exfoliator,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+435,The Derma Co 1% Salicylic Acid Exfoliating Body Wash,The Derma Co,bodycare,body-treatments,body-exfoliator,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+436,Be Bodywise 5% AHA Exfoliating Body Lotion,Be Bodywise,bodycare,body-treatments,body-exfoliator,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+437,PLIX 5% Lactic Acid Body Exfoliator,PLIX,bodycare,body-treatments,body-exfoliator,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+438,Biotique Bio Papaya Revitalizing Tan Removal Scrub,Biotique,bodycare,body-treatments,body-exfoliator,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+439,Pilgrim Detan Body Scrub with Kojic Acid,Pilgrim,bodycare,body-treatments,body-exfoliator,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+440,Lotus Herbals Exfoliating Body Scrub with Walnut,Lotus Herbals,bodycare,body-treatments,body-exfoliator,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+441,pee safe Intimate Wash for Women,pee safe,bodycare,body-treatments,intimate-care,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+442,Sirona Natural Intimate Wash for Women,Sirona,bodycare,body-treatments,intimate-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+443,Lactacyd Feminine Hygiene Wash,Lactacyd,bodycare,body-treatments,intimate-care,349,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+444,Sofy Be Fresh Intimate Wash,Sofy,bodycare,body-treatments,intimate-care,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+445,The Moms Co Natural Intimate Wash,The Moms Co,bodycare,body-treatments,intimate-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+446,Bella Intimate Wash,Bella,bodycare,body-treatments,intimate-care,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+447,Plum Skin-Loving Natural Intimate Wash,Plum,bodycare,body-treatments,intimate-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+448,Kama Ayurveda Pure Rosewater Intimate Wash,Kama Ayurveda,bodycare,body-treatments,intimate-care,595,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+449,Dove Original Deodorant Stick,Dove,bodycare,deodorant,stick,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+450,Dove Sensitive Antiperspirant Deodorant Stick,Dove,bodycare,deodorant,stick,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+451,Dove Go Fresh Pear & Aloe Deodorant Stick,Dove,bodycare,deodorant,stick,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+452,Nivea Pearl & Beauty Deodorant Roll-On,Nivea,bodycare,deodorant,stick,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+453,Nivea Black & White Deodorant Stick,Nivea,bodycare,deodorant,stick,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+454,Axe Dark Temptation Deodorant Stick,Axe,bodycare,deodorant,stick,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+455,Secret Original Deodorant Stick,Secret,bodycare,deodorant,stick,349,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+456,Dove Original Deodorant Spray 150ml,Dove,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+457,Dove Go Fresh Spray Deodorant,Dove,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+458,Nivea Fresh Active Original Deodorant Spray,Nivea,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+459,Nivea Men Fresh Active Deodorant Spray,Nivea,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+460,Axe Africa Deodorant Bodyspray,Axe,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+461,Axe Dark Temptation Deodorant Bodyspray,Axe,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+462,Brut Original Deodorant Spray,Brut,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+463,Engage W1 Perfume Spray for Women,Engage,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+464,Engage M1 Perfume Spray for Men,Engage,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+465,Park Avenue Good Morning Deodorant Spray,Park Avenue,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+466,Wild Stone Code Titanium Body Spray,Wild Stone,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+467,Fogg Scent Xpressio Deodorant Spray,Fogg,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+468,Fogg Black Series Deodorant Spray,Fogg,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+469,Adidas 24HR Moves for Her Deodorant Spray,Adidas,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+470,Yardley London English Lavender Deodorant Spray,Yardley,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+471,Dove Cream Smooth Underarm Cream Deodorant,Dove,bodycare,deodorant,cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+472,Nivea Fresh Skin Deodorant Cream,Nivea,bodycare,deodorant,cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+473,Biotique Natural Deodorant Cream Morning Nectar,Biotique,bodycare,deodorant,cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+474,Lotus Herbals Deo Body Cream,Lotus Herbals,bodycare,deodorant,cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+475,Carmesi Natural Underarm Deodorant,Carmesi,bodycare,deodorant,natural,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+476,pee safe Organic Bamboo Charcoal Deodorant,pee safe,bodycare,deodorant,natural,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+477,Rustic Art Organic Lavender Deodorant,Rustic Art,bodycare,deodorant,natural,350,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+478,Wild Ideas Natural Deodorant Charcoal & Coconut,Wild Ideas,bodycare,deodorant,natural,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+479,Dot & Key Underarm Brightening Natural Deodorant,Dot & Key,bodycare,deodorant,natural,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+480,Soulflower Natural Deodorant Stick Lavender,Soulflower,bodycare,deodorant,natural,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+481,Kama Ayurveda Organic Neem Deodorant,Kama Ayurveda,bodycare,deodorant,natural,595,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+482,Neutrogena Norwegian Formula Hand Cream,Neutrogena,bodycare,hand-foot,hand-cream,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+483,The Body Shop Hemp Hand Protector,The Body Shop,bodycare,hand-foot,hand-cream,795,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+484,Bath & Body Works Shea Butter Hand Cream,Bath & Body Works,bodycare,hand-foot,hand-cream,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+485,Himalaya Power Glow Winter Hand Cream,Himalaya,bodycare,hand-foot,hand-cream,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+486,Biotique Bio Almond Oil Ultra Nourishing Winter Hand Cream,Biotique,bodycare,hand-foot,hand-cream,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+487,Dove Nourishing Hand Cream,Dove,bodycare,hand-foot,hand-cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+488,Vaseline Healthy Hands & Nails Hand Cream,Vaseline,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+489,L'Occitane Shea Butter Hand Cream,L'Occitane,bodycare,hand-foot,hand-cream,1850,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+490,Forest Essentials Nourishing Hand Cream Mashobra Honey & Vanilla,Forest Essentials,bodycare,hand-foot,hand-cream,975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+491,Kama Ayurveda Conditioning Hand Cream,Kama Ayurveda,bodycare,hand-foot,hand-cream,895,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+492,Dettol Moisturising Hand Wash & Hand Cream,Dettol,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+493,Crabtree & Evelyn Lavender Hand Therapy,Crabtree & Evelyn,bodycare,hand-foot,hand-cream,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+494,WOW Skin Science Vitamin C Hand Cream,WOW Skin Science,bodycare,hand-foot,hand-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+495,Mamaearth Healing Hand Cream with Shea Butter,Mamaearth,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+496,Himalaya Foot Care Cream,Himalaya,bodycare,hand-foot,foot-cream,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+497,Scholl Expert Care Cracked Heel Repair Cream,Scholl,bodycare,hand-foot,foot-cream,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+498,The Body Shop Peppermint Cooling Foot Lotion,The Body Shop,bodycare,hand-foot,foot-cream,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+499,Neutrogena Norwegian Formula Foot Cream,Neutrogena,bodycare,hand-foot,foot-cream,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+500,Biotique Bio Basil & Saffron Foot Cream,Biotique,bodycare,hand-foot,foot-cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+501,Dove Dermaseries Foot Cream for Dry Cracked Feet,Dove,bodycare,hand-foot,foot-cream,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+502,O'Keeffe's Healthy Feet Foot Cream,O'Keeffe's,bodycare,hand-foot,foot-cream,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+503,Mamaearth Tea Tree & Peppermint Foot Cream,Mamaearth,bodycare,hand-foot,foot-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+504,Forest Essentials Cinnamon & Cardamom Foot Cream,Forest Essentials,bodycare,hand-foot,foot-cream,875,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+505,Kama Ayurveda Foot Cream Lavender & Vanilla,Kama Ayurveda,bodycare,hand-foot,foot-cream,895,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+506,Lacto Calamine Daily Body Lotion Foot Care,Lacto Calamine,bodycare,hand-foot,foot-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+507,Be Bodywise 20% Urea Foot Cream,Be Bodywise,bodycare,hand-foot,foot-cream,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+508,Nail-Aid Keratin 3 Day Growth Treatment,Nail-Aid,bodycare,hand-foot,nail-care,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+509,Sally Hansen Hard as Nails Strengthener,Sally Hansen,bodycare,hand-foot,nail-care,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+510,OPI Nail Envy Original Nail Strengthener,OPI,bodycare,hand-foot,nail-care,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+511,Maybelline Express Nail Polish Remover,Maybelline,bodycare,hand-foot,nail-care,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+512,Cutex Ultra-Powerful Nail Polish Remover,Cutex,bodycare,hand-foot,nail-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+513,Oriflame Wonder Nail Whitening Pen,Oriflame,bodycare,hand-foot,nail-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+514,Biotique Bio Morning Nectar Nail Strengthener,Biotique,bodycare,hand-foot,nail-care,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+515,Mamaearth Nail & Cuticle Oil with Vitamin E,Mamaearth,bodycare,hand-foot,nail-care,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+516,The Body Shop Peppermint Intensive Foot Scrub,The Body Shop,bodycare,hand-foot,foot-scrub,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+517,Scholl Exfoliating Foot Scrub,Scholl,bodycare,hand-foot,foot-scrub,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+518,mCaffeine Coffee Foot Scrub,mCaffeine,bodycare,hand-foot,foot-scrub,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+519,Mamaearth Peppermint Foot Scrub,Mamaearth,bodycare,hand-foot,foot-scrub,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+520,Biotique Bio Papaya Foot Scrub,Biotique,bodycare,hand-foot,foot-scrub,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+521,Kama Ayurveda Foot Scrub Himalayan Deodar,Kama Ayurveda,bodycare,hand-foot,foot-scrub,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+522,Forest Essentials Foot Scrub Peppermint & Cardamom,Forest Essentials,bodycare,hand-foot,foot-scrub,1075,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+523,Himalaya Foot Care Exfoliating Scrub,Himalaya,bodycare,hand-foot,foot-scrub,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+524,Soulflower Exfoliating Lavender Himalayan Pink Bath Salts,Soulflower,bath-body,bath-soaks,bath-salts,405,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+525,Soulflower Rose Geranium Bath Salts,Soulflower,bath-body,bath-soaks,bath-salts,405,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+526,Kimirica Love Story Bath Salt for Body Spa,Kimirica,bath-body,bath-soaks,bath-salts,395,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+527,Khadi Natural Lavender Basil Bath Salt,Khadi Natural,bath-body,bath-soaks,bath-salts,218,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+528,Nyassa Under The Ocean Rejuvenating Bath Salts,Nyassa,bath-body,bath-soaks,bath-salts,400,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+529,WOW Himalayan Pink Salt Foot & Body Scrub,WOW Skin Science,bath-body,bath-soaks,bath-salts,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+530,Forest Essentials Bath Salts Mashobra Honey & Vanilla,Forest Essentials,bath-body,bath-soaks,bath-salts,1575,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+531,Kama Ayurveda Himalayan Bath Salts,Kama Ayurveda,bath-body,bath-soaks,bath-salts,895,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+532,The Body Shop Spa Wisdom Africa Spa Salt Scrub,The Body Shop,bath-body,bath-soaks,bath-salts,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+533,Bath & Body Works Aromatherapy Sleep Lavender Vanilla Bath Salts,Bath & Body Works,bath-body,bath-soaks,bath-salts,1295,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+534,Nykaa Naturals Himalayan Pink Salt & Rose Bath Salts,Nykaa Naturals,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+535,Biotique Bio Seaweed Bath Salt,Biotique,bath-body,bath-soaks,bath-salts,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+536,mCaffeine Coffee & Sea Salt Bath Soak,mCaffeine,bath-body,bath-soaks,bath-salts,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+537,Mamaearth Skin Illuminate Pink Himalayan Salt Bath Salt,Mamaearth,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+538,Aaranyam Rose Calendula Oats & Pink Salt Bath Soak,Aaranyam,bath-body,bath-soaks,bath-salts,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+539,The Body Bucket Cloud Bath Bombs Aqua & Lemon Pack of 4,The Body Bucket,bath-body,bath-soaks,bath-bombs,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+540,The Body Bucket Blue Ocean Rose & Lavender Bath Bomb Pink Salt,The Body Bucket,bath-body,bath-soaks,bath-bombs,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+541,The Body Bucket Rose Jasmine Coffee Lavender Bath Bomb Pack of 4,The Body Bucket,bath-body,bath-soaks,bath-bombs,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+542,Aaranyam Rose Calendula Oats Bath Bombs Pack of 6,Aaranyam,bath-body,bath-soaks,bath-bombs,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+543,Aaranyam Rainbow Bath Bombs Pack of 15,Aaranyam,bath-body,bath-soaks,bath-bombs,1099,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+544,Seychelles Kids Super Fizzy Bubble Bath Bombs Pack of 6,Seychelles,bath-body,bath-soaks,bath-bombs,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+545,Home Boutique Natural Relaxing Kids Bath Bombs Pack of 6,Home Boutique,bath-body,bath-soaks,bath-bombs,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+546,Soap Chemistry Lavender Roses Bath Bomb,Soap Chemistry,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+547,Nykaa Naturals Rose & Vitamin E Bath Bomb,Nykaa Naturals,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+548,Mamaearth Ubtan Bath Bomb with Turmeric & Saffron,Mamaearth,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+549,Bath & Body Works Lavender & Vanilla Dream Bubble Bath Bomb,Bath & Body Works,bath-body,bath-soaks,bath-bombs,795,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+550,Forest Essentials Rose Water & Sandal Bath Bomb,Forest Essentials,bath-body,bath-soaks,bath-bombs,850,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+551,Kama Ayurveda Aromatic Bath Bomb,Kama Ayurveda,bath-body,bath-soaks,bath-bombs,695,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+552,mCaffeine Coffee Bath Bomb Fizzy,mCaffeine,bath-body,bath-soaks,bath-bombs,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+553,Soulflower Rose Bath Bomb,Soulflower,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+554,Bath & Body Works Gingham Bubble Bath,Bath & Body Works,bath-body,bath-soaks,bubble-bath,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+555,Bath & Body Works Japanese Cherry Blossom Bubble Bath,Bath & Body Works,bath-body,bath-soaks,bubble-bath,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+556,The Body Shop Strawberry Clearly Glowing Foaming Bath,The Body Shop,bath-body,bath-soaks,bubble-bath,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+557,The Body Shop Rainforest Moisture Bubble Bath,The Body Shop,bath-body,bath-soaks,bubble-bath,895,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+558,Palmolive Aroma Sensual Foam Bath,Palmolive,bath-body,bath-soaks,bubble-bath,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+559,Johnson & Johnson Soothing Naturals Foaming Bubble Bath,Johnson & Johnson,bath-body,bath-soaks,bubble-bath,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+560,Chicco Bagnoschiuma Gentle Foam Bubble Bath,Chicco,bath-body,bath-soaks,bubble-bath,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+561,Mamaearth Shea Butter Bubble Bath Gentle,Mamaearth,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+562,Nykaa Naturals Lavender & Chamomile Bubble Bath,Nykaa Naturals,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+563,Forest Essentials Lavender & Honey Foaming Bath,Forest Essentials,bath-body,bath-soaks,bubble-bath,1750,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+564,Kama Ayurveda Ayurvedic Foam Bath,Kama Ayurveda,bath-body,bath-soaks,bubble-bath,895,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+565,Soulflower Lavender Rose Bubble Bath,Soulflower,bath-body,bath-soaks,bubble-bath,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+566,Savlon Sensitive Foaming Bubble Bath,Savlon,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+567,Garnier Fructis Strengthening Shampoo,Garnier,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+568,Garnier Fructis Anti-Dandruff Shampoo,Garnier,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+569,Sunsilk Stunning Black Shine Shampoo,Sunsilk,haircare,cleansers,shampoo,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+570,Sunsilk Lusciously Thick & Long Shampoo,Sunsilk,haircare,cleansers,shampoo,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+571,Sunsilk Co-Creations Hair Fall Shampoo,Sunsilk,haircare,cleansers,shampoo,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+572,Clinic Plus Strong & Long Shampoo,Clinic Plus,haircare,cleansers,shampoo,109,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+573,Clinic Plus Health & Shine Shampoo,Clinic Plus,haircare,cleansers,shampoo,109,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+574,Chik Jasmine Shampoo,Chik,haircare,cleansers,shampoo,65,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+575,Himalaya Gentle Daily Care Protein Shampoo,Himalaya,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+576,OGX Moisturizing + Argan Oil of Morocco Shampoo,OGX,haircare,cleansers,shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+577,OGX Thick & Full + Biotin & Collagen Shampoo,OGX,haircare,cleansers,shampoo,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+578,Pantene Pro-V Aqua Pure Shampoo,Pantene,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+579,Plum Olive & Macadamia Healthy Hydration Shampoo,Plum,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+580,Plum Green Tea Anti-Hairfall Shampoo,Plum,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+581,Pilgrim Rice Water & Biotin Shampoo,Pilgrim,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+582,The Derma Co Biotin Shampoo for Hair Fall,The Derma Co,haircare,cleansers,shampoo,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+583,Dot & Key Cica Scalp Soothing Shampoo,Dot & Key,haircare,cleansers,shampoo,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+584,Khadi Natural Bhringraj & Amla Shampoo,Khadi Natural,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+585,Vedix Customized Hair Fall Control Shampoo,Vedix,haircare,cleansers,shampoo,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+586,Arata Advanced Hair Fall Control Shampoo,Arata,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+587,L'Oreal Professionnel Density Advanced Shampoo,L'Oreal Professionnel,haircare,cleansers,shampoo,750,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+588,Wella Professionals Invigo Scalp Balance Shampoo,Wella Professionals,haircare,cleansers,shampoo,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+589,Kerastase Resistance Bain Extentioniste Shampoo,Kerastase,haircare,cleansers,shampoo,2400,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+590,Kerastase Nutritive Bain Satin Shampoo,Kerastase,haircare,cleansers,shampoo,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+591,Aveda Invati Advanced Exfoliating Shampoo,Aveda,haircare,cleansers,shampoo,2600,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+592,Olaplex No.4 Bond Maintenance Shampoo,Olaplex,haircare,cleansers,shampoo,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+593,Paul Mitchell Tea Tree Special Shampoo,Paul Mitchell,haircare,cleansers,shampoo,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+594,BBlunt Intense Moisture Shampoo,BBlunt,haircare,cleansers,shampoo,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+595,Ayur Herbal Shampoo with Amla & Shikakai,Ayur,haircare,cleansers,shampoo,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+596,Nykaa Naturals Bhringraj & Amla Shampoo,Nykaa Naturals,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+597,Garnier Fructis Long & Strong Conditioner,Garnier,haircare,conditioning,conditioner,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+598,Sunsilk Stunning Black Shine Conditioner,Sunsilk,haircare,conditioning,conditioner,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+599,Pantene Pro-V Aqua Pure Conditioner,Pantene,haircare,conditioning,conditioner,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+600,OGX Moisturizing + Argan Oil of Morocco Conditioner,OGX,haircare,conditioning,conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+601,Kerastase Nutritive Fondant Magistral Conditioner,Kerastase,haircare,conditioning,conditioner,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+602,Olaplex No.5 Bond Maintenance Conditioner,Olaplex,haircare,conditioning,conditioner,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+603,Plum Olive & Macadamia Healthy Hydration Conditioner,Plum,haircare,conditioning,conditioner,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+604,Vedix Customized Conditioner for Hair Fall,Vedix,haircare,conditioning,conditioner,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+605,Cantu Shea Butter for Natural Hair Rinse Out Conditioner,Cantu,haircare,conditioning,conditioner,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+606,Paul Mitchell Lemon Sage Thickening Conditioner,Paul Mitchell,haircare,conditioning,conditioner,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+607,Wella Professionals Invigo Color Brilliance Conditioner,Wella Professionals,haircare,conditioning,conditioner,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+608,Nykaa Naturals Bhringraj & Amla Conditioner,Nykaa Naturals,haircare,conditioning,conditioner,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+609,Himalaya Milk Protein Conditioner,Himalaya,haircare,conditioning,conditioner,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+610,Kerastase Masquintense Fine Mask,Kerastase,haircare,conditioning,hair-mask,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+611,Olaplex No.8 Bond Intense Moisture Mask,Olaplex,haircare,conditioning,hair-mask,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+612,Moroccan Argan Oil Deep Conditioning Mask OGX,OGX,haircare,conditioning,hair-mask,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+613,Cantu Shea Butter Deep Treatment Masque,Cantu,haircare,conditioning,hair-mask,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+614,Plum Olive & Macadamia Hair Mask,Plum,haircare,conditioning,hair-mask,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+615,Streax Hair Revitalizer Mask with Vitamin E,Streax,haircare,conditioning,hair-mask,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+616,Garnier Fructis Damage Eraser Repair Mask,Garnier,haircare,conditioning,hair-mask,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+617,WOW Red Onion Black Seed Oil Hair Mask,WOW Skin Science,haircare,conditioning,hair-mask,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+618,Vedix Customized Hair Mask,Vedix,haircare,conditioning,hair-mask,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+619,Nykaa Naturals Egg Protein Deep Conditioning Hair Mask,Nykaa Naturals,haircare,conditioning,hair-mask,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+620,Parachute Pure Coconut Hair Oil,Parachute,haircare,hair-treatments,hair-oil,109,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+621,Dabur Vatika Enriched Coconut Hair Oil,Dabur,haircare,hair-treatments,hair-oil,189,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+622,Marico Nihar Naturals Coconut Hair Oil,Nihar,haircare,hair-treatments,hair-oil,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+623,Emami Kesh King Scalp & Hair Medicine Oil,Emami,haircare,hair-treatments,hair-oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+624,Patanjali Kesh Kanti Hair Oil,Patanjali,haircare,hair-treatments,hair-oil,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+625,WOW Skin Science Castor Oil for Hair Growth,WOW Skin Science,haircare,hair-treatments,hair-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+626,Soulflower Castor Oil Cold Pressed,Soulflower,haircare,hair-treatments,hair-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+627,Rey Naturals Jamaican Black Castor Oil,Rey Naturals,haircare,hair-treatments,hair-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+628,Trichup Healthy Long & Strong Hair Oil,Trichup,haircare,hair-treatments,hair-oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+629,Biotique Bio Winter Cherry Rejuvenating Body & Hair Oil,Biotique,haircare,hair-treatments,hair-oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+630,Kiehl's Magic Elixir Hair Restructuring Concentrate,Kiehl's,haircare,hair-treatments,hair-oil,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+631,Amla Cold Pressed Oil by Soulflower,Soulflower,haircare,hair-treatments,hair-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+632,Forest Essentials Enriched Precious Hair Oil,Forest Essentials,haircare,hair-treatments,hair-oil,2450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+633,Kerastase Elixir Ultime Original Oil,Kerastase,haircare,hair-treatments,hair-oil,3200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+634,Olaplex No.7 Bonding Oil,Olaplex,haircare,hair-treatments,hair-oil,2400,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+635,Pilgrim Argan & Bhringraj Hair Oil,Pilgrim,haircare,hair-treatments,hair-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+636,Be Bodywise Bhringraj & Amla Ayurvedic Hair Oil,Be Bodywise,haircare,hair-treatments,hair-oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+637,Nykaa Naturals Onion Black Seed Hair Oil,Nykaa Naturals,haircare,hair-treatments,hair-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+638,Dabur Sarso Amla Hair Oil,Dabur,haircare,hair-treatments,hair-oil,129,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+639,Navratna Ayurvedic Cool Hair Oil,Navratna,haircare,hair-treatments,hair-oil,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+640,Kerastase Chronologiste Thermique Serum,Kerastase,haircare,scalp-care,scalp-serum,3400,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+641,Olaplex No.3 Hair Perfector Treatment,Olaplex,haircare,hair-treatments,hair-growth,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+642,Nioxin System 1 Scalp & Hair Treatment,Nioxin,haircare,scalp-care,scalp-serum,2000,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+643,Alpecin Caffeine Liquid Hair Energizer,Alpecin,haircare,scalp-care,scalp-tonic,999,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+644,Vichy Dercos Aminexil SP94 Hair Treatment,Vichy,haircare,hair-treatments,hair-growth,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+645,Plum Green Tea Anti-Hairfall Serum,Plum,haircare,scalp-care,scalp-serum,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+646,Arata Redensyl Hair Growth Serum,Arata,haircare,scalp-care,scalp-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+647,The Man Company Onion Hair Serum,The Man Company,haircare,scalp-care,scalp-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+648,Traya Minoxidil Free Hair Fall Treatment Kit,Traya,haircare,hair-treatments,hair-growth,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+649,Man Matters DHT Blocker Hair Serum,Man Matters,haircare,hair-treatments,hair-growth,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+650,Ustraa Anti-Hairfall Scalp Serum,Ustraa,haircare,scalp-care,scalp-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+651,Dove Shea Butter & Warm Vanilla Body Wash,Dove,bodycare,cleansers,body-wash,295,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+652,Nivea Even Tone SPF 15 Body Wash,Nivea,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+653,Johnson's Vita-Rich Nourishing Body Wash,Johnson's,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+654,Lotus Herbals Whiteglow Skin Whitening & Brightening Body Wash,Lotus Herbals,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+655,WOW Skin Science Coconut Milk & Argan Oil Body Wash,WOW Skin Science,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+656,Plum Youthful Glow Niacinamide Body Wash,Plum,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+657,Himalaya Refreshing Baby Wash,Himalaya,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+658,St. Botanica Argan Oil & Rosehip Body Wash,St. Botanica,bodycare,cleansers,body-wash,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+659,The Body Shop Moringa Shower Gel,The Body Shop,bodycare,cleansers,body-wash,795,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+660,Dove Awakening Ritual Shower Gel Mandarin & Tiare,Dove,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+661,Old Spice Swagger Moisturizing Body Wash,Old Spice,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+662,Axe Apollo Shower Gel,Axe,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+663,Yardley London English Lavender Shower Gel,Yardley,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+664,Lakme Blush & Glow Peach Shower Gel,Lakme,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+665,Lakme Blush & Glow Strawberry Shower Gel,Lakme,bodycare,cleansers,body-wash,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+666,Himalaya Moisturizing Almond & Honey Soap,Himalaya,bodycare,cleansers,soap-bar,60,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+667,Khadi Natural Sandalwood Soap,Khadi Natural,bodycare,cleansers,soap-bar,125,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+668,Patanjali Neem Kanti Soap,Patanjali,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+669,Chandrika Ayurvedic Soap,Chandrika,bodycare,cleansers,soap-bar,55,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+670,Hamam Neem Tulsi & Aloe Vera Soap,Hamam,bodycare,cleansers,soap-bar,55,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+671,Mysore Sandal Soap,Mysore Sandal,bodycare,cleansers,soap-bar,75,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+672,The Body Shop Moringa Cleansing Bar,The Body Shop,bodycare,cleansers,soap-bar,595,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+673,Khadi Herbal Neem & Tea Tree Soap,Khadi Herbal,bodycare,cleansers,soap-bar,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+674,VLCC Sandal & Turmeric Skin Brightening Soap,VLCC,bodycare,cleansers,soap-bar,60,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+675,mCaffeine Naked & Raw Coffee Soap,mCaffeine,bodycare,cleansers,soap-bar,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+676,Sebamed Clear Face Cleansing Bar pH 5.5,Sebamed,bodycare,cleansers,soap-bar,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+677,Forest Essentials Luxury Sugar Soap Kashmiri Saffron & Neem,Forest Essentials,bodycare,cleansers,soap-bar,450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+678,Wild Stone Ultra Sensual Soap,Wild Stone,bodycare,cleansers,soap-bar,75,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+679,Godrej Protekt Germ Protection Soap,Godrej,bodycare,cleansers,soap-bar,40,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+680,Rexona Lemon Fresh Soap,Rexona,bodycare,cleansers,soap-bar,45,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+681,Lakme Body Butter Rose & Shea,Lakme,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+682,Garnier Body Cocoa Butter Body Lotion,Garnier,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+683,Himalaya Almond & Cucumber Nourishing Body Lotion,Himalaya,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+684,WOW Skin Science Vitamin C Body Lotion,WOW Skin Science,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+685,Plum Hello Aloe Caring Body Lotion,Plum,bodycare,moisturisers,lotion,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+686,mCaffeine Sweet Escape Perfume Body Lotion with Niacinamide,mCaffeine,bodycare,moisturisers,lotion,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+687,Lotus Herbals Shea & Wheat Germ Butter Body Lotion,Lotus Herbals,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+688,St. Botanica Bulgarian Rose Otto Glow Body Lotion,St. Botanica,bodycare,moisturisers,lotion,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+689,Biotique Bio Honey Gel Nourishing Body Lotion,Biotique,bodycare,moisturisers,lotion,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+690,Lakme Absolute Youth Infinity Skin Sculpting Lotion,Lakme,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+691,Dove Dermaseries Eczema-Prone Skin Relief Lotion,Dove,bodycare,moisturisers,lotion,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+692,Aveeno Daily Moisturising Lotion for Dry Skin,Aveeno,bodycare,moisturisers,lotion,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+693,The Moms Co Natural Nourishing Body Butter,The Moms Co,bodycare,moisturisers,lotion,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+694,Kiehl's Creme de Corps Whipped Body Butter,Kiehl's,bodycare,moisturisers,butter,3400,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+695,Dove 0% Aluminium Deodorant Natural Fresh,Dove,bodycare,deodorant,spray,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+696,Nivea Whitening Smooth Skin Roll-On,Nivea,bodycare,deodorant,stick,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+697,Old Spice Wolfthorn Deodorant Spray,Old Spice,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+698,Rexona Cotton Dry Anti-Perspirant Deodorant Spray,Rexona,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+699,Rexona Shower Fresh Deodorant Spray,Rexona,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+700,Adidas Pure Game Deodorant Bodyspray,Adidas,bodycare,deodorant,spray,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+701,Calvin Klein CK One Deodorant Spray,Calvin Klein,bodycare,deodorant,spray,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+702,Oriflame Men Steel Deodorant Spray,Oriflame,bodycare,deodorant,spray,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+703,Denver Hamilton Deodorant Spray,Denver,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+704,Denver Pride Deodorant Spray,Denver,bodycare,deodorant,spray,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+705,Bella Vita Organic Deodorant Natural,Bella Vita Organic,bodycare,deodorant,natural,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+706,Carmesi Gentle Deodorant No Aluminium,Carmesi,bodycare,deodorant,natural,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+707,Plum BodyLovin Natural Deodorant,Plum,bodycare,deodorant,natural,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+708,O'Keeffe's Working Hands Hand Cream,O'Keeffe's,bodycare,hand-foot,hand-cream,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+709,Himalaya Protective Nourishing Hand Cream,Himalaya,bodycare,hand-foot,hand-cream,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+710,Biotique Bio Almond Oil Nourishing Hand Cream,Biotique,bodycare,hand-foot,hand-cream,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+711,Oriflame Tender Care Hand Cream,Oriflame,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+712,Lotus Herbals Hairdew Hand & Nail Cream,Lotus Herbals,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+713,Plum Hello Aloe Caring Hand Cream,Plum,bodycare,hand-foot,hand-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+714,Lakme Peach Milk Moisturizer Hand Cream,Lakme,bodycare,hand-foot,hand-cream,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+715,St. Botanica Pro Collagen Hand & Nail Cream,St. Botanica,bodycare,hand-foot,hand-cream,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+716,Aveeno Skin Relief Moisturising Hand Cream,Aveeno,bodycare,hand-foot,hand-cream,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+717,Clinique Hand Cream,Clinique,bodycare,hand-foot,hand-cream,1600,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+718,Gehwol Foot Cream Regular,Gehwol,bodycare,hand-foot,foot-cream,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+719,Vaseline Repairing Jelly Foot Cream,Vaseline,bodycare,hand-foot,foot-cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+720,Lotus Herbals Foot Repair Cream,Lotus Herbals,bodycare,hand-foot,foot-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+721,Biotique Bio Basil & Saffron Foot Cream,Biotique,bodycare,hand-foot,foot-cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+722,WOW Skin Science Foot Cream with Shea Butter,WOW Skin Science,bodycare,hand-foot,foot-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+723,VLCC Almond Nourishing Foot Cream,VLCC,bodycare,hand-foot,foot-cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+724,Oriflame Tender Care Foot Cream,Oriflame,bodycare,hand-foot,foot-cream,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+725,Plum Peppermint & Green Tea Cooling Foot Cream,Plum,bodycare,hand-foot,foot-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+726,Lotus Herbals Safe Sun UV Screen Lotion SPF 70 PA+++,Lotus Herbals,bodycare,body-sun-care,body-spf,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+727,Biotique Sandalwood SPF 50 Body Sunscreen,Biotique,bodycare,body-sun-care,body-spf,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+728,WOW Skin Science Sunscreen SPF 60 PA+++,WOW Skin Science,bodycare,body-sun-care,body-spf,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+729,Kaya Clinic Absolute Protect SPF 40 Sunscreen,Kaya Clinic,bodycare,body-sun-care,body-spf,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+730,Lacto Calamine Sunscreen SPF 30,Lacto Calamine,bodycare,body-sun-care,body-spf,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+731,Chicco Anti-Stretch Mark Cream,Chicco,bodycare,body-treatments,stretch-mark,999,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+732,Himalaya Anti-Stretch Mark Cream,Himalaya,bodycare,body-treatments,stretch-mark,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+733,Biotique Bio Papaya Tan Removal Stretch Mark Cream,Biotique,bodycare,body-treatments,stretch-mark,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+734,Lotus Herbals Stretch Mark Cream,Lotus Herbals,bodycare,body-treatments,stretch-mark,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+735,Vahdam Intimate Wash,Vahdam,bodycare,body-treatments,intimate-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+736,Nua Woman Intimate Wash,Nua Woman,bodycare,body-treatments,intimate-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+737,Gynoveda Intimate Wash,Gynoveda,bodycare,body-treatments,intimate-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+738,Sofy Anti-Bacterial Feminine Hygiene Wash,Sofy,bodycare,body-treatments,intimate-care,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+739,Soulflower Lavender & Rose Geranium Bath Salt Combo,Soulflower,bath-body,bath-soaks,bath-salts,810,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+740,WOW Himalayan Pink Salt Detox Bath Salt,WOW Skin Science,bath-body,bath-soaks,bath-salts,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+741,Forest Essentials Rose & Honey Bath Soak,Forest Essentials,bath-body,bath-soaks,bath-salts,1450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+742,The Body Shop Spa Of The World Himalayan Pink Salt Scrub,The Body Shop,bath-body,bath-soaks,bath-salts,2095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+743,Kama Ayurveda Epsom Salt Bath Soak,Kama Ayurveda,bath-body,bath-soaks,bath-salts,895,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+744,Nykaa Naturals Dead Sea Salt Bath Soak,Nykaa Naturals,bath-body,bath-soaks,bath-salts,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+745,Biotique Bio Seaweed Detox Bathing Salts,Biotique,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+746,mCaffeine Coffee & Coconut Milk Bath Soak,mCaffeine,bath-body,bath-soaks,bath-salts,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+747,Pilgrim Sea Salt Body Bath Soak,Pilgrim,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+748,Bella Vita Organic Lavender Epsom Bath Salt,Bella Vita Organic,bath-body,bath-soaks,bath-salts,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+749,Soap Chemistry Jasmine Rose Bath Bomb,Soap Chemistry,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+750,Nykaa Naturals Jasmine Bath Bomb,Nykaa Naturals,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+751,Pilgrim Fizzling Bath Bomb with Lavender & Eucalyptus,Pilgrim,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+752,Bella Vita Organic Rose Bath Bomb,Bella Vita Organic,bath-body,bath-soaks,bath-bombs,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+753,WOW Skin Science Lavender & Tea Tree Bath Bomb,WOW Skin Science,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+754,Dot & Key Brightening Bath Bomb Vitamin C,Dot & Key,bath-body,bath-soaks,bath-bombs,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+755,The Body Shop Ginger Warming Body Scrub Bath Bomb,The Body Shop,bath-body,bath-soaks,bath-bombs,995,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+756,Pigeon Baby Wash & Bubble Bath,Pigeon,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+757,Dove Relaxing Care Foaming Bath,Dove,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+758,Lux Magical Spell Foaming Bath,Lux,bath-body,bath-soaks,bubble-bath,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+759,Biotique Bio Honey Soothing Bubble Bath,Biotique,bath-body,bath-soaks,bubble-bath,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+760,WOW Skin Science Lavender Foaming Bubble Bath,WOW Skin Science,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+761,Bella Vita Organic Lavender Foaming Bubble Bath,Bella Vita Organic,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+762,St. Botanica De-Tan Coffee Body Scrub,St. Botanica,bodycare,cleansers,body-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+763,WOW Skin Science Red Wine Antioxidant Body Scrub,WOW Skin Science,bodycare,cleansers,body-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+764,Mamaearth Vitamin C Glow Body Scrub,Mamaearth,bodycare,cleansers,body-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+765,The Moms Co Natural Ubtan Body Scrub,The Moms Co,bodycare,cleansers,body-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+766,Lakme Absolute Perfect Radiance Body Scrub,Lakme,bodycare,cleansers,body-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+767,Khadi Natural Walnut Apricot Body Scrub,Khadi Natural,bodycare,cleansers,body-scrub,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+768,Himalaya Gentle Exfoliating Daily Face Wash (for body use),Himalaya,bodycare,cleansers,body-scrub,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+769,Plum Grape Seed & Sea Buckthorn Glow Body Scrub,Plum,bodycare,cleansers,body-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+770,The Derma Co 2% BHA Body Exfoliant,The Derma Co,bodycare,cleansers,body-scrub,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+771,Forest Essentials Body Polisher Nargis & Vetiver,Forest Essentials,bodycare,cleansers,body-scrub,1575,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+772,Sol de Janeiro Bom Dia Bright Body Scrub,Sol de Janeiro,bodycare,cleansers,body-scrub,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+773,Kimirica Jasmine & Lily Body Butter,Kimirica,bodycare,moisturisers,butter,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+774,The Moms Co Natural Body Butter,The Moms Co,bodycare,moisturisers,butter,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+775,Forest Essentials Whipped Body Cream Gulab & Honey,Forest Essentials,bodycare,moisturisers,butter,1975,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+776,Nykaa Naturals Mango & Shea Butter,Nykaa Naturals,bodycare,moisturisers,butter,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+777,Bella Vita Organic Body Butter Rose,Bella Vita Organic,bodycare,moisturisers,butter,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+778,OGX Coconut Milk Hydrating Body Butter,OGX,bodycare,moisturisers,butter,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+779,Dot & Key Skin Brightening Body Butter with Vitamin C,Dot & Key,bodycare,moisturisers,butter,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+780,Plum BodyLovin Vanilla Vibes Body Butter,Plum,bodycare,moisturisers,butter,499,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+781,Johnson's Baby Oil,Johnson's,bodycare,moisturisers,oil,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+782,Figaro Olive Oil for Skin & Hair,Figaro,bodycare,moisturisers,oil,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+783,Kiehl's Midnight Recovery Concentrate Body,Kiehl's,bodycare,moisturisers,oil,3200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+784,Mamaearth Almond Body Oil with Vitamin E,Mamaearth,bodycare,moisturisers,oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+785,Pilgrim Body Oil Argan & Sea Buckthorn,Pilgrim,bodycare,moisturisers,oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+786,Forest Essentials Jasmine Body Oil,Forest Essentials,bodycare,moisturisers,oil,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+787,Nykaa Naturals Vitamin C Body Oil,Nykaa Naturals,bodycare,moisturisers,oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+788,Lotus Herbals Almond & Honey Body Oil,Lotus Herbals,bodycare,moisturisers,oil,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+789,Colorbar Cosmetics Pro Nails Nail Hardener,Colorbar,bodycare,hand-foot,nail-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+790,Lakme Absolute Gel Nail Polish,Lakme,bodycare,hand-foot,nail-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+791,Revlon Nail Strengthener,Revlon,bodycare,hand-foot,nail-care,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+792,MamaEarth Nail & Cuticle Oil Vitamin E,Mamaearth,bodycare,hand-foot,nail-care,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+793,Bella Vita Organic Cuticle & Nail Oil,Bella Vita Organic,bodycare,hand-foot,nail-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+794,The Body Shop Tea Tree Nail Serum,The Body Shop,bodycare,hand-foot,nail-care,695,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+795,The Ordinary Niacinamide 10% Body Serum,The Ordinary,bodycare,body-treatments,body-serum,899,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+796,Plum Hello Aloe Brightening Body Serum,Plum,bodycare,body-treatments,body-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+797,Lotus Herbals Whiteglow Body Serum,Lotus Herbals,bodycare,body-treatments,body-serum,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+798,Nykaa Naturals Vitamin C Brightening Body Serum,Nykaa Naturals,bodycare,body-treatments,body-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+799,Kaya Clinic Skin Brightening Body Serum,Kaya Clinic,bodycare,body-treatments,body-serum,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+800,WOW Skin Science Vitamin C Body Serum,WOW Skin Science,bodycare,body-treatments,body-serum,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+801,OGX Renewing + Argan Oil of Morocco Penetrating Oil Heat Protectant,OGX,haircare,hair-treatments,heat-protectant,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+802,Streax Pro Serum Shine Heat Protectant,Streax Pro,haircare,hair-treatments,heat-protectant,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+803,Garnier Fructis Sleek & Shine Anti-Frizz Serum Heat Protectant,Garnier,haircare,hair-treatments,heat-protectant,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+804,L'Oreal Paris Smooth Intense 3D Smoothing Serum Heat Protectant,L'Oreal Paris,haircare,hair-treatments,heat-protectant,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+805,Kerastase Discipline Spray Fluidissime Heat Protecting Spray,Kerastase,haircare,hair-treatments,heat-protectant,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+806,Olaplex No.6 Bond Smoother Leave-In Reparative Styling Creme,Olaplex,haircare,hair-treatments,heat-protectant,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+807,Plum Olive & Macadamia Heat Protection Spray,Plum,haircare,hair-treatments,heat-protectant,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+808,Parachute Advansed Scalp & Hair Serum,Parachute,haircare,hair-treatments,hair-serum,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+809,Vatika Hair Serum,Vatika,haircare,hair-treatments,hair-serum,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+810,Himalaya Damage Repair Protein Serum,Himalaya,haircare,hair-treatments,hair-serum,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+811,Kerastase Chroma Absolu Fondant Chromatique Serum,Kerastase,haircare,hair-treatments,hair-serum,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+812,L'Oreal Professionnel Mythic Oil Nourishing Serum,L'Oreal Professionnel,haircare,hair-treatments,hair-serum,1499,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+813,Arata Advanced Frizz-Control Hair Serum,Arata,haircare,hair-treatments,hair-serum,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+814,Pilgrim Hair Serum with Argan Oil,Pilgrim,haircare,hair-treatments,hair-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+815,Nykaa Naturals Onion Hair Serum,Nykaa Naturals,haircare,hair-treatments,hair-serum,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+816,The Man Company Moroccan Argan Hair Serum,The Man Company,haircare,hair-treatments,hair-serum,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+817,Ustraa Hair Serum for Men,Ustraa,haircare,hair-treatments,hair-serum,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+818,Bella Vita Organic Hair Serum with Argan & Jojoba,Bella Vita Organic,haircare,hair-treatments,hair-serum,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+819,Schwarzkopf Osis+ Dust It Mattifying Powder,Schwarzkopf Professional,haircare,styling,wax,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+820,Wella EIMI Super Set Extra Firm Finishing Spray,Wella Professionals,haircare,styling,spray,1099,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+821,Schwarzkopf Got2b Glossy Anti-Humidity Shine Spray,Schwarzkopf,haircare,styling,spray,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+822,L'Oreal Paris Studio Line Overlix Gel,L'Oreal Paris,haircare,styling,gel,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+823,Set Wet Casual Hold Hair Gel,Set Wet,haircare,styling,gel,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+824,Gatsby Natural & Nonchalant Wax,Gatsby,haircare,styling,wax,350,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+825,TRESemme Compressed Micro Mousse Extra Hold,TRESemme,haircare,styling,mousse,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+826,Wella EIMI Boost Bounce Curl Enhancing Mousse,Wella Professionals,haircare,styling,mousse,999,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+827,Keto Plus Anti-Dandruff Shampoo 2% Ketoconazole,Keto Plus,haircare,scalp-care,anti-dandruff,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+828,T-Gel Therapeutic Shampoo for Dandruff Neutrogena,Neutrogena,haircare,scalp-care,anti-dandruff,699,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+829,Scalpe Plus Anti-Dandruff Shampoo,Scalpe Plus,haircare,scalp-care,anti-dandruff,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+830,Clear Anti-Dandruff Shampoo Men Ice Cool Menthol,Clear,haircare,scalp-care,anti-dandruff,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+831,Clear Anti-Dandruff Complete Active Care Shampoo,Clear,haircare,scalp-care,anti-dandruff,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+832,Tresemme Anti-Dandruff Pro Protect Shampoo,TRESemme,haircare,scalp-care,anti-dandruff,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+833,Sunsilk Dream Smooth Shampoo,Sunsilk,haircare,cleansers,shampoo,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+834,Garnier Fructis Shampoo Goodbye Damage,Garnier,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+835,Himalaya Anti-Hair Fall Shampoo,Himalaya,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+836,Plum Olive & Macadamia Healthy Hydration Shampoo 2,Plum,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+837,Trichup Hair Fall Control Shampoo,Trichup,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+838,Ayur Herbal Amla Shampoo,Ayur,haircare,cleansers,shampoo,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+839,Fiama Moisturising Body Wash Men,Fiama,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+840,Dove DermaCare Scalp Soothing Moisture Shampoo,Dove,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+841,Mamaearth Argan Shampoo with Argan Oil & Apple Cider Vinegar,Mamaearth,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+842,Nykaa Naturals Onion & Biotin Shampoo for Hair Fall,Nykaa Naturals,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+843,Ustraa Anti-Dandruff Shampoo for Men,Ustraa,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+844,The Man Company Charcoal & Eucalyptus Shampoo,The Man Company,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+845,Man Matters Anti-Dandruff Shampoo,Man Matters,haircare,cleansers,shampoo,399,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+846,Beardo Dandruff Defense Shampoo,Beardo,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+847,Beardo Hair & Beard Growth Shampoo with Onion,Beardo,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+848,Traya Hair Care Onion Shampoo,Traya,haircare,cleansers,shampoo,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+849,Rey Naturals Red Onion Shampoo,Rey Naturals,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+850,Mitvana Scalp Care Shampoo with Bhringraj,Mitvana,haircare,cleansers,shampoo,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+851,Kesh King Scalp & Hair Medicine Shampoo,Kesh King,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+852,Emami 7 Oils in One Shampoo,Emami,haircare,cleansers,shampoo,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+853,Sunsilk Dream Smooth Conditioner,Sunsilk,haircare,conditioning,conditioner,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+854,Garnier Fructis Damage Eraser Conditioner,Garnier,haircare,conditioning,conditioner,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+855,The Man Company Moroccan Argan Conditioner,The Man Company,haircare,conditioning,conditioner,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+856,Ustraa Damage Control Conditioner,Ustraa,haircare,conditioning,conditioner,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+857,Nykaa Naturals Onion Conditioner for Hair Fall,Nykaa Naturals,haircare,conditioning,conditioner,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+858,Plum Green Tea Anti-Hairfall Conditioner,Plum,haircare,conditioning,conditioner,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+859,Beardo Neem Conditioner,Beardo,haircare,conditioning,conditioner,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+860,Kerastase Nutritive 8H Magic Night Serum Leave-In,Kerastase,haircare,conditioning,leave-in,3000,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+861,Olaplex No.6 Bond Smoother,Olaplex,haircare,conditioning,leave-in,2800,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+862,Garnier Fructis Leave-In Treatment Banana Hair Food,Garnier,haircare,conditioning,leave-in,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+863,Mamaearth Onion Leave-In Conditioner,Mamaearth,haircare,conditioning,leave-in,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+864,Nykaa Naturals Aloe & Cucumber Leave-In Conditioner,Nykaa Naturals,haircare,conditioning,leave-in,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+865,Traya Minoxidil 5% Topical Solution for Men,Traya,haircare,hair-treatments,hair-growth,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+866,Man Matters Minoxidil 5% for Hair Loss,Man Matters,haircare,hair-treatments,hair-growth,999,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+867,Nioxin Treatment System 2 for Natural Hair,Nioxin,haircare,hair-treatments,hair-growth,2200,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+868,Ustraa Hair Growth Vitalizer Serum,Ustraa,haircare,hair-treatments,hair-growth,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+869,Beardo Beard & Hair Growth Oil,Beardo,haircare,hair-treatments,hair-growth,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+870,BBlunt Born Again Reviving Hair Serum,BBlunt,haircare,hair-treatments,hair-growth,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+871,Nykaa Naturals Bhringraj & Rosemary Hair Growth Serum,Nykaa Naturals,haircare,hair-treatments,hair-growth,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+872,The Man Company Caffeine & Tea Tree Scalp Scrub,The Man Company,haircare,scalp-care,scalp-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+873,Beardo Scalp Scrub,Beardo,haircare,scalp-care,scalp-scrub,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+874,Nykaa Naturals Tea Tree Scalp Scrub,Nykaa Naturals,haircare,scalp-care,scalp-scrub,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+875,Savlon Moisturizing Shower Gel,Savlon,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+876,Lux Seductive Strawberry Shower Gel,Lux,bodycare,cleansers,body-wash,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+877,Dove Amplified Textures Moisture Boost Hydrating Cleanser,Dove,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+878,Plum BodyLovin Hawaiian Rumba Body Wash,Plum,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+879,Dot & Key Anti Tan Body Wash,Dot & Key,bodycare,cleansers,body-wash,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+880,Bella Vita Organic Body Wash Rose,Bella Vita Organic,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+881,Wow Red Wine Antioxidant Body Wash,WOW Skin Science,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+882,Bombay Shaving Company Charcoal Body Wash,Bombay Shaving Company,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+883,The Man Company Charcoal & Lemon Body Wash,The Man Company,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+884,Ustraa Cool Body Wash with Menthol & Neem,Ustraa,bodycare,cleansers,body-wash,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+885,Beardo Charcoal Body Wash,Beardo,bodycare,cleansers,body-wash,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+886,Himalaya Refreshing Mint Shower Gel,Himalaya,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+887,Beardo Activated Charcoal Soap,Beardo,bodycare,cleansers,soap-bar,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+888,Bombay Shaving Company Sandalwood Shaving Soap Bar,Bombay Shaving Company,bodycare,cleansers,soap-bar,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+889,The Man Company Charcoal Soap,The Man Company,bodycare,cleansers,soap-bar,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+890,Forest Essentials Luxury Sugar Soap Gotu Kola & Green Tea,Forest Essentials,bodycare,cleansers,soap-bar,450,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+891,Kama Ayurveda Pure Coconut & Peppermint Soap,Kama Ayurveda,bodycare,cleansers,soap-bar,395,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+892,Sebamed Liquid Face & Body Wash Syndet Bar,Sebamed,bodycare,cleansers,soap-bar,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+893,Sirona Tea Tree Soap Bar,Sirona,bodycare,cleansers,soap-bar,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+894,Bombay Shaving Company Vitamin C Body Lotion,Bombay Shaving Company,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+895,The Man Company Body Lotion Activated Charcoal,The Man Company,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+896,Ustraa Active Body Lotion,Ustraa,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+897,Nykaa Naturals Vitamin C Body Lotion,Nykaa Naturals,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+898,Dot & Key Vitamin C + E Super Bright Body Lotion,Dot & Key,bodycare,moisturisers,lotion,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+899,Bella Vita Organic Body Lotion Shea & Cocoa,Bella Vita Organic,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+900,Beardo Warrior Body Lotion,Beardo,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+901,Pilgrim Hyaluronic Acid + 5% Niacinamide Body Lotion,Pilgrim,bodycare,moisturisers,lotion,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+902,The Derma Co 2% Hyaluronic Acid Body Lotion,The Derma Co,bodycare,moisturisers,lotion,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+903,Re'equil Ceramide & Hyaluronic Acid Body Lotion,Re'equil,bodycare,moisturisers,lotion,599,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+904,Fogg Scent Woody Deodorant Spray,Fogg,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+905,Fogg Fresh Deodorant Spray,Fogg,bodycare,deodorant,spray,179,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+906,Beardo Deo Spray,Beardo,bodycare,deodorant,spray,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+907,The Man Company Deodorant Spray,The Man Company,bodycare,deodorant,spray,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+908,Ustraa Deodorant Body Spray,Ustraa,bodycare,deodorant,spray,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+909,Bombay Shaving Company Deodorant Spray,Bombay Shaving Company,bodycare,deodorant,spray,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+910,Dot & Key Underarm Brightening Serum Deodorant,Dot & Key,bodycare,deodorant,natural,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+911,Plum BodyLovin Natural Deodorant Spray,Plum,bodycare,deodorant,spray,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+912,Secret Completely Clean Deodorant Stick,Secret,bodycare,deodorant,stick,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+913,Nivea Men Sensitive Protect Deodorant Roll-On,Nivea,bodycare,deodorant,stick,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+914,Mamaearth Citrus Watermelon Body Sunscreen SPF 60 PA+++,Mamaearth,bodycare,body-sun-care,body-spf,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+915,The Derma Co 50+ PA++++ Sunscreen for Oily Skin,The Derma Co,bodycare,body-sun-care,body-spf,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+916,Dot & Key Waterlight Gel Sunscreen SPF 50+ PA++++,Dot & Key,bodycare,body-sun-care,body-spf,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+917,Plum Green Tea Day-Light SPF 35 Sunscreen PA++,Plum,bodycare,body-sun-care,body-spf,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+918,St. Botanica Vitamin C SPF 50 Sunscreen Body Lotion,St. Botanica,bodycare,body-sun-care,body-spf,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+919,Biotique Bio Coconut After Sun Spray,Biotique,bodycare,body-sun-care,after-sun-body,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+920,Himalaya After Sun Soothing Aloe Gel,Himalaya,bodycare,body-sun-care,after-sun-body,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+921,Lotus Herbals After Sun Soothing Gel,Lotus Herbals,bodycare,body-sun-care,after-sun-body,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+922,Nivea After Sun Soothing Lotion,Nivea,bodycare,body-sun-care,after-sun-body,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+923,Dot & Key Detan Body Exfoliator,Dot & Key,bodycare,body-treatments,body-exfoliator,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+924,Nykaa Naturals De-Tan Ubtan Body Scrub,Nykaa Naturals,bodycare,body-treatments,body-exfoliator,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+925,Bombay Shaving Company Back Scrubber & Body Exfoliator,Bombay Shaving Company,bodycare,body-treatments,body-exfoliator,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+926,Plum Grape Seed & Sea Buckthorn AHA Exfoliating Toner Body,Plum,bodycare,body-treatments,body-exfoliator,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+927,Lactacyd Daily Intimate Hygiene Wash,Lactacyd,bodycare,body-treatments,intimate-care,299,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+928,Pee Safe Organic Intimate Wash,Pee Safe,bodycare,body-treatments,intimate-care,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+929,Sirona Feminine Intimate Hygiene Wash,Sirona,bodycare,body-treatments,intimate-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+930,Nykaa Naturals Peppermint Foot Scrub,Nykaa Naturals,bodycare,hand-foot,foot-scrub,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+931,Dot & Key Pedicure Foot Scrub,Dot & Key,bodycare,hand-foot,foot-scrub,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+932,WOW Skin Science Tea Tree Foot Scrub,WOW Skin Science,bodycare,hand-foot,foot-scrub,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+933,Bella Vita Organic Foot Scrub Pumice,Bella Vita Organic,bodycare,hand-foot,foot-scrub,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+934,Fabindia Rosewood Bath Salt,Fabindia,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+935,Kairali Ayurvedic Bath Powder,Kairali,bath-body,bath-soaks,bath-salts,349,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+936,Nykaa Naturals Lavender & Chamomile Bath Salts,Nykaa Naturals,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+937,Himalayan Pink Salt Bath Soak by Himalaya,Himalaya,bath-body,bath-soaks,bath-salts,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+938,The Body Shop Spa of the World Sea Salt Bath Scrub,The Body Shop,bath-body,bath-soaks,bath-salts,1095,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+939,Dot & Key Lavender & Jojoba Calming Bath Soak,Dot & Key,bath-body,bath-soaks,bath-salts,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+940,Bella Vita Organic Lavender Rose Bath Salt,Bella Vita Organic,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+941,Dot & Key Vitamin C Fizzy Bath Bomb,Dot & Key,bath-body,bath-soaks,bath-bombs,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+942,The Body Bucket Ylang Ylang & Lemongrass Bath Bomb,The Body Bucket,bath-body,bath-soaks,bath-bombs,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+943,Fabindia Rosewood Bath Bomb,Fabindia,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+944,Nykaa Naturals Vitamin E & Aloe Bath Bomb,Nykaa Naturals,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+945,Kama Ayurveda Ylang Ylang & Sandalwood Bath Bomb,Kama Ayurveda,bath-body,bath-soaks,bath-bombs,695,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+946,Bella Vita Organic Rosemary & Tea Tree Bath Bomb,Bella Vita Organic,bath-body,bath-soaks,bath-bombs,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+947,Fabindia Rosewood Foam Bath,Fabindia,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+948,Dot & Key Calming Bubble Bath Lavender & Oat,Dot & Key,bath-body,bath-soaks,bubble-bath,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+949,Pigeon Baby Body Foam Wash Bubble Bath,Pigeon,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+950,Johnson's Cottontouch Newborn Baby Bubble Bath,Johnson's,bath-body,bath-soaks,bubble-bath,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+951,Chicco Bubble Bath Gentle,Chicco,bath-body,bath-soaks,bubble-bath,499,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+952,Mamaearth Milky Soft Baby Bubble Bath,Mamaearth,bath-body,bath-soaks,bubble-bath,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+953,The Moms Co Natural Baby Bubble Bath,The Moms Co,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+954,Himalaya Gentle Baby Wash,Himalaya,bath-body,bath-soaks,bubble-bath,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+955,Nykaa Naturals Vitamin E Shower Oil,Nykaa Naturals,bodycare,cleansers,shower-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+956,Dot & Key Vitamin E & Avocado Shower Oil,Dot & Key,bodycare,cleansers,shower-oil,449,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+957,Bella Vita Organic Lavender Shower Oil,Bella Vita Organic,bodycare,cleansers,shower-oil,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+958,Mamaearth Vitamin C Shower Oil,Mamaearth,bodycare,cleansers,shower-oil,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+959,Dove Nourishing Rituals Glow Nourishment Shampoo,Dove,haircare,cleansers,shampoo,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+960,WOW Skin Science Volumizing Biotin Shampoo,WOW Skin Science,haircare,cleansers,shampoo,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+961,Himalaya Anti-Dandruff 2-in-1 Shampoo,Himalaya,haircare,cleansers,shampoo,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+962,Parachute Advansed Coconut Enriched Hair Serum,Parachute,haircare,hair-treatments,hair-serum,149,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+963,Garnier Fructis Style Pure Clean Texturizer Spray,Garnier,haircare,styling,spray,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+964,Set Wet Wet Look Hair Gel Extra Hold,Set Wet,haircare,styling,gel,99,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+965,Schwarzkopf Osis+ Texture Craft Spray Wax,Schwarzkopf Professional,haircare,styling,wax,799,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+966,Wella EIMI Thermal Image Heat Protection Fluid,Wella Professionals,haircare,hair-treatments,heat-protectant,999,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+967,Dove DermaCare Scalp Pure Daily Care Shampoo,Dove,haircare,scalp-care,anti-dandruff,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+968,Pantene Pro-V Anti-Dandruff 2-in-1 Shampoo,Pantene,haircare,scalp-care,anti-dandruff,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+969,Fiama Body Wash Shower Gel Exotic Dream,Fiama,bodycare,cleansers,body-wash,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+970,Lux Velvet Touch Shower Gel,Lux,bodycare,cleansers,body-wash,175,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+971,Sanfe Body Scrub for Strawberry Skin,Sanfe,bodycare,cleansers,body-scrub,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+972,Plum BodyLovin Passion Flower Coffee Body Scrub,Plum,bodycare,cleansers,body-scrub,449,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+973,Lakme Absolute Perfect Radiance Skin Lightening Lotion,Lakme,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+974,Garnier Skin Naturals Light Complete Body Lotion SPF 15,Garnier,bodycare,moisturisers,lotion,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+975,Pond's Flawless Radiance Derma+ Body Lotion SPF 15,Pond's,bodycare,moisturisers,lotion,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+976,Vaseline Aloe Soothe Body Gel Moisturiser,Vaseline,bodycare,moisturisers,gel,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+977,The Moms Co Natural Glow Body Butter,The Moms Co,bodycare,moisturisers,butter,399,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+978,Himalaya Nourishing Skin Cream,Himalaya,bodycare,moisturisers,cream,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+979,Dove Dermacare Calming Body Cream,Dove,bodycare,moisturisers,cream,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+980,Biotique Bio Dandelion SPF 30 Sunscreen Body Lotion,Biotique,bodycare,body-sun-care,body-spf,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+981,Parachute Skin Care SPF 25 Body Lotion,Parachute,bodycare,body-sun-care,body-spf,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+982,Mamaearth After Sun Lotion with Aloe & Cucumber,Mamaearth,bodycare,body-sun-care,after-sun-body,249,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+983,Dot & Key Stretch Mark Oil with Rosehip,Dot & Key,bodycare,body-treatments,stretch-mark,549,mid,Nykaa bestseller / Amazon.in / D2C brand hero
+984,Kiehl's Creme de Corps Body Serum Oil,Kiehl's,bodycare,body-treatments,body-serum,3600,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+985,Sol de Janeiro Brazilian Bum Bum Cream,Sol de Janeiro,bodycare,body-treatments,body-serum,4500,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+986,Sanfe Intimate Wash for Women,Sanfe,bodycare,body-treatments,intimate-care,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+987,Yoni Care Intimate Wash,Carmesi,bodycare,body-treatments,intimate-care,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+988,Rexona Men Quantum Deodorant Stick,Rexona,bodycare,deodorant,stick,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+989,Axe Gold Temptation Deodorant Stick,Axe,bodycare,deodorant,stick,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+990,The Man Company Tea Tree Hand Cream,The Man Company,bodycare,hand-foot,hand-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+991,Bombay Shaving Company Hand Cream Vetiver,Bombay Shaving Company,bodycare,hand-foot,hand-cream,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+992,Gehwol Fusskraft Soft Feet Cream,Gehwol,bodycare,hand-foot,foot-cream,1299,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+993,Biotique Bio Clove Purifying Body Scrub (foot use),Biotique,bodycare,hand-foot,foot-scrub,199,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+994,Fabindia Lavender Bath Salts,Fabindia,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+995,Nykaa Naturals Pink Himalayan Salt Detox Bath Soak,Nykaa Naturals,bath-body,bath-soaks,bath-salts,299,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+996,Kama Ayurveda Rose & Jasmine Bath Bomb,Kama Ayurveda,bath-body,bath-soaks,bath-bombs,695,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+997,Dot & Key Calming Lavender Bath Bomb,Dot & Key,bath-body,bath-soaks,bath-bombs,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+998,Forest Essentials Sandalwood & Rose Bubble Bath,Forest Essentials,bath-body,bath-soaks,bubble-bath,1650,premium,Nykaa bestseller / Amazon.in / D2C brand hero
+999,Nykaa Naturals Rose & Milk Bubble Bath,Nykaa Naturals,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero
+1000,Bella Vita Organic Jasmine Bubble Bath,Bella Vita Organic,bath-body,bath-soaks,bubble-bath,349,mass,Nykaa bestseller / Amazon.in / D2C brand hero

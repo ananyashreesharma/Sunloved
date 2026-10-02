@@ -31,7 +31,7 @@ export async function fetchAllProductsForListing({
 
   while (hasMore) {
     const results = await searchProducts(searchQuery, currentPage, pageSize, filters)
-    const productsArray = results.products || results.data || []
+    const productsArray = results.products
 
     if (Array.isArray(productsArray) && productsArray.length > 0) {
       allProducts = [...allProducts, ...productsArray]

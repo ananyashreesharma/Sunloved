@@ -1,63 +1,18 @@
-import { Header } from "@/components/Header"
-import { Hero } from "@/components/Hero"
-import { PopularSwaps } from "@/components/PopularSwaps"
-import { Footer } from "@/components/Footer"
-import { searchProducts } from "@/lib/api"
-import { ScrollStorySectionNav } from "@/components/home/ScrollStorySectionNav"
-import { HomeTextScrollSection } from "@/components/home/HomeTextScrollSection"
-import { HomeTwoColumnsSection } from "@/components/home/HomeTwoColumnsSection"
-import { HomeSubscribeSection } from "@/components/home/HomeSubscribeSection"
-import { PopularSwapsPastelBackdrop } from "@/components/PopularSwapsPastelBackdrop"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth/authOptions"
+import { redirect } from "next/navigation"
+import { ValuePropCarousel } from "@/components/marketing/ValuePropCarousel"
 
-/**
- * Home: server-fetches the first page of popular products so Popular Swaps paints quickly;
- * the client still uses React Query for cache and refetch (see usePopularProductsQuery).
- */
-export default async function Home() {
-  let initialPopular: unknown[] | undefined
-  try {
-    const r = await searchProducts("niacinamide", 1, 20)
-    const arr = r.products || r.data || []
-    initialPopular = Array.isArray(arr) && arr.length > 0 ? arr : undefined
-  } catch {
-    initialPopular = undefined
+// The site's / and the native app shell load the same URL, so this is the entry point for both.
+// Signed-in users skip straight to where they left off; everyone else (guests, including anyone
+// who hasn't made an account yet) sees the value-prop carousel, which itself links to Onboarding.
+export default async function RootEntry() {
+  const session = await getServerSession(authOptions)
+
+  if (session) {
+    const user = session.user as typeof session.user & { onboardingDone?: boolean }
+    redirect(user.onboardingDone ? "/app/routine" : "/onboarding")
   }
 
-  return (
-    <main className="mesh-page">
-      <Header />
-      {/* Scroll-driven section UX lives in styles/scroll-story.css (feature-detected). */}
-      <div className="sunloved-scroll-story">
-        <ScrollStorySectionNav />
-        <div className="ss-scroll-hint" aria-hidden>
-          <span>scroll</span>
-          <span className="ss-divider" />
-          <span>down</span>
-        </div>
-
-        <section id="masthead" className="ss-section ss-section--masthead">
-          <div className="ss-flying-squares" aria-hidden>
-            <div className="ss-square ss-square--a" />
-            <div className="ss-square ss-square--b" />
-            <div className="ss-square ss-square--c" />
-          </div>
-          <div className="ss-masthead-inner">
-            <Hero mastheadScrollTitle />
-          </div>
-        </section>
-
-        {/* One pastel backdrop for #tiles → subscribe; see globals.css for top feathering. */}
-        <div className="ss-pastel-stack">
-          <PopularSwapsPastelBackdrop />
-          <section id="tiles" className="ss-section ss-section--tiles relative">
-            <PopularSwaps embedded initialProducts={initialPopular} />
-          </section>
-          <HomeTextScrollSection />
-          <HomeTwoColumnsSection />
-          <HomeSubscribeSection />
-        </div>
-      </div>
-      <Footer />
-    </main>
-  )
+  return <ValuePropCarousel />
 }

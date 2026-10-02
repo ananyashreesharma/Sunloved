@@ -10,6 +10,7 @@ export class SearchProductsDto {
   @IsString()
   brand?: string;
 
+  /** Legacy label, taxonomy leaf `name`, or leaf `slug` (e.g. face-serum) */
   @IsOptional()
   @IsString()
   category?: string;

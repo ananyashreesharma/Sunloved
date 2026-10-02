@@ -1,144 +1,115 @@
 /**
- * Sunloved design tokens.
- * Brand palette (use hsl(var(--sun-*)) in CSS; Tailwind: sun.blueberry, sun.apricot, …):
- *   Blueberry #6B7A8F  Apricot #F7882F  Citrus #F7C331  Apple Core #DCC7AA
+ * Know Better — design tokens.
+ * Prototype palette: bone / ink / green / amber / red earth tones.
  */
 
 :root {
-  /* ─── Brand (exact hex → HSL triplets) ─── */
-  --sun-blueberry: 217 15% 48%;
-  --sun-apricot: 27 93% 57%;
-  --sun-citrus: 45 92% 57%;
-  --sun-apple-core: 35 42% 76%;
+  /* ─── Core palette ─── */
+  --bone: #F4EFE7;
+  --bone-deep: #ECE4D6;
+  --ink: #1A1714;
+  --ink-soft: #4A433C;
+  --ink-mute: #8A7F71;
+  --line: #DDD3C2;
+  --card: #FBF8F2;
 
-  /* Light washes derived from the same hues */
-  --sun-blueberry-wash: 217 22% 94%;
-  --sun-apricot-wash: 28 88% 94%;
-  --sun-citrus-wash: 45 90% 93%;
-  --sun-apple-wash: 35 38% 95%;
+  /* ─── Verdict / zone colors ─── */
+  --kb-green: #4F6B3D;
+  --kb-green-soft: #DEE2C8;
+  --kb-amber: #B5762A;
+  --kb-amber-soft: #F2DFB8;
+  --kb-red: #8A2A22;
+  --kb-red-soft: #EBC9C2;
 
   /* ─── Page shell ─── */
-  --sun-html: 35 32% 97%;
-  /* Warm beige frosted layer over mesh (see .mesh-page); keep --sun-mesh-frost white for rare literal use */
-  --sun-mesh-page-shell: 35 26% 93%;
-  --sun-mesh-frost: 0 0% 100%;
-  --sun-mesh-filter: hue-rotate(38deg) saturate(0.92) brightness(0.98) contrast(1.04);
-  --sun-overlay-nonwebkit: #ebe4db;
-  --sun-mesh-inset-shadow: 0 -48px 56px -28px hsl(217 22% 28% / 0.14);
+  --sun-html: 36 32% 92%;
 
-  /* ─── Typography (slate that pairs with Blueberry) ─── */
-  --sun-ink: 217 22% 18%;
-  --sun-ink-muted: 217 12% 42%;
-
-  /* ─── Legacy sun.* names → same palette (for scroll-story + older CSS) ─── */
-  --sun-clay: 27 93% 57%;
-  --sun-sage: 217 15% 48%;
-  --sun-slate: 217 14% 56%;
-  --sun-mauve: 240 14% 52%;
-  --sun-wheat: 45 92% 57%;
-  --sun-olive: 35 38% 52%;
-
+  /* ─── Legacy sun.* aliases (kept for compatibility) ─── */
+  --sun-blueberry: 36 12% 25%;
+  --sun-apricot: 33 45% 44%;
+  --sun-citrus: 36 40% 58%;
+  --sun-apple-core: 36 30% 68%;
+  --sun-blueberry-wash: 36 20% 94%;
+  --sun-apricot-wash: 33 40% 94%;
+  --sun-citrus-wash: 36 35% 93%;
+  --sun-apple-wash: 36 28% 95%;
+  --sun-ink: 20 10% 9%;
+  --sun-ink-muted: 25 10% 50%;
+  --sun-clay: 33 45% 44%;
+  --sun-sage: 100 16% 33%;
+  --sun-slate: 25 10% 50%;
+  --sun-mauve: 240 10% 52%;
+  --sun-wheat: 36 40% 58%;
+  --sun-olive: 36 25% 45%;
   --sun-white: 0 0% 100%;
-  --sun-pastel-fade-top: 35 38% 95%;
-
-  --sun-glass-header: hsl(0 0% 100% / 82%);
-  --sun-glass-border: hsl(217 15% 50% / 0.14);
-  --sun-line-faint: hsl(217 12% 50% / 0.1);
-
-  /* Masthead squares — Blueberry / Apricot / Citrus (same HSL as tokens → exact hex) */
-  --sun-masthead-square-a: 217 15% 48%;
-  --sun-masthead-square-b: 27 93% 57%;
-  --sun-masthead-square-c: 45 92% 57%;
-
+  --sun-pastel-fade-top: 36 30% 95%;
+  --sun-glass-header: hsl(36 30% 96% / 82%);
+  --sun-glass-border: hsl(36 15% 50% / 0.14);
+  --sun-line-faint: hsl(36 12% 50% / 0.1);
+  --sun-mesh-page-shell: 36 26% 88%;
+  --sun-mesh-frost: 0 0% 100%;
+  --sun-mesh-filter: hue-rotate(0deg) saturate(0.9) brightness(1);
+  --sun-overlay-nonwebkit: #ece4d6;
+  --sun-mesh-inset-shadow: 0 -48px 56px -28px hsl(20 10% 20% / 0.14);
+  --sun-masthead-square-a: 36 12% 25%;
+  --sun-masthead-square-b: 33 45% 44%;
+  --sun-masthead-square-c: 36 40% 58%;
   --sun-ease-story: cubic-bezier(0.25, 0.1, 0, 2.05);
 
-  /* ─── shadcn/ui — Blueberry primary, warm neutrals from Apple Core ─── */
-  --background: 35 30% 98%;
-  --foreground: 217 22% 18%;
+  /* ─── shadcn/ui ─── */
+  --background: 36 40% 93%;
+  --foreground: 20 10% 9%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 217 22% 14%;
+  --card: 36 40% 97%;
+  --card-foreground: 20 10% 9%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 217 22% 14%;
+  --popover: 36 40% 97%;
+  --popover-foreground: 20 10% 9%;
 
-  --muted: 35 22% 96%;
-  --muted-foreground: 217 11% 44%;
+  --muted: 36 25% 92%;
+  --muted-foreground: 25 10% 50%;
 
-  --accent: 27 93% 57%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 33 45% 44%;
+  --accent-foreground: 36 40% 93%;
 
-  --destructive: 0 72% 50%;
-  --destructive-foreground: 0 0% 98%;
+  --destructive: 4 62% 35%;
+  --destructive-foreground: 36 40% 93%;
 
-  --border: 35 22% 88%;
-  --input: 35 20% 94%;
-  --ring: 217 15% 48%;
+  --border: 36 28% 82%;
+  --input: 36 28% 90%;
+  --ring: 20 10% 9%;
 
-  --primary: 217 15% 48%;
-  --primary-foreground: 0 0% 100%;
+  /* Ink as primary — dark, earthy buttons */
+  --primary: 20 10% 9%;
+  --primary-foreground: 36 40% 93%;
 
-  --secondary: 35 35% 94%;
-  --secondary-foreground: 217 22% 22%;
+  --secondary: 36 25% 90%;
+  --secondary-foreground: 20 10% 14%;
 
-  --radius: 0.5rem;
+  --radius: 0.75rem;
 }
 
 .dark {
-  --background: 222 18% 8%;
-  --foreground: 35 25% 94%;
-
-  --card: 222 16% 11%;
-  --card-foreground: 35 25% 94%;
-
-  --popover: 222 16% 11%;
-  --popover-foreground: 35 25% 94%;
-
-  --muted: 222 14% 16%;
-  --muted-foreground: 217 12% 65%;
-
-  --accent: 27 85% 52%;
-  --accent-foreground: 0 0% 100%;
-
-  --destructive: 0 62% 42%;
-  --destructive-foreground: 0 0% 98%;
-
-  --border: 222 14% 22%;
-  --input: 222 14% 18%;
-  --ring: 217 18% 55%;
-
-  --primary: 217 18% 55%;
-  --primary-foreground: 222 18% 8%;
-
-  --secondary: 222 14% 18%;
-  --secondary-foreground: 35 25% 94%;
-
-  --sun-blueberry: 217 18% 62%;
-  --sun-apricot: 27 88% 58%;
-  --sun-citrus: 45 88% 58%;
-  --sun-apple-core: 35 28% 42%;
-
-  --sun-clay: 27 88% 58%;
-  --sun-sage: 217 18% 62%;
-  --sun-slate: 217 14% 62%;
-  --sun-wheat: 45 88% 58%;
-  --sun-olive: 35 32% 48%;
-  --sun-mauve: 240 12% 58%;
-
-  --sun-html: 222 20% 6%;
-  --sun-mesh-page-shell: 222 16% 11%;
-  --sun-mesh-frost: 222 18% 10%;
-  --sun-mesh-filter: hue-rotate(8deg) saturate(0.88) brightness(0.9);
-  --sun-mesh-inset-shadow: 0 -32px 40px -20px hsl(0 0% 0% / 0.35);
-  --sun-overlay-nonwebkit: #1e2228;
-  --sun-ink: 35 20% 94%;
-  --sun-ink-muted: 217 12% 68%;
-
-  --sun-masthead-square-a: 217 18% 58%;
-  --sun-masthead-square-b: 27 88% 58%;
-  --sun-masthead-square-c: 45 88% 58%;
-
-  --sun-slate: 217 14% 62%;
-  --sun-olive: 35 32% 48%;
-  --sun-mauve: 240 12% 58%;
+  --background: 20 12% 7%;
+  --foreground: 36 30% 90%;
+  --card: 20 10% 10%;
+  --card-foreground: 36 30% 90%;
+  --popover: 20 10% 10%;
+  --popover-foreground: 36 30% 90%;
+  --muted: 20 10% 14%;
+  --muted-foreground: 25 10% 58%;
+  --accent: 33 40% 48%;
+  --accent-foreground: 36 30% 90%;
+  --destructive: 4 55% 40%;
+  --destructive-foreground: 36 30% 90%;
+  --border: 20 10% 20%;
+  --input: 20 10% 16%;
+  --ring: 36 30% 80%;
+  --primary: 36 40% 90%;
+  --primary-foreground: 20 10% 9%;
+  --secondary: 20 10% 16%;
+  --secondary-foreground: 36 30% 90%;
+  --sun-html: 20 14% 5%;
+  --sun-ink: 36 25% 90%;
+  --sun-ink-muted: 25 10% 62%;
 }

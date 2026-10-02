@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useState, type ReactNode } from "react"
+import { SessionProvider } from "@/components/auth/SessionProvider"
 
 /** Root client boundary — TanStack Query for server-backed data app-wide. */
 export function AppProviders({ children }: { children: ReactNode }) {
@@ -17,5 +18,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
       })
   )
 
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  return (
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </SessionProvider>
+  )
 }
