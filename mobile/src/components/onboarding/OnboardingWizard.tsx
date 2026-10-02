@@ -17,6 +17,8 @@ import { syncReminders } from "@/lib/notifications"
 import { formatTimeForDisplay } from "@/lib/time-format"
 import { TimeEntryField } from "@/components/shared/TimeEntryField"
 import { SoftPressable } from "@/components/shared/SoftPressable"
+import { CountryPicker } from "@/components/shared/CountryPicker"
+import { MAX_CONCERNS, guessCountry } from "@skinlens/shared"
 
 const SKIN_TYPE_CODES = ["oily", "dry", "combination", "sensitive"] as const
 const CONCERN_CODES = ["acne", "pigmentation", "redness", "texture", "dullness"] as const
@@ -126,6 +128,8 @@ export function OnboardingWizard() {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   const [screen, setScreen] = useState<1 | 2 | 3 | 4>(1)
+  // Pre-selected from the device locale (e.g. en-GB → United Kingdom); the user confirms it.
+  const [country, setCountry] = useState(() => guessCountry(Intl.DateTimeFormat().resolvedOptions().locale))
   const [skinType, setSkinType] = useState<string | null>(null)
   const [concerns, setConcerns] = useState<string[]>([])
   const [steps, setSteps] = useState<Step[]>([])
@@ -152,7 +156,7 @@ export function OnboardingWizard() {
   function toggleConcern(code: string) {
     setConcerns((prev) => {
       if (prev.includes(code)) return prev.filter((c) => c !== code)
-      if (prev.length >= 2) return prev
+      if (prev.length >= MAX_CONCERNS) return prev
       return [...prev, code]
     })
   }
@@ -187,7 +191,7 @@ export function OnboardingWizard() {
         when: "night" as const,
         frequency: "daily" as const,
       }))
-    const updated = await updateGuestData({ skinType, concerns, steps: [...existing.steps, ...wizardSteps], morningTime, nightTime, channel })
+    const updated = await updateGuestData({ country, skinType, concerns, steps: [...existing.steps, ...wizardSteps], morningTime, nightTime, channel })
     syncReminders(updated).catch(() => {})
     router.replace("/routine")
   }
@@ -222,6 +226,12 @@ export function OnboardingWizard() {
             <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 14, color: colors.mute }}>{t("onboarding.step1Sub")}</Text>
 
             <View style={{ marginTop: 24 }}>
+              <SectionLabel>{t("onboarding.countryLabel")}</SectionLabel>
+            </View>
+            <CountryPicker value={country} onChange={setCountry} label={t("onboarding.countryLabel")} />
+            <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 12, color: colors.mute }}>{t("onboarding.countryHelp")}</Text>
+
+            <View style={{ marginTop: 24 }}>
               <SectionLabel>{t("onboarding.skinTypeLabel")}</SectionLabel>
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
@@ -247,7 +257,7 @@ export function OnboardingWizard() {
                   key={code}
                   label={t(`onboarding.concerns.${code}`)}
                   selected={concerns.includes(code)}
-                  disabled={!concerns.includes(code) && concerns.length >= 2}
+                  disabled={!concerns.includes(code) && concerns.length >= MAX_CONCERNS}
                   onPress={() => toggleConcern(code)}
                 />
               ))}

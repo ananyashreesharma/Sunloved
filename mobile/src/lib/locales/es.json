@@ -1,5 +1,7 @@
 {
   "common": {
+    "searchCountries": "Buscar países",
+    "close": "Cerrar",
     "backRoutine": "Rutina",
     "backScan": "Escanear",
     "quickSteps": { "cleanser": "Limpiador", "toner": "Tónico", "serum": "Sérum", "moisturiser": "Hidratante", "spf": "Protector solar" }
@@ -37,12 +39,14 @@
     "errVerify": "No se pudo verificar ese código — revisa tu conexión e inténtalo de nuevo."
   },
   "onboarding": {
+    "countryLabel": "Dónde vives",
+    "countryHelp": "El mismo producto puede tener otra fórmula —y otras normas— en cada país.",
     "skip": "Omitir",
     "skipAlertTitle": "¿Omitir la configuración?",
     "skipAlertBody": "Lo que has elegido hasta ahora no se guardará.",
     "keepGoing": "Continuar",
     "skipAnyway": "Omitir de todos modos",
-    "step1Title": "Primero, tu piel",
+    "step1Title": "Primero, tú y tu piel",
     "step1Sub": "Esto define cada alerta y resumen que verás.",
     "skinTypeLabel": "Tipo de piel",
     "concernsLabel": "Preocupaciones",
@@ -221,6 +225,8 @@
     "adviceTry": "Puedes probarlo; haz una prueba de parche primero."
   },
   "profile": {
+    "country": "País",
+    "countryHelp": "Fórmulas, normas y precios se ajustan a donde vives.",
     "title": "Perfil",
     "skinProfile": "Perfil de piel",
     "edit": "Editar",

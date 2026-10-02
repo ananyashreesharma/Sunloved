@@ -140,6 +140,8 @@ export type MeResponse = {
   phone: string | null
   avatarUrl: string | null
   onboardingDone: boolean
+  /** ISO 3166-1 alpha-2 */
+  country: string | null
   skinType: { code: string; label: string } | null
   concerns: { code: string; label: string }[]
 }

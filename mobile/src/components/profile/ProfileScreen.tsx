@@ -13,6 +13,8 @@ import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
 import { colors } from "@/constants/tokens"
 import { fonts } from "@/constants/fonts"
+import { CountryPicker } from "@/components/shared/CountryPicker"
+import { DEFAULT_COUNTRY } from "@skinlens/shared"
 import { loadGuestData, updateGuestData, getGuestRoutine, type GuestData, type GuestRoutineStepView } from "@/lib/guest-store"
 import { syncReminders, getReminderStatus, type ReminderStatus } from "@/lib/notifications"
 import { formatTimeForDisplay } from "@/lib/time-format"
@@ -136,6 +138,13 @@ export function ProfileScreen() {
               <Text style={{ fontFamily: fonts.bodyItalic, fontSize: 13, color: colors.mute }}>{t("profile.notSetYet")}</Text>
             )}
           </View>
+        </Card>
+
+        {/* Country */}
+        <Card>
+          <SectionLabel>{t("profile.country")}</SectionLabel>
+          <CountryPicker value={data?.country ?? DEFAULT_COUNTRY} onChange={(code) => patch({ country: code })} label={t("profile.country")} />
+          <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 12.5, color: colors.mute }}>{t("profile.countryHelp")}</Text>
         </Card>
 
         {/* Reminders */}

@@ -9,7 +9,7 @@ import {
   RefreshTokenDto,
   LogoutDto,
   UpsertOAuthUserDto,
-  CompleteOnboardingDto,
+  CompleteOnboardingDto, UpdateCountryDto,
 } from './dto/auth.dto';
 import { UserAuthGuard } from '../../common/guards/user-auth.guard';
 
@@ -29,6 +29,13 @@ export class AuthController {
   @UseGuards(UserAuthGuard)
   completeOnboarding(@Req() req: { userId: string }, @Body() dto: CompleteOnboardingDto) {
     return this.authService.completeOnboarding(req.userId, dto);
+  }
+
+  /** Change where the user lives (Me → Country). */
+  @Patch('country')
+  @UseGuards(UserAuthGuard)
+  updateCountry(@Req() req: { userId: string }, @Body() dto: UpdateCountryDto) {
+    return this.authService.updateCountry(req.userId, dto.country);
   }
 
   /**

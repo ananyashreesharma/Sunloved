@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, Matches, Length, IsArray, ArrayMaxSize } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, Matches, Length, IsArray, ArrayMaxSize, IsOptional } from 'class-validator';
 
 export class SendOtpDto {
   /** E.164 Indian mobile number, e.g. +919876543210 */
@@ -78,4 +78,15 @@ export class CompleteOnboardingDto {
   @ArrayMaxSize(2)
   @IsString({ each: true })
   concerns: string[];
+
+  /** ISO 3166-1 alpha-2, e.g. "IN". Optional so older app builds keep working. */
+  @IsOptional()
+  @Matches(/^[A-Z]{2}$/)
+  country?: string;
+}
+
+export class UpdateCountryDto {
+  /** ISO 3166-1 alpha-2, e.g. "GB" */
+  @Matches(/^[A-Z]{2}$/)
+  country: string;
 }

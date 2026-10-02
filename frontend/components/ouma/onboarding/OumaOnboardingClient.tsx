@@ -6,8 +6,10 @@ import { useSession } from "next-auth/react"
 import { completeOnboarding, createRoutineStep, updateNotificationPreferences } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
 import { hasGuestData, loadGuestData, updateGuestData, clearGuestData, clearGuestScans, STEP_ORDER as GUEST_STEP_ORDER } from "@/lib/guest-store"
+import { COUNTRIES, CONCERNS, DEFAULT_COUNTRY, MAX_CONCERNS, SKIN_TYPES, guessCountry } from "@skinlens/shared"
 
 type OnboardingDraft = {
+  country: string
   skinType: string | null
   concerns: string[]
   steps: Step[]
@@ -22,21 +24,6 @@ const ACCENT = "#1E4D3A"
 const BONE = "#F3F5EF"
 const CARD = "#FFFFFF"
 const LINE = "rgba(23,33,26,.12)"
-
-const SKIN_TYPES = [
-  { code: "oily", label: "Oily" },
-  { code: "dry", label: "Dry" },
-  { code: "combination", label: "Combination" },
-  { code: "sensitive", label: "Sensitive" },
-]
-
-const CONCERNS = [
-  { code: "acne", label: "Acne" },
-  { code: "pigmentation", label: "Pigmentation" },
-  { code: "redness", label: "Redness" },
-  { code: "texture", label: "Texture" },
-  { code: "dullness", label: "Dullness" },
-]
 
 const QUICK_STEPS = ["Cleanser", "Toner", "Serum", "Moisturiser", "SPF"]
 const STEP_ORDER = GUEST_STEP_ORDER
@@ -109,6 +96,7 @@ export function OumaOnboardingClient() {
   const { update } = useSession()
   const isGuest = useIsGuest()
   const [screen, setScreen] = useState<1 | 2 | 3 | 4>(1)
+  const [country, setCountry] = useState(DEFAULT_COUNTRY)
   const [skinType, setSkinType] = useState<string | null>(null)
   const [concerns, setConcerns] = useState<string[]>([])
   const [steps, setSteps] = useState<Step[]>([])
@@ -119,6 +107,12 @@ export function OumaOnboardingClient() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Pre-select from the browser language (e.g. en-GB → United Kingdom) after mount, so server and
+  // client render the same first frame. The user confirms it either way.
+  useEffect(() => {
+    setCountry((c) => (c === DEFAULT_COUNTRY ? guessCountry(navigator.language) : c))
+  }, [])
+
   // Signed in and there's local guest data waiting (they used the app as a guest and are now
   // signing in from some "sign in to save this" prompt) — push it all to the account automatically
   // instead of making them redo any of it.
@@ -126,6 +120,7 @@ export function OumaOnboardingClient() {
     if (isGuest) return
     if (!hasGuestData()) return
     const data = loadGuestData()
+    if (data.country) setCountry(data.country)
     setSkinType(data.skinType)
     setConcerns(data.concerns)
     setSteps(data.steps.map((s) => ({ name: s.name, kind: GUEST_STEP_ORDER[s.name] !== undefined ? s.name : "custom" })))
@@ -154,7 +149,7 @@ export function OumaOnboardingClient() {
   function toggleConcern(code: string) {
     setConcerns((prev) => {
       if (prev.includes(code)) return prev.filter((c) => c !== code)
-      if (prev.length >= 2) return prev
+      if (prev.length >= MAX_CONCERNS) return prev
       return [...prev, code]
     })
   }
@@ -165,7 +160,7 @@ export function OumaOnboardingClient() {
     setError(null)
     try {
       if (draft.skinType) {
-        await completeOnboarding({ skinType: draft.skinType, concerns: draft.concerns })
+        await completeOnboarding({ skinType: draft.skinType, concerns: draft.concerns, country: draft.country })
       }
       await updateNotificationPreferences({ morningTime: draft.morningTime, nightTime: draft.nightTime, channel: draft.channel })
       for (const step of draftOrderedSteps) {
@@ -188,7 +183,7 @@ export function OumaOnboardingClient() {
     setError(null)
     try {
       if (data.skinType) {
-        await completeOnboarding({ skinType: data.skinType, concerns: data.concerns })
+        await completeOnboarding({ skinType: data.skinType, concerns: data.concerns, country: data.country ?? undefined })
       }
       await updateNotificationPreferences({ morningTime: data.morningTime, nightTime: data.nightTime, channel: data.channel })
       for (const step of orderedSteps) {
@@ -225,11 +220,11 @@ export function OumaOnboardingClient() {
           when: "night" as const,
           frequency: "daily" as const,
         }))
-      updateGuestData({ skinType, concerns, steps: [...existing.steps, ...wizardSteps], morningTime, nightTime, channel })
+      updateGuestData({ country, skinType, concerns, steps: [...existing.steps, ...wizardSteps], morningTime, nightTime, channel })
       router.replace("/app/routine")
       return
     }
-    void finishWith({ skinType, concerns, steps, morningTime, nightTime, channel })
+    void finishWith({ country, skinType, concerns, steps, morningTime, nightTime, channel })
   }
 
   return (
@@ -250,10 +245,33 @@ export function OumaOnboardingClient() {
               </button>
             </div>
             <h1 className="ouma-display" style={{ fontSize: 30, lineHeight: 1.05, marginTop: 14, textTransform: "uppercase" }}>
-              First, your skin
+              First, you and your skin
             </h1>
             <p style={{ marginTop: 8, fontSize: 14, color: MUTE }}>
               This shapes every flag and summary you&apos;ll see.
+            </p>
+
+            <label
+              htmlFor="onboarding-country"
+              className="ouma-display"
+              style={{ display: "block", marginTop: 24, fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTE }}
+            >
+              Where you live
+            </label>
+            <select
+              id="onboarding-country"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              style={{ marginTop: 10, width: "100%", padding: "12px 14px", borderRadius: 12, border: `1px solid ${LINE}`, background: CARD, color: INK, fontSize: 15 }}
+            >
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+            <p style={{ marginTop: 8, fontSize: 12, color: MUTE }}>
+              The same product can have a different formula — and different rules — in each country.
             </p>
 
             <p className="ouma-display" style={{ marginTop: 24, fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTE }}>
@@ -270,7 +288,7 @@ export function OumaOnboardingClient() {
                 Concerns
               </p>
               <span className="ouma-mono" style={{ fontSize: 11, color: MUTE }}>
-                {concerns.length} / 2 picked
+                {concerns.length} / {MAX_CONCERNS} picked
               </span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
@@ -279,7 +297,7 @@ export function OumaOnboardingClient() {
                   key={c.code}
                   label={c.label}
                   selected={concerns.includes(c.code)}
-                  disabled={!concerns.includes(c.code) && concerns.length >= 2}
+                  disabled={!concerns.includes(c.code) && concerns.length >= MAX_CONCERNS}
                   onClick={() => toggleConcern(c.code)}
                 />
               ))}

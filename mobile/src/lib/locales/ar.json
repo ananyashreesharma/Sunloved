@@ -1,5 +1,7 @@
 {
   "common": {
+    "searchCountries": "ابحث عن بلد",
+    "close": "إغلاق",
     "backRoutine": "الروتين",
     "backScan": "المسح",
     "quickSteps": { "cleanser": "غسول", "toner": "تونر", "serum": "سيروم", "moisturiser": "مرطب", "spf": "واقي شمس" }
@@ -37,12 +39,14 @@
     "errVerify": "تعذّر التحقق من الرمز — تحقق من اتصالك وحاول مرة أخرى."
   },
   "onboarding": {
+    "countryLabel": "مكان إقامتك",
+    "countryHelp": "قد تختلف تركيبة المنتج نفسه — وقواعده — من بلد لآخر.",
     "skip": "تخطي",
     "skipAlertTitle": "تخطي الإعداد؟",
     "skipAlertBody": "لن يتم حفظ ما اخترته حتى الآن.",
     "keepGoing": "المتابعة",
     "skipAnyway": "تخطي على أي حال",
-    "step1Title": "أولًا، بشرتك",
+    "step1Title": "أولًا، أنت وبشرتك",
     "step1Sub": "هذا يحدّد كل تنبيه وملخّص سترينه.",
     "skinTypeLabel": "نوع البشرة",
     "concernsLabel": "المشاكل",
@@ -233,6 +237,8 @@
     "adviceTry": "يمكن تجربته؛ أجري اختبار حساسية أولًا."
   },
   "profile": {
+    "country": "البلد",
+    "countryHelp": "نطابق التركيبات والقواعد والأسعار مع مكان إقامتك.",
     "title": "حسابي",
     "skinProfile": "ملف البشرة",
     "edit": "تعديل",

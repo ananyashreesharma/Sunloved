@@ -378,13 +378,15 @@ export class AuthService {
         phone: true,
         avatarUrl: true,
         onboardingDone: true,
+        locale: true,
         skinType: { select: { code: true, label: true } },
         skinConcerns: { select: { skinConcern: { select: { code: true, label: true } } } },
       },
     });
     if (!user) return null;
-    const { skinConcerns, ...rest } = user;
-    return { ...rest, concerns: skinConcerns.map((c) => c.skinConcern) };
+    // User.locale holds the ISO country code (default "IN"); the apps call it country.
+    const { skinConcerns, locale, ...rest } = user;
+    return { ...rest, country: locale, concerns: skinConcerns.map((c) => c.skinConcern) };
   }
 
   // ─── Onboarding ────────────────────────────────────────────────────────
@@ -402,7 +404,7 @@ export class AuthService {
     await this.prisma.$transaction([
       this.prisma.user.update({
         where: { id: userId },
-        data: { skinTypeId: skinType.id, onboardingDone: true },
+        data: { skinTypeId: skinType.id, onboardingDone: true, ...(dto.country ? { locale: dto.country } : {}) },
       }),
       this.prisma.userSkinConcern.deleteMany({ where: { userId } }),
       this.prisma.userSkinConcern.createMany({
@@ -411,5 +413,10 @@ export class AuthService {
     ]);
 
     return { onboardingDone: true };
+  }
+
+  async updateCountry(userId: string, country: string) {
+    await this.prisma.user.update({ where: { id: userId }, data: { locale: country } });
+    return { country };
   }
 }

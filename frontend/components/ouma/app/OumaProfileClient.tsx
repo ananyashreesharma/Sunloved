@@ -9,10 +9,12 @@ import {
   updateNotificationPreferences,
   getMyProducts,
   getRoutine,
+  updateCountry,
   type MeResponse,
   type NotificationPreferences,
   type RoutineStepDto,
 } from "@/lib/api"
+import { COUNTRIES, DEFAULT_COUNTRY } from "@skinlens/shared"
 import { useIsGuest } from "@/lib/use-guest"
 import { loadGuestData, updateGuestData, getGuestRoutine, SKIN_TYPE_LABELS, CONCERN_LABELS } from "@/lib/guest-store"
 
@@ -47,6 +49,7 @@ export function OumaProfileClient() {
         phone: null,
         avatarUrl: null,
         onboardingDone: true,
+        country: data.country,
         skinType: data.skinType ? { code: data.skinType, label: SKIN_TYPE_LABELS[data.skinType] ?? data.skinType } : null,
         concerns: data.concerns.map((code) => ({ code, label: CONCERN_LABELS[code] ?? code })),
       })
@@ -60,6 +63,20 @@ export function OumaProfileClient() {
     getMyProducts().then((r) => setProductCount(r.products.length)).catch(() => setProductCount(null))
     getRoutine("night").then((r) => setNightSteps(r.steps)).catch(() => setNightSteps([]))
   }, [isGuest])
+
+  async function changeCountry(code: string) {
+    const previous = me
+    setMe((m) => (m ? { ...m, country: code } : m)) // optimistic
+    if (isGuest) {
+      updateGuestData({ country: code })
+      return
+    }
+    try {
+      await updateCountry(code)
+    } catch {
+      setMe(previous) // revert
+    }
+  }
 
   async function patchPrefs(patch: Partial<NotificationPreferences>) {
     if (!prefs) return
@@ -117,6 +134,30 @@ export function OumaProfileClient() {
             Changing this updates the flags on {productCount} of your products.
           </p>
         )}
+      </div>
+
+      {/* ─── Country ──────────────────────────────────────────────── */}
+      <div style={{ background: CARD, borderRadius: 16, border: `1px solid ${LINE}`, padding: 16 }}>
+        <label
+          htmlFor="profile-country"
+          className="ouma-display"
+          style={{ display: "block", fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTE }}
+        >
+          Country
+        </label>
+        <select
+          id="profile-country"
+          value={me?.country ?? DEFAULT_COUNTRY}
+          onChange={(e) => changeCountry(e.target.value)}
+          style={{ marginTop: 10, width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${LINE}`, background: CARD, color: INK, fontSize: 14.5 }}
+        >
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+        <p style={{ marginTop: 8, fontSize: 12.5, color: MUTE }}>Formulas, rules and prices are matched to where you live.</p>
       </div>
 
       {/* ─── Reminders ────────────────────────────────────────────── */}

@@ -1,5 +1,7 @@
 {
   "common": {
+    "searchCountries": "Search countries",
+    "close": "Close",
     "backRoutine": "Routine",
     "backScan": "Scan",
     "quickSteps": { "cleanser": "Cleanser", "toner": "Toner", "serum": "Serum", "moisturiser": "Moisturiser", "spf": "SPF" }
@@ -37,12 +39,14 @@
     "errVerify": "Couldn't verify that code — check your connection and try again."
   },
   "onboarding": {
+    "countryLabel": "Where you live",
+    "countryHelp": "The same product can have a different formula — and different rules — in each country.",
     "skip": "Skip",
     "skipAlertTitle": "Skip setup?",
     "skipAlertBody": "What you've picked so far won't be saved.",
     "keepGoing": "Keep going",
     "skipAnyway": "Skip anyway",
-    "step1Title": "First, your skin",
+    "step1Title": "First, you and your skin",
     "step1Sub": "This shapes every flag and summary you'll see.",
     "skinTypeLabel": "Skin type",
     "concernsLabel": "Concerns",
@@ -221,6 +225,8 @@
     "adviceTry": "Fine to try; patch-test first."
   },
   "profile": {
+    "country": "Country",
+    "countryHelp": "Formulas, rules and prices are matched to where you live.",
     "title": "Me",
     "skinProfile": "Skin profile",
     "edit": "Edit",

@@ -251,7 +251,7 @@ export async function getMe(): Promise<MeResponse> {
   return res.json()
 }
 
-export async function completeOnboarding(input: { skinType: string; concerns: string[] }): Promise<{ onboardingDone: boolean }> {
+export async function completeOnboarding(input: { skinType: string; concerns: string[]; country?: string }): Promise<{ onboardingDone: boolean }> {
   const res = await fetch(`/api/onboarding`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -367,4 +367,14 @@ export async function getComparisonsList(productId: string): Promise<ProductComp
   if (!res.ok) throw new Error(`comparisons ${res.status}`)
   const data = await parseEnvelope<ProductComparison[]>(res)
   return Array.isArray(data) ? data : []
+}
+
+export async function updateCountry(country: string): Promise<{ country: string }> {
+  const res = await fetch(`/api/country`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ country }),
+  })
+  if (!res.ok) throw new Error(`country ${res.status}`)
+  return res.json()
 }
