@@ -26,6 +26,21 @@ const STEROID =
   'Strong prescription steroid. Sometimes found illegally in "fairness" and acne creams; used without a doctor it can thin the skin and cause steroid acne and rebound flare-ups.';
 const TRETINOIN =
   'Prescription retinoid. Effective when a doctor prescribes it, but it should not appear in an over-the-counter cosmetic, and it is not recommended during pregnancy.';
+// Confirmed outright bans in EU cosmetics (Annex II), checked by hand — the automated CosIng pass
+// (rate-ingredients-cosing.ts) deliberately never assigns "avoid".
+const EU_BANNED_FRAGRANCE =
+  'Fragrance ingredient now banned in cosmetics in the EU because of safety concerns. Older stock and products made elsewhere may still contain it.';
+const EU_BANNED_PARABEN =
+  'A paraben preservative banned in cosmetics in the EU because there was not enough data to show it is safe. (Other parabens, like methylparaben, are still allowed.)';
+const EU_BANNED_PRESERVATIVE =
+  'Preservative that releases formaldehyde; banned in cosmetics in the EU. Formaldehyde can irritate skin and cause allergies.';
+const FORMALDEHYDE =
+  'Preservative banned as a cosmetic ingredient in the EU: it is a skin allergen and classed as a likely carcinogen.';
+const VITAMIN_D =
+  'Vitamin D. Banned as a cosmetic ingredient in the EU; vitamin D belongs in food and supplements, not skincare.';
+const KETOCONAZOLE =
+  'Antifungal medicine. Banned in EU cosmetics; it belongs in medicated products used as directed, like prescription or pharmacy dandruff shampoos.';
+
 const FRAGRANCE =
   'Fragrance: a blend of scent chemicals that brands don\'t have to list individually. Fine for many people, but a common cause of irritation and allergy, especially on sensitive skin.';
 
@@ -51,6 +66,22 @@ const ENTRIES: Entry[] = [
     shortDescription: STEROID,
   },
   { names: ['Tretinoin'], zone: 'red', safetyRating: 'avoid', shortDescription: TRETINOIN },
+  {
+    names: ['Butylphenyl Methylpropional', 'Hydroxyisohexyl 3-Cyclohexene Carboxaldehyde'],
+    zone: 'red',
+    safetyRating: 'avoid',
+    shortDescription: EU_BANNED_FRAGRANCE,
+  },
+  {
+    names: ['Isobutylparaben', 'Isopropylparaben', 'Phenylparaben', 'Benzylparaben', 'Pentylparaben'],
+    zone: 'red',
+    safetyRating: 'avoid',
+    shortDescription: EU_BANNED_PARABEN,
+  },
+  { names: ['Quaternium-15'], zone: 'red', safetyRating: 'avoid', shortDescription: EU_BANNED_PRESERVATIVE },
+  { names: ['Formaldehyde'], zone: 'red', safetyRating: 'avoid', shortDescription: FORMALDEHYDE },
+  { names: ['Cholecalciferol', 'Ergocalciferol'], zone: 'red', safetyRating: 'avoid', shortDescription: VITAMIN_D },
+  { names: ['Ketoconazole'], zone: 'red', safetyRating: 'avoid', shortDescription: KETOCONAZOLE },
   {
     names: ['Fragrance', 'Parfum', 'Parfum/Fragrance', 'Fragrance/Parfum', 'Fragrance (Parfum)', 'Parfum (Fragrance)'],
     zone: 'yellow',
