@@ -162,9 +162,8 @@ export function OnboardingFlow() {
           <PrimaryButton label={t("ob.getStarted")} onPress={() => setStep(1)} />
         </View>
         <Text style={{ marginTop: 12, textAlign: "center", fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("ob.noAccount")}</Text>
-        <Pressable onPress={() => router.push("/login")} style={{ minHeight: 44, alignItems: "center", justifyContent: "center" }}>
-          <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("ob.haveAccount")}</Text>
-        </Pressable>
+        {/* "I have an account" returns when mobile syncs with the account; until then signing in
+            would change nothing here. */}
       </View>
     )
   }

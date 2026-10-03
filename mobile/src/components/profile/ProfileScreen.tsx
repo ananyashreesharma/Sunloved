@@ -110,11 +110,9 @@ export function ProfileScreen() {
           <SectionLabel>{t("me.plan")}</SectionLabel>
         </View>
         <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 27, color: T.ink }}>{t("me.freePlan")}</Text>
-        <Pressable onPress={() => router.push("/login")} style={{ minHeight: 48, justifyContent: "center", alignSelf: "flex-start" }}>
-          <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>
-            {t("me.signIn")} · {t("me.optional")}
-          </Text>
-        </Pressable>
+        {/* No "Sign in to sync" yet: mobile doesn't use an account for anything (everything is on
+            this device), so offering it would promise syncing that doesn't happen. The email sign-in
+            screen (app/login.tsx) is ready for when syncing is built. */}
       </ScrollView>
       <StatusScrim />
     </View>
