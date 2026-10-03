@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { candidateNames, splitLabel } from './label-parser';
 
 export interface AnalyzedIngredient {
   name: string;
@@ -34,24 +35,40 @@ export interface IngredientAnalysis {
 export class IngredientsService {
   constructor(private prisma: PrismaService) {}
 
-  /** Split a raw comma/newline-separated ingredient list into trimmed names. Shared by analyze() and contributions. */
+  /** Split a pasted label into ingredient names (headings, percentages, footnotes handled). */
   parseIngredientNames(raw: string): string[] {
-    return raw
-      .split(/[,\n]/)
-      .map((s) => s.trim())
-      .filter(Boolean);
+    return splitLabel(raw);
   }
 
-  /** Case-insensitive lookup against inciName/displayName. Shared by analyze() and contributions. */
-  findIngredientByName(name: string) {
-    return this.prisma.ingredient.findFirst({
+  /**
+   * Find an ingredient by any name it goes by on labels ("Aqua/Water/Eau", "Avobenzone", "Agua"),
+   * preferring the most specific name. Case-insensitive against inciName and displayName.
+   */
+  async findIngredientByName(name: string) {
+    const names = candidateNames(name);
+    const rows = await this.prisma.ingredient.findMany({
       where: {
-        OR: [
-          { inciName: { equals: name, mode: 'insensitive' } },
-          { displayName: { equals: name, mode: 'insensitive' } },
-        ],
+        OR: names.flatMap((n) => [
+          { inciName: { equals: n, mode: 'insensitive' as const } },
+          { displayName: { equals: n, mode: 'insensitive' as const } },
+        ]),
       },
     });
+    const matches = (n: string) => {
+      const lower = n.toLowerCase();
+      return rows.find((r) => r.inciName.toLowerCase() === lower || r.displayName?.toLowerCase() === lower);
+    };
+    // A rated entry under any of its names beats an unrated one under the exact printed name
+    // (catalog imports left unrated rows like "Avobenzone" next to the rated INCI entry).
+    for (const n of names) {
+      const hit = matches(n);
+      if (hit?.zone) return hit;
+    }
+    for (const n of names) {
+      const hit = matches(n);
+      if (hit) return hit;
+    }
+    return null;
   }
 
   /**
@@ -78,15 +95,17 @@ export class IngredientsService {
     const foundIngredients: AnalyzedIngredient[] = [];
     const unknownIngredients: string[] = [];
 
-    for (const ingredientName of parsed) {
+    for (let i = 0; i < parsed.length; i++) {
+      const ingredientName = parsed[i];
       const dbIngredient = await this.findIngredientByName(ingredientName);
 
       if (dbIngredient) {
         const irritant =
           dbIngredient.irritancyRating != null && dbIngredient.irritancyRating >= 3;
         foundIngredients.push({
-          name: dbIngredient.inciName,
-          scientificName: dbIngredient.displayName || undefined,
+          // The name as printed on this label ("Avobenzone", "Agua"); the standard name rides along.
+          name: ingredientName,
+          scientificName: dbIngredient.inciName,
           category: undefined,
           function: dbIngredient.function || undefined,
           isIrritant: irritant,

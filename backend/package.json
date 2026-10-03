@@ -46,7 +46,8 @@
     "prisma:seed:makeup-catalog": "ts-node prisma/seed-india-makeup-catalog.ts",
     "db:setup": "npm run prisma:migrate && npm run prisma:seed",
     "db:supabase": "npm run prisma:reset",
-    "prisma:reset": "prisma migrate reset --force"
+    "prisma:reset": "prisma migrate reset --force",
+    "check:world-labels": "ts-node --transpile-only prisma/check-world-labels.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

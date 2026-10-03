@@ -2,7 +2,10 @@
 // Both apps' API clients return these, so a backend change is updated here once.
 
 export type FoundIngredient = {
+  /** As printed on the label ("Avobenzone", "Agua"). */
   name: string
+  /** The standard (INCI) entry it matched, e.g. "Butyl Methoxydibenzoylmethane". */
+  scientificName?: string
   function?: string
   zone?: string
   safetyRating?: string

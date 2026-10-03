@@ -109,9 +109,9 @@ export function ScanCaptureScreen() {
             fontSize: 17,
             lineHeight: 24,
             color: T.ink,
-            // INCI lists are Latin script: keep them left-to-right in Arabic too.
-            writingDirection: "ltr",
-            textAlign: "left",
+            // Follows what's typed: INCI lists left to right, Arabic labels right to left.
+            writingDirection: "auto",
+            textAlign: "auto",
           }}
         />
         <TextInput

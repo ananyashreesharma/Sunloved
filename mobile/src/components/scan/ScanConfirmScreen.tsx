@@ -9,16 +9,8 @@ import { router, useLocalSearchParams } from "expo-router"
 import { rubik } from "@/constants/fonts"
 import { BACK_ARROW } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
+import { labelDirection, splitLabel } from "@skinlens/shared"
 import { PrimaryButton, StatusScrim } from "@/components/check/parts"
-
-/** Split a pasted label into ingredients: commas or new lines, ignoring a leading "Ingredients:". */
-export function splitLabel(raw: string): string[] {
-  return raw
-    .replace(/^\s*(ingredients|inci)\s*:/i, "")
-    .split(/[,\n;]/)
-    .map((s) => s.replace(/\.$/, "").trim())
-    .filter(Boolean)
-}
 
 export function ScanConfirmScreen() {
   const { t } = useTranslation()
@@ -54,7 +46,7 @@ export function ScanConfirmScreen() {
         </Text>
         <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("check.tapToRemove")}</Text>
 
-        <View style={{ marginTop: 18, flexDirection: "row", flexWrap: "wrap", gap: 8, direction: "ltr" }}>
+        <View style={{ marginTop: 18, flexDirection: "row", flexWrap: "wrap", gap: 8, direction: labelDirection(chips) }}>
           {chips.map((c, i) => (
             <Pressable
               key={`${c}-${i}`}
@@ -91,7 +83,7 @@ export function ScanConfirmScreen() {
             autoCapitalize="words"
             autoCorrect={false}
             returnKeyType="done"
-            style={{ flex: 1, minHeight: 48, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1.5, borderColor: T.line, fontFamily: rubik.regular, fontSize: 16, color: T.ink, textAlign: "left" }}
+            style={{ flex: 1, minHeight: 48, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1.5, borderColor: T.line, fontFamily: rubik.regular, fontSize: 16, color: T.ink, textAlign: "auto" }}
           />
           <Pressable
             onPress={add}

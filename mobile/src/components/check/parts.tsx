@@ -7,7 +7,7 @@ import { Modal, Platform, Pressable, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { COVERAGE_THRESHOLD, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
+import { COVERAGE_THRESHOLD, labelDirection, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { Highlight } from "@/components/shared/Highlight"
 import { SoftPressable } from "@/components/shared/SoftPressable"
@@ -79,15 +79,16 @@ export function BlockStrip({ items, baseDelay = 300 }: { items: LabelItem[]; bas
   const { T } = useTheme()
   const N = items.length
   const step = Math.min(50, 700 / Math.max(N, 1))
+  // Label order follows the label's own script: INCI lists left to right, Arabic ones right to left.
+  const dir = labelDirection(items.map((i) => i.name))
   return (
-    // Label order reads left to right in every language (it is the printed INCI list).
-    <View style={{ direction: "ltr" }}>
+    <View style={{ direction: dir }}>
       <View style={{ height: 16, marginBottom: 4 }}>
         {items.map((it, i) =>
           it.num && it.state !== "none" ? (
             <Text
               key={i}
-              style={{ position: "absolute", top: 0, left: `${((i + 0.5) / N) * 100}%`, width: 16, marginLeft: -8, textAlign: "center", fontFamily: rubik.bold, fontSize: 11, lineHeight: 13, color: T.ink }}
+              style={{ position: "absolute", top: 0, start: `${((i + 0.5) / N) * 100}%`, width: 16, marginStart: -8, textAlign: "center", fontFamily: rubik.bold, fontSize: 11, lineHeight: 13, color: T.ink }}
             >
               {localDigits(String(it.num), i18n.language)}
             </Text>
@@ -100,7 +101,7 @@ export function BlockStrip({ items, baseDelay = 300 }: { items: LabelItem[]; bas
             <Block key={i} state={it.state} delay={baseDelay + i * step} small={N > 20} T={T} />
           ))}
         </View>
-        <View style={{ position: "absolute", left: `${COVERAGE_THRESHOLD * 100}%`, top: -6, bottom: -6, width: 2, backgroundColor: T.ink, opacity: 0.5 }} />
+        <View style={{ position: "absolute", start: `${COVERAGE_THRESHOLD * 100}%`, top: -6, bottom: -6, width: 2, backgroundColor: T.ink, opacity: 0.5 }} />
       </View>
     </View>
   )
@@ -130,13 +131,15 @@ export function LabelWords({
 }) {
   const { T } = useTheme()
   const textStyle = { fontFamily: rubik.light, fontSize: 21, lineHeight: 40, color: T.ink }
+  const dir = labelDirection(items.map((i) => i.name))
+  const comma = dir === "rtl" ? "،" : ","
   return (
-    <View style={{ direction: "ltr", flexDirection: "row", flexWrap: "wrap", alignItems: "flex-start" }}>
+    <View style={{ direction: dir, flexDirection: "row", flexWrap: "wrap", alignItems: "flex-start" }}>
       {items.map((it, i) => {
         const on = marked(i)
         const pending = !on && i > current && current >= 0
         const color = markColor(it.state, T)
-        const sep = i < items.length - 1 ? "," : trailing ? "" : "."
+        const sep = i < items.length - 1 ? comma : trailing ? "" : "."
         const word =
           it.state === "none" ? (
             <View>
@@ -163,11 +166,11 @@ export function LabelWords({
             disabled={!onPress}
             onPress={() => onPress?.(it)}
             accessibilityRole={onPress ? "button" : undefined}
-            style={{ flexDirection: "row", alignItems: "flex-start", maxWidth: "100%", marginRight: 6 }}
+            style={{ flexDirection: "row", alignItems: "flex-start", maxWidth: "100%", marginEnd: 6 }}
           >
             {word}
             {numbered && it.num ? (
-              <View style={{ marginLeft: 3, marginTop: 4 }}>
+              <View style={{ marginStart: 3, marginTop: 4 }}>
                 <NumBadge n={it.num} size={17} />
               </View>
             ) : null}

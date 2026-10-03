@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
 import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated"
-import { annotateLabel, countryByCode, COVERAGE_THRESHOLD, type AnnotatedLabel, type LabelItem, type Zone } from "@skinlens/shared"
+import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnnotatedLabel, type LabelItem, type Zone } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api-client"
 import { loadGuestData, saveGuestScan } from "@/lib/guest-store"
@@ -17,7 +17,6 @@ import { BACK_ARROW, localDigits } from "@/lib/i18n"
 import { useReduceMotion, useTheme } from "@/lib/theme"
 import { Highlight } from "@/components/shared/Highlight"
 import { BlockStrip, IngredientSheet, LabelWords, NumBadge, OutlineButton, PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
-import { splitLabel } from "@/components/scan/ScanConfirmScreen"
 
 type Phase = "reading" | "result" | "offline" | "error"
 type Profile = { skinType: string | null; concerns: string[]; country: string | null }
@@ -313,7 +312,7 @@ export function ScanResultScreen() {
               {it.num ? <NumBadge n={it.num} /> : null}
               <View style={{ flex: 1, minWidth: 0 }}>
                 <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
-                  <Text style={{ fontFamily: rubik.semibold, fontSize: 17, color: T.ink, writingDirection: "ltr" }}>{it.name}</Text>
+                  <Text style={{ fontFamily: rubik.semibold, fontSize: 17, color: T.ink, writingDirection: "auto" }}>{it.name}</Text>
                   <StateTag state={it.state} />
                 </View>
                 <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink2 }}>{it.line}</Text>

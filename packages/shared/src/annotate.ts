@@ -53,7 +53,8 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     const zone = zoneOf(f)
     if (zone === "NONE") return { name: f.name, state: "none", line: NO_DATA_LINE, num: 0 }
     if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0 }
-    const personal = personalFlag(f.name, profile)
+    // Match on the printed name and the standard one ("Fragancia" is Parfum).
+    const personal = personalFlag(`${f.name} ${f.scientificName ?? ""}`, profile)
     if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0 }
     if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0 }
     return { name: f.name, state: "fine", line: general }
@@ -101,18 +102,25 @@ function lower(s: string) {
   return s.charAt(0).toLowerCase() + s.slice(1)
 }
 
+/** A note's short "Fragrance: …" category tag repeats the name in a summary line; drop it. */
+function withoutName(line: string) {
+  const m = line.match(/^([^:.]{1,30}):\s+/)
+  return m ? line.slice(m[0].length) : line
+}
+
 /** Plain-language paragraph under the verdict. Built only from what we know about this label. */
 function summarize(verdict: Zone | null, flagged: LabelItem[], noData: LabelItem[], items: LabelItem[]): string {
   if (!verdict) return ""
   const parts: string[] = []
   const worst = flagged[0]
   if (verdict === "RED" && worst) {
-    parts.push(`It contains ${lower(worst.name)}. ${firstSentence(worst.line)}`)
+    // The whole note, not just its first sentence: the reason to avoid it is the point.
+    parts.push(`It contains ${worst.name}. ${worst.line}`)
   } else if (flagged.length === 0) {
     parts.push("Nothing here stands out for your skin.")
   } else {
     parts.push(flagged.length === 1 ? "Most of this is gentle." : "Mostly gentle, with a few things to know.")
-    for (const f of flagged.slice(0, 2)) parts.push(`${f.name}: ${lower(firstSentence(f.line))}`)
+    for (const f of flagged.slice(0, 2)) parts.push(`${f.name}: ${lower(firstSentence(withoutName(f.line)))}`)
   }
   if (noData.length === 1) parts.push("We have no data on one ingredient, so we can't vouch for it.")
   else if (noData.length > 1) parts.push(`We have no data on ${noData.length} ingredients, so we can't vouch for them.`)

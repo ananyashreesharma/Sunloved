@@ -11,6 +11,7 @@ import {
   CONCERNS,
   COVERAGE_THRESHOLD,
   guessCountry,
+  labelDirection,
   SAMPLE_LABELS,
   SKIN_TYPES,
   type AnnotatedLabel,
@@ -178,7 +179,7 @@ export function Checker() {
               setText(e.target.value)
               setSampleKey(null)
             }}
-            dir="ltr"
+            dir="auto"
             aria-label="Ingredient list"
             placeholder={COPY.placeholder}
             style={{
@@ -329,21 +330,25 @@ function Result({
 }) {
   const N = label.items.length
   const step = Math.min(50, 700 / Math.max(N, 1))
+  // The label reads in its own script's direction (an Arabic label right to left).
+  const dir = labelDirection(label.items.map((i) => i.name))
+  const start = dir === "rtl" ? "right" : "left"
+  const sepComma = dir === "rtl" ? "،" : ","
   const notes = [...label.flagged, ...label.noData]
   const ratedLine = COPY.rated(label.rated, label.total, label.noData.length)
 
   const strip = (
     <div style={{ marginTop: 32, maxWidth: 640 }} aria-label={ratedLine}>
-      <div style={{ position: "relative", height: 16, marginBottom: 4 }} aria-hidden>
+      <div dir={dir} style={{ position: "relative", height: 16, marginBottom: 4 }} aria-hidden>
         {label.items.map((it, i) =>
           it.num && it.state !== "none" ? (
-            <span key={i} style={{ position: "absolute", left: `calc(${((i + 0.5) / N) * 100}% - 8px)`, width: 16, textAlign: "center", fontSize: 11, fontWeight: 700 }}>
+            <span key={i} style={{ position: "absolute", [start]: `calc(${((i + 0.5) / N) * 100}% - 8px)`, width: 16, textAlign: "center", fontSize: 11, fontWeight: 700 }}>
               {it.num}
             </span>
           ) : null,
         )}
       </div>
-      <div style={{ position: "relative" }} aria-hidden>
+      <div dir={dir} style={{ position: "relative" }} aria-hidden>
         <div style={{ display: "flex", gap: 3, alignItems: "flex-end" }}>
           {label.items.map((it, i) => (
             <div
@@ -359,7 +364,7 @@ function Result({
             />
           ))}
         </div>
-        <div style={{ position: "absolute", left: `${COVERAGE_THRESHOLD * 100}%`, top: -7, bottom: -7, width: 2, background: "var(--ink)", opacity: 0.5 }} />
+        <div style={{ position: "absolute", [start]: `${COVERAGE_THRESHOLD * 100}%`, top: -7, bottom: -7, width: 2, background: "var(--ink)", opacity: 0.5 }} />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--ink2)", marginTop: 10, gap: 12, flexWrap: "wrap" }}>
         <span>{ratedLine}</span>
@@ -369,7 +374,7 @@ function Result({
   )
 
   const words = (
-    <div dir="ltr" style={{ fontSize: 24, fontWeight: 300, lineHeight: 2 }}>
+    <div dir={dir} style={{ fontSize: 24, fontWeight: 300, lineHeight: 2 }}>
       {label.items.map((it, i) => {
         const mark = MARK[it.state]
         const style: React.CSSProperties = mark
@@ -400,11 +405,11 @@ function Result({
               {it.name}
             </button>
             {it.num ? (
-              <span style={{ marginLeft: "0.2em", verticalAlign: "0.55em", fontSize: "0.55em" }}>
+              <span style={{ marginInlineStart: "0.2em", verticalAlign: "0.55em", fontSize: "0.55em" }}>
                 <Badge n={it.num} size={20} />
               </span>
             ) : null}
-            {i < N - 1 ? "," : "."}
+            {i < N - 1 ? sepComma : "."}
           </span>
         )
       }).flatMap((el, i) => (i < N - 1 ? [el, " "] : [el]))}
