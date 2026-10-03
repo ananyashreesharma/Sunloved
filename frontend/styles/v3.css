@@ -1,0 +1,239 @@
+/* SkinLens V3 on the web: paper and ink by day, warm dark by night. Same palette, type and motion
+   as the mobile app (packages/shared/src/tokens.ts). Scoped to .v3 so older screens are unaffected
+   until they are rebuilt. */
+
+.v3 {
+  --bg: #F2ECE1;
+  --surface: #FAF6EE;
+  --surface2: #E9E2D5;
+  --ink: #1A1A17;
+  --ink2: #615D55;
+  --ink3: #8E887C;
+  --line: rgba(26, 26, 23, 0.14);
+  --btn: #1A1A17;
+  --btn-ink: #F2ECE1;
+  --done: rgba(120, 160, 205, 0.34);
+  --hi-fine: rgba(110, 180, 130, 0.42);
+  --hi-caution: rgba(242, 190, 70, 0.55);
+  --hi-nfy: rgba(176, 136, 226, 0.42);
+  --hi-avoid: rgba(232, 130, 100, 0.42);
+  --t-avoid: #9A3A24;
+  --settle: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-rubik), "Rubik", ui-sans-serif, system-ui, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.v3[data-night="true"] {
+  --bg: #151410;
+  --surface: #201E19;
+  --surface2: #2A2721;
+  --ink: #EFE8DA;
+  --ink2: #A8A194;
+  --ink3: #7A7468;
+  --line: rgba(239, 232, 218, 0.14);
+  --btn: #EFE8DA;
+  --btn-ink: #151410;
+  --done: rgba(255, 236, 200, 0.22);
+  --hi-fine: rgba(120, 190, 140, 0.32);
+}
+
+.v3 *,
+.v3 *::before,
+.v3 *::after {
+  box-sizing: border-box;
+}
+
+.v3 a {
+  color: inherit;
+}
+
+.v3 :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* A highlighter mark behind text that sweeps in from the reading start. Wraps across lines. */
+.v3-mark {
+  background-repeat: no-repeat;
+  background-position: 0 82%;
+  background-size: 100% 58%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: v3Hi 480ms var(--standard) both;
+}
+[dir="rtl"] .v3-mark {
+  background-position: 100% 82%;
+}
+
+.v3-under {
+  background-repeat: no-repeat;
+  background-position: 0 92%;
+  background-size: 100% 1.5px;
+  animation: v3Under 380ms var(--standard) both;
+}
+
+.v3-nodata {
+  background-image: repeating-linear-gradient(135deg, var(--line) 0 3px, transparent 3px 6px);
+  border-radius: 3px;
+}
+
+.v3-btn {
+  min-height: 56px;
+  padding: 0 24px;
+  border-radius: 16px;
+  border: none;
+  background: var(--btn);
+  color: var(--btn-ink);
+  font: inherit;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 160ms;
+}
+.v3-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.v3-chip {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 20px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.v3-chip[aria-pressed="true"],
+.v3-chip[aria-checked="true"] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.v3-label {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.v3-up {
+  animation: v3Up 460ms var(--settle) both;
+}
+.v3-fade {
+  animation: v3Fade 320ms var(--standard) both;
+}
+.v3-grow {
+  transform-origin: 50% 100%;
+  animation: v3GrowY 260ms var(--settle) both;
+}
+
+@keyframes v3Up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes v3Fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes v3Hi {
+  from { background-size: 0% 58%; }
+}
+@keyframes v3Under {
+  from { background-size: 0% 1.5px; }
+}
+@keyframes v3GrowY {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Reduced motion: everything settles with a short fade instead. */
+@media (prefers-reduced-motion: reduce) {
+  .v3 .v3-mark,
+  .v3 .v3-under,
+  .v3 .v3-up,
+  .v3 .v3-grow {
+    animation: v3Fade 160ms linear both !important;
+  }
+  .v3 .v3-fade {
+    animation-duration: 160ms !important;
+    animation-delay: 0ms !important;
+  }
+}
+
+/* ── Checker layout: two columns on wide screens, stacked on phones ── */
+.v3-checker {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: 64px;
+  padding: 48px 48px 64px;
+  max-width: 1360px;
+  width: 100%;
+  margin: 0 auto;
+}
+.v3-result {
+  min-width: 0;
+  border-left: 1px solid var(--line);
+  padding-left: 64px;
+}
+.v3-twocol {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(220px, 1fr);
+  gap: 40px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+@media (max-width: 960px) {
+  .v3-checker {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
+    padding: 28px 20px 48px;
+  }
+  .v3-result {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--line);
+    padding-top: 32px;
+  }
+  .v3-twocol {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 28px;
+  }
+}
+
+.v3-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 22px clamp(20px, 4vw, 48px);
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+.v3-nav {
+  display: flex;
+  gap: 28px;
+  font-size: 15px;
+  align-items: center;
+}
+@media (max-width: 560px) {
+  .v3-header {
+    padding: 16px 20px;
+  }
+  .v3-nav {
+    width: 100%;
+    gap: 20px;
+    font-size: 14px;
+  }
+}

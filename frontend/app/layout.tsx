@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next"
-import { Archivo_Narrow, Instrument_Sans, JetBrains_Mono } from "next/font/google"
+import { Archivo_Narrow, Instrument_Sans, JetBrains_Mono, Rubik } from "next/font/google"
 import "../globals.css"
 import "@/styles/ouma.css"
+import "@/styles/v3.css"
 import { AppProviders } from "@/components/providers/AppProviders"
 import { OumaHtmlClass } from "@/components/ouma/OumaHtmlClass"
 import { OumaRoot } from "@/components/ouma/OumaRoot"
@@ -21,6 +22,14 @@ const body = Instrument_Sans({
   display: "swap",
 })
 
+// V3 type (styles/v3.css). Light 300 for display, 400–600 for text.
+const rubik = Rubik({
+  subsets: ["latin", "arabic"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-rubik",
+  display: "swap",
+})
+
 const mono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
@@ -29,9 +38,9 @@ const mono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "SkinLens — Know What's Really On Your Skin",
+  title: "SkinLens: check any skincare label, free",
   description:
-    "India's first skincare ingredient intelligence app. Scan ingredients, flag hidden toxins, find safer Indian alternatives, and build daily routines that stick.",
+    "Paste an ingredient list and get a plain-language reading for your skin. Keep a routine you'll actually stick to. No ads, no affiliate links, no sponsored verdicts.",
   metadataBase: new URL("https://skinlens.in"),
   alternates: { canonical: "https://skinlens.in" },
   manifest: "/manifest.json",
@@ -50,11 +59,10 @@ export const metadata: Metadata = {
     other: [{ rel: "mask-icon", url: "/icons/icon-512.png" }],
   },
   openGraph: {
-    title: "SkinLens — Know What's Really On Your Skin",
-    description: "Scan · Flag toxins · Find safer swaps · Build habits. Made for Indian skin.",
+    title: "SkinLens: check any skincare label, free",
+    description: "Every label, in plain words, for your skin. And a routine you'll actually stick to.",
     url: "https://skinlens.in",
     siteName: "SkinLens",
-    locale: "en_IN",
     type: "website",
   },
 }
@@ -62,7 +70,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#1E4D3A",
+  themeColor: "#F2ECE1",
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -71,7 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AppProviders>
           <OumaHtmlClass />
-          <OumaRoot className={`${display.variable} ${body.variable} ${mono.variable}`}>{children}</OumaRoot>
+          <OumaRoot className={`${display.variable} ${body.variable} ${mono.variable} ${rubik.variable}`}>{children}</OumaRoot>
         </AppProviders>
       </body>
     </html>

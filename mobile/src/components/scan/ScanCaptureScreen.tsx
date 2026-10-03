@@ -6,27 +6,13 @@ import { Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import type { GuestScan, ItemState } from "@skinlens/shared"
+import { SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { getGuestScans } from "@/lib/guest-store"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
 
-// Typical INCI lists for each kind of product, unbranded. Each shows a different part of the check.
-const SAMPLES = [
-  {
-    key: "sampleNiacinamide",
-    inci: "Aqua, Niacinamide, Pentylene Glycol, Zinc PCA, Dimethyl Isosorbide, Tamarindus Indica Seed Gum, Xanthan Gum, Isoceteth-20, Ethoxydiglycol, Phenoxyethanol, Chlorphenesin",
-  },
-  {
-    key: "sampleSunscreen",
-    inci: "Aqua, Homosalate, Ethylhexyl Salicylate, Butyl Methoxydibenzoylmethane, Glycerin, Octocrylene, Silica, Alcohol Denat., Tocopherol, Parfum, Linalool, Limonene",
-  },
-  {
-    key: "sampleCream",
-    inci: "Aqua, Glycerin, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Butyrospermum Parkii Butter, Retinol, Ceramide NP, Isopropyl Myristate, Dimethicone, Phenoxyethanol, Sodium Hyaluronate, Parfum",
-  },
-] as const
+const SAMPLES = SAMPLE_LABELS
 
 const VERDICT_STATE: Record<"GREEN" | "YELLOW" | "RED", ItemState> = {
   GREEN: "fine",
