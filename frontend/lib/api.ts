@@ -1,11 +1,6 @@
 import type {
   AnalyzeIngredientsResponse,
-  ContributionResult,
   MeResponse,
-  NotificationPreferences,
-  ProductComparison,
-  ProductDetail,
-  RecentScanEntry,
   RoutineResponse,
   StreakHistoryDay,
 } from "@skinlens/shared"
@@ -13,12 +8,7 @@ import type {
 // Response shapes are shared with the mobile app; re-exported so existing imports keep working.
 export type {
   AnalyzeIngredientsResponse,
-  ContributionResult,
   MeResponse,
-  NotificationPreferences,
-  ProductComparison,
-  ProductDetail,
-  RecentScanEntry,
   RoutineConflict,
   RoutineResponse,
   RoutineStepDto,
@@ -34,15 +24,6 @@ export type {
  */
 const WRONG_HOST_HINT =
   "Keep NEXT_PUBLIC_API_BASE=http://localhost:3001/api in frontend/.env.local and restart `next dev` after edits."
-
-/** When fetch URL is correct but body is HTML, something on that port is not Nest (usually Next on 3001). */
-function apiReturnedHtmlHelp(resUrl: string): string {
-  const on3001 = /:3001(\/|$)/.test(resUrl)
-  const portHint = on3001
-    ? " Port 3001 is almost certainly not Nest: Next.js often binds there if 3000 is busy. Fix: stop whatever uses 3001 (`lsof -ti tcp:3001 | xargs kill`), run `cd backend && npm run start:dev`, then start the site on another port, e.g. `cd frontend && npx next dev -p 3000`. Verify in a terminal: `curl -s http://localhost:3001/api/health` should be JSON (\"status\":\"ok\"), not `<!DOCTYPE` HTML."
-    : " Something on that host:port is serving a web app, not the Nest API."
-  return `${WRONG_HOST_HINT}${portHint}`
-}
 
 function resolvePublicApiBase(): string {
   const fallback = "http://localhost:3001/api"
@@ -79,44 +60,13 @@ export function getPublicApiBase(): string {
   return API_BASE
 }
 
-function isProbablyHtmlError(res: Response, body: string): boolean {
-  const ct = res.headers.get("content-type") || ""
-  return ct.includes("text/html") || body.trimStart().startsWith("<!")
-}
 
-/** Quick reachability check (Nest `/api/health`). Times out so the UI does not sit on "Checking…" forever. */
-export async function checkApiReachable(): Promise<boolean> {
-  try {
-    const res = await fetch(`${API_BASE}/health`, {
-      cache: "no-store",
-      signal: AbortSignal.timeout(5000),
-    })
-    if (!res.ok) return false
-    const ct = res.headers.get("content-type") || ""
-    if (ct.includes("text/html")) return false
-    const text = await res.text()
-    return !text.trimStart().startsWith("<!")
-  } catch {
-    return false
-  }
-}
-
-const logApiDebug = (...args: unknown[]) => {
-  if (process.env.NODE_ENV === "development") console.log("[api]", ...args)
-}
 
 /** Unwrap Nest `{ data, meta }` envelope */
 async function parseEnvelope<T>(res: Response): Promise<T> {
   const body = await res.json()
   if (body?.data !== undefined) return body.data as T
   return body as T
-}
-
-export type InsightsSummaryResponse = {
-  catalogProducts: number
-  catalogIngredients: number
-  productsWithPrices: number
-  avgProductScore: number | null
 }
 
 
@@ -137,21 +87,6 @@ export async function getRoutine(type: "morning" | "night"): Promise<RoutineResp
 }
 
 
-export async function contributeProduct(input: {
-  productName: string
-  brandName: string
-  country: string
-  category?: string
-  rawIngredientText: string
-}): Promise<ContributionResult> {
-  const res = await fetch(`/api/contributions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  })
-  if (!res.ok) throw new Error(`contribute product ${res.status}`)
-  return res.json()
-}
 
 export async function createRoutineStep(input: {
   type: "morning" | "night" | "both"
@@ -208,60 +143,12 @@ export async function getStreakHistory(month: string): Promise<{ days: StreakHis
   return res.json()
 }
 
-export type MyProduct = {
-  id: string
-  name: string
-  brand: string
-  usage: string[]
-  scan: Record<string, unknown> | null
-}
-
-export async function getMyProducts(): Promise<{ products: MyProduct[] }> {
-  const res = await fetch(`/api/my-products`, { cache: "no-store" })
-  if (!res.ok) throw new Error(`my-products ${res.status}`)
-  return res.json()
-}
 
 
-export async function getNotificationPreferences(): Promise<NotificationPreferences> {
-  const res = await fetch(`/api/notification-preferences`, { cache: "no-store" })
-  if (!res.ok) throw new Error(`notification-preferences ${res.status}`)
-  return res.json()
-}
-
-export async function updateNotificationPreferences(
-  input: Partial<NotificationPreferences>,
-): Promise<NotificationPreferences> {
-  const res = await fetch(`/api/notification-preferences`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  })
-  if (!res.ok) throw new Error(`update notification-preferences ${res.status}`)
-  return res.json()
-}
-
-export async function saveScan(input: {
-  rawIngredientText: string
-  scanResult: Record<string, unknown>
-  flagCount: number
-  productId?: string
-}): Promise<{ id: string }> {
-  const res = await fetch(`/api/scans`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  })
-  if (!res.ok) throw new Error(`save scan ${res.status}`)
-  return res.json()
-}
 
 
-export async function getRecentScans(): Promise<RecentScanEntry[]> {
-  const res = await fetch(`/api/scans/recent`, { cache: "no-store" })
-  if (!res.ok) throw new Error(`recent scans ${res.status}`)
-  return res.json()
-}
+
+
 
 
 export async function getMe(): Promise<MeResponse> {
@@ -280,74 +167,8 @@ export async function completeOnboarding(input: { skinType: string; concerns: st
   return res.json()
 }
 
-export async function reportUnknownIngredient(name: string, context?: string): Promise<{ ok: true }> {
-  const res = await fetch(`${API_BASE}/ingredients/report-unknown`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, context }),
-  })
-  if (!res.ok) throw new Error(`report-unknown ${res.status}`)
-  return parseEnvelope<{ ok: true }>(res)
-}
 
-export async function searchProducts(
-  query: string,
-  page: number = 1,
-  pageSize: number = 20,
-  filters?: Record<string, unknown>
-) {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    pageSize: pageSize.toString(),
-  })
 
-  if (query?.trim()) params.set("query", query.trim())
-
-  if (filters?.brand) params.set("brand", String(filters.brand))
-  if (filters?.category) params.set("category", String(filters.category))
-  if (filters?.minPrice !== undefined) params.set("minPrice", String(filters.minPrice))
-  if (filters?.maxPrice !== undefined) params.set("maxPrice", String(filters.maxPrice))
-  if (filters?.sort) params.set("sort", String(filters.sort))
-
-  const url = `${API_BASE}/products/search?${params.toString()}`
-  logApiDebug("GET", url)
-
-  const res = await fetch(url, { cache: "no-store" })
-
-  if (!res.ok) {
-    const errorText = await res.text()
-    console.error("[api] searchProducts failed:", res.status, res.url, errorText.slice(0, 200))
-    if (isProbablyHtmlError(res, errorText)) {
-      throw new Error(`Failed to search products: got HTML instead of JSON from ${res.url}. ${apiReturnedHtmlHelp(res.url)}`)
-    }
-    throw new Error(`Failed to search products: ${res.status} ${errorText.slice(0, 500)}`)
-  }
-
-  const result = (await res.json()) as {
-    data: unknown
-    meta?: {
-      page?: number
-      pageSize?: number
-      total?: number
-      totalPages?: number
-      matchRanked?: boolean
-      matchRankNote?: string
-    }
-  }
-
-  const products = Array.isArray(result.data) ? result.data : []
-
-  return {
-    products,
-    meta: result.meta,
-  }
-}
-
-export async function getProduct(id: string): Promise<ProductDetail> {
-  const res = await fetch(`${API_BASE}/products/${id}`, { cache: "no-store" })
-  if (!res.ok) throw new Error("Failed to fetch product")
-  return parseEnvelope<ProductDetail>(res)
-}
 
 export async function analyzeIngredients(ingredients: string): Promise<AnalyzeIngredientsResponse> {
   const res = await fetch(`${API_BASE}/ingredients/analyze`, {
@@ -359,34 +180,10 @@ export async function analyzeIngredients(ingredients: string): Promise<AnalyzeIn
   return parseEnvelope<AnalyzeIngredientsResponse>(res)
 }
 
-export async function getProductPrices(productId: string) {
-  const res = await fetch(`${API_BASE}/prices/${productId}`, { cache: "no-store" })
-  if (!res.ok) throw new Error("Failed to fetch prices")
-  return parseEnvelope<unknown[]>(res)
-}
 
-export async function getComparisons(productId: string) {
-  const res = await fetch(`${API_BASE}/comparisons/${productId}`, { cache: "no-store" })
-  if (!res.ok) throw new Error("Failed to fetch comparisons")
-  return parseEnvelope<unknown>(res)
-}
 
-export async function fetchInsightsSummary(): Promise<InsightsSummaryResponse> {
-  const res = await fetch(`${API_BASE}/ouma/insights-summary`, { cache: "no-store" })
-  if (!res.ok) throw new Error(`insights-summary ${res.status}`)
-  return parseEnvelope<InsightsSummaryResponse>(res)
-}
 
-export async function browseProducts(page = 1, pageSize = 24, query = "", category?: string) {
-  return searchProducts(query || "", page, pageSize, category ? { category } : undefined)
-}
 
-export async function getComparisonsList(productId: string): Promise<ProductComparison[]> {
-  const res = await fetch(`${API_BASE}/comparisons/${productId}`, { cache: "no-store" })
-  if (!res.ok) throw new Error(`comparisons ${res.status}`)
-  const data = await parseEnvelope<ProductComparison[]>(res)
-  return Array.isArray(data) ? data : []
-}
 
 export async function updateCountry(country: string): Promise<{ country: string }> {
   const res = await fetch(`/api/country`, {

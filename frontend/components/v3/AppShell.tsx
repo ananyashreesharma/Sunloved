@@ -41,7 +41,7 @@ function MeIcon() {
 const TABS = [
   { href: "/app/routine", label: "Routine", icon: <MoonIcon />, match: (p: string) => p === "/app" || p.startsWith("/app/routine") || p === "/app/home" },
   { href: "/", label: "Check", icon: <LensIcon />, match: (p: string) => p.startsWith("/app/scan") },
-  { href: "/app/profile", label: "Me", icon: <MeIcon />, match: (p: string) => p.startsWith("/app/profile") || p.startsWith("/app/products") || p.startsWith("/app/notifications") },
+  { href: "/app/profile", label: "Me", icon: <MeIcon />, match: (p: string) => p.startsWith("/app/profile") || p.startsWith("/app/products") },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {

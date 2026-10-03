@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.APPLE_CLIENT_SECRET ?? "",
     }),
 
-    // Email code sign-in: works in every country (the phone flow below was India-only).
+    // Email code sign-in: works in every country.
     CredentialsProvider({
       id: "email-otp",
       name: "Email code",
@@ -37,31 +37,6 @@ export const authOptions: NextAuthOptions = {
           const json = await res.json()
           const { userId, isNew } = json.data ?? json
           return { id: userId, email: credentials.email.trim().toLowerCase(), isNew: !!isNew }
-        } catch {
-          return null
-        }
-      },
-    }),
-
-    CredentialsProvider({
-      id: "phone-otp",
-      name: "Phone OTP",
-      credentials: {
-        phone: { label: "Phone", type: "tel" },
-        code: { label: "OTP Code", type: "text" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.phone || !credentials?.code) return null
-        try {
-          const res = await fetch(`${API}/auth/otp/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ phone: credentials.phone, code: credentials.code }),
-          })
-          if (!res.ok) return null
-          const json = await res.json()
-          const { userId, isNew } = json.data ?? json
-          return { id: userId, phone: credentials.phone, isNew: !!isNew }
         } catch {
           return null
         }
@@ -104,12 +79,6 @@ export const authOptions: NextAuthOptions = {
         if (typeof u.isNew === "boolean") token.isNew = u.isNew
       }
 
-      if (account?.provider === "phone-otp" && user) {
-        token.userId = user.id
-        const u = user as unknown as { phone?: unknown; isNew?: unknown }
-        if (typeof u.phone === "string") token.phone = u.phone
-        if (typeof u.isNew === "boolean") token.isNew = u.isNew
-      }
 
       if (account?.provider === "google" || account?.provider === "apple") {
         try {
@@ -158,12 +127,10 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       const u = session.user as typeof session.user & {
         userId?: string
-        phone?: string
         isNew?: boolean
         onboardingDone?: boolean
       }
       if (token.userId) u.userId = String(token.userId)
-      if (typeof token.phone === "string") u.phone = token.phone
       if (typeof token.isNew === "boolean") u.isNew = token.isNew
       if (typeof token.onboardingDone === "boolean") u.onboardingDone = token.onboardingDone
       return session
