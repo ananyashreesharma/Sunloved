@@ -17,6 +17,9 @@ import {
   withScan,
   withStep,
   withStepFrequency,
+  withStepUpdated,
+  withoutStep,
+  type GuestStepPatch,
   withStepToggled,
   type GuestData,
   type GuestRoutineView,
@@ -115,6 +118,14 @@ export function updateGuestData(patch: Partial<GuestData>): Promise<GuestData> {
 
 export function addGuestStep(input: NewGuestStep): Promise<GuestData> {
   return mutate((data) => withStep(data, input))
+}
+
+export function updateGuestStep(stepId: string, patch: GuestStepPatch): Promise<GuestData> {
+  return mutate((data) => withStepUpdated(data, stepId, patch))
+}
+
+export function removeGuestStep(stepId: string): Promise<GuestData> {
+  return mutate((data) => withoutStep(data, stepId))
 }
 
 export function setGuestStepFrequency(stepId: string, frequency: GuestStep["frequency"]): Promise<GuestData> {

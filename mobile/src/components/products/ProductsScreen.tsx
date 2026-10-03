@@ -1,115 +1,126 @@
-// Port of frontend/components/ouma/app/OumaProductsClient.tsx. Guest-only for now — reads the
-// same guest-store steps RoutineHome writes, since mobile has no session to call getMyProducts().
+// V3 My products: every step in the routine, grouped by when it's used, with whether its label has
+// been checked (matched by name against saved checks). Tap one to edit it; add more at the bottom.
 
 import { useCallback, useState } from "react"
-import { View, Text, Pressable, ScrollView, Alert } from "react-native"
+import { Pressable, ScrollView, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
+import { stepKind, type GuestData, type GuestScan } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
+import { getGuestScans, loadGuestData } from "@/lib/guest-store"
 import { BACK_ARROW } from "@/lib/i18n"
-import { loadGuestData } from "@/lib/guest-store"
+import { useTheme } from "@/lib/theme"
+import { PrimaryButton, SectionLabel, StatusScrim } from "@/components/check/parts"
 
-type ProductRow = { id: string; name: string; brand: string; usage: string[] }
+const KIND_KEY = {
+  cleanse: "kindCleanse",
+  exfoliate: "kindExfoliate",
+  serum: "kindSerum",
+  treat: "kindTreat",
+  moisturise: "kindMoisturise",
+  seal: "kindSeal",
+  sunscreen: "kindSunscreen",
+} as const
+const FREQ_KEY = { daily: "daily", alternate: "alternate", twice_weekly: "twice" } as const
 
 export function ProductsScreen() {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
-  const [products, setProducts] = useState<ProductRow[] | null>(null)
+  const { T } = useTheme()
+  const [data, setData] = useState<GuestData | null>(null)
+  const [scans, setScans] = useState<GuestScan[]>([])
 
-  // This screen is pushed on top of the tab navigator (app/products.tsx, not a tab itself), but it
-  // can still be reached more than once across a session, so a one-time useEffect would go stale —
-  // useFocusEffect re-fetches every time it regains focus instead, e.g. after Add Step pops back.
+  // Re-read on focus: the step sheet edits on top of this screen.
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      loadGuestData().then((data) => {
+      Promise.all([loadGuestData(), getGuestScans()]).then(([d, s]) => {
         if (cancelled) return
-        setProducts(
-          data.steps.map((s) => ({
-            id: s.id,
-            name: s.name,
-            brand: s.brand ?? "",
-            usage: s.when === "both" ? [t("routine.amTab"), t("routine.pmTab")] : s.when === "morning" ? [t("routine.amTab")] : [t("routine.pmTab")],
-          })),
-        )
+        setData(d)
+        setScans(s)
       })
       return () => {
         cancelled = true
       }
-    }, [t]),
+    }, []),
   )
 
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.bone }}
-      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 12, paddingBottom: 40 }}
-    >
-      <Pressable onPress={() => router.back()}>
-        <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backRoutine")}</Text>
-      </Pressable>
-      <View style={{ marginTop: 12, flexDirection: "row", alignItems: "baseline", justifyContent: "space-between" }}>
-        <Text style={{ fontFamily: fonts.display, fontSize: 26, textTransform: "uppercase", color: colors.ink }}>
-          {t("products.title")}
-        </Text>
-        <Text style={{ fontFamily: fonts.mono, fontSize: 12, color: colors.mute }}>{products?.length ?? 0}</Text>
-      </View>
-      <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{t("products.subtitle")}</Text>
+  function status(name: string): { text: string; color: string | null } {
+    const scan = scans.find((s) => s.title.trim().toLowerCase() === name.trim().toLowerCase())
+    if (!scan) return { text: t("prod.notChecked"), color: null }
+    if (scan.verdict === "GREEN") return { text: t("prod.checkedFine"), color: T.tFine }
+    if (scan.verdict === "YELLOW") return { text: t("prod.checkedCaution"), color: T.tCaution }
+    if (scan.verdict === "RED") return { text: t("prod.checkedAvoid"), color: T.tAvoid }
+    return { text: t("prod.checkedNone"), color: T.ink3 }
+  }
 
-      <View style={{ marginTop: 16, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-        {(products ?? []).map((p) => (
-          <View
-            key={p.id}
-            style={{
-              width: "47%",
-              backgroundColor: colors.card,
-              borderRadius: 14,
-              borderWidth: 1,
-              borderColor: colors.line,
-              padding: 13,
-            }}
-          >
-            <View style={{ height: 64, borderRadius: 9, backgroundColor: "#E4EBE2" }} />
-            <Text style={{ marginTop: 9, fontFamily: fonts.bodySemiBold, fontSize: 13.5, lineHeight: 17, color: colors.ink }}>
-              {p.name}
-            </Text>
-            {!!p.brand && <Text style={{ fontFamily: fonts.body, fontSize: 11.5, color: colors.mute, marginTop: 2 }}>{p.brand}</Text>}
-            <View style={{ marginTop: 8, flexDirection: "row", flexWrap: "wrap", gap: 5, alignItems: "center" }}>
-              <Text style={{ fontFamily: fonts.mono, fontSize: 10.5, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: "#E4EBE2", color: colors.mute }}>
-                {p.usage.join(" + ") || t("products.unused")}
-              </Text>
-              <Pressable
-                onPress={() => Alert.alert(t("products.comingSoonTitle"), t("products.comingSoonBody"))}
-                accessibilityRole="button"
-                hitSlop={10}
-              >
-                <Text
-                  style={{
-                    fontFamily: fonts.mono,
-                    fontSize: 10.5,
-                    paddingVertical: 3,
-                    paddingHorizontal: 8,
-                    borderRadius: 999,
-                    borderWidth: 1,
-                    borderStyle: "dashed",
-                    borderColor: "rgba(23,33,26,.25)",
-                    color: colors.mute,
-                  }}
-                >
-                  {t("products.scanToCheck")}
-                </Text>
-              </Pressable>
+  const groups = data
+    ? ([
+        ["morning", t("step.morning"), data.steps.filter((s) => s.when === "morning")],
+        ["night", t("step.night"), data.steps.filter((s) => s.when === "night")],
+        ["both", t("prod.bothTimes"), data.steps.filter((s) => s.when === "both")],
+      ] as const).filter(([, , items]) => items.length > 0)
+    : []
+
+  return (
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 4, paddingBottom: 24 }}>
+        <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("check.back")} style={{ width: 44, height: 44, justifyContent: "center", marginLeft: -4 }}>
+          <Text style={{ fontFamily: rubik.regular, fontSize: 24, color: T.ink }}>{BACK_ARROW}</Text>
+        </Pressable>
+        <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.semibold, fontSize: 36, letterSpacing: -1.2, color: T.ink }}>
+          {t("prod.title")}
+        </Text>
+
+        {data && groups.length === 0 && <Text style={{ marginTop: 16, fontFamily: rubik.regular, fontSize: 17, color: T.ink2 }}>{t("prod.empty")}</Text>}
+
+        {groups.map(([key, label, items]) => (
+          <View key={key} style={{ marginTop: 26 }}>
+            <SectionLabel>{label}</SectionLabel>
+            <View style={{ marginTop: 6 }}>
+              {items.map((s) => {
+                const kind = s.kind ?? stepKind(s.name)
+                const st = status(s.name)
+                return (
+                  <Pressable
+                    key={s.id}
+                    onPress={() => router.push({ pathname: "/add-step", params: { id: s.id } })}
+                    accessibilityRole="button"
+                    accessibilityHint={t("routine.editStep")}
+                    style={{ minHeight: 64, paddingVertical: 10, flexDirection: "row", alignItems: "center", gap: 12, borderBottomWidth: 1, borderBottomColor: T.line }}
+                  >
+                    <View style={{ flex: 1, minWidth: 0 }}>
+                      <Text style={{ fontFamily: rubik.medium, fontSize: 17, color: T.ink }}>{s.name}</Text>
+                      <Text style={{ marginTop: 2, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>
+                        {kind ? `${t(`routine.${KIND_KEY[kind]}`)} · ` : ""}
+                        {t(`step.${FREQ_KEY[s.frequency]}`)}
+                      </Text>
+                    </View>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6, flexShrink: 0, maxWidth: "45%" }}>
+                      <View
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: 4,
+                          ...(st.color ? { backgroundColor: st.color } : { borderWidth: 1.5, borderColor: T.ink3 }),
+                        }}
+                      />
+                      <Text numberOfLines={2} style={{ fontFamily: rubik.regular, fontSize: 13, color: T.ink2, flexShrink: 1 }}>
+                        {st.text}
+                      </Text>
+                    </View>
+                  </Pressable>
+                )
+              })}
             </View>
           </View>
         ))}
+      </ScrollView>
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 12, paddingTop: 8 }}>
+        <PrimaryButton label={t("prod.add")} onPress={() => router.push("/add-step")} />
       </View>
-
-      {products?.length === 0 && (
-        <Text style={{ marginTop: 24, fontFamily: fonts.body, fontSize: 13, color: colors.mute, textAlign: "center" }}>
-          {t("products.empty")}
-        </Text>
-      )}
-    </ScrollView>
+      <StatusScrim />
+    </View>
   )
 }

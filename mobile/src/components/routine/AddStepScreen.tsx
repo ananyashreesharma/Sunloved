@@ -1,217 +1,218 @@
-// Port of frontend/components/ouma/app/OumaAddStepClient.tsx. Guest-only for now (see
-// OnboardingWizard/RoutineHome) — the "from my products" section is dropped since it only ever
-// populates from the backend's getMyProducts(), which mobile has no session to call yet.
+// V3 step sheet: add a step or edit one (name, kind, when, how often), with a live line saying where
+// it lands in the routine. Editing also offers removal. Opened as a sheet over Routine or My products.
 
-import { useState } from "react"
-import { View, Text, Pressable, TextInput, ScrollView, KeyboardAvoidingView, Platform } from "react-native"
+import { useEffect, useMemo, useState } from "react"
+import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
-import { BACK_ARROW } from "@/lib/i18n"
-import { addGuestStep, loadGuestData } from "@/lib/guest-store"
-import { SoftPressable } from "@/components/shared/SoftPressable"
+import { STEP_KINDS, stepKind, stepNeighbours, type GuestData, type StepFrequency, type StepKind } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
+import { addGuestStep, loadGuestData, removeGuestStep, updateGuestStep } from "@/lib/guest-store"
+import { useTheme } from "@/lib/theme"
+import { PrimaryButton } from "@/components/check/parts"
 
 type When = "morning" | "night" | "both"
-type Frequency = "daily" | "alternate" | "twice_weekly"
 
-function FieldLabel({ children }: { children: string }) {
-  return (
-    <Text
-      style={{
-        marginTop: 20,
-        fontFamily: fonts.display,
-        fontSize: 13,
-        letterSpacing: 1.3,
-        textTransform: "uppercase",
-        color: colors.mute,
-      }}
-    >
-      {children}
-    </Text>
-  )
+const KIND_KEY: Record<StepKind, string> = {
+  cleanse: "kindCleanse",
+  exfoliate: "kindExfoliate",
+  serum: "kindSerum",
+  treat: "kindTreat",
+  moisturise: "kindMoisturise",
+  seal: "kindSeal",
+  sunscreen: "kindSunscreen",
 }
 
 export function AddStepScreen() {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
-  const params = useLocalSearchParams<{ type?: string; name?: string }>()
-  const initialType = params.type === "morning" || params.type === "night" ? params.type : "night"
+  const { T } = useTheme()
+  const params = useLocalSearchParams<{ id?: string; type?: string; name?: string }>()
+  const editing = !!params.id
 
-  const [customName, setCustomName] = useState(params.name ?? "")
-  const [when, setWhen] = useState<When>(initialType)
-  const [frequency, setFrequency] = useState<Frequency>("daily")
-  const [saving, setSaving] = useState(false)
+  const [data, setData] = useState<GuestData | null>(null)
+  const [name, setName] = useState(params.name ?? "")
+  // Guessed from the name until the person picks one themselves.
+  const [kind, setKind] = useState<StepKind | null>(null)
+  const [kindPicked, setKindPicked] = useState(false)
+  const [when, setWhen] = useState<When>(params.type === "morning" ? "morning" : "night")
+  const [frequency, setFrequency] = useState<StepFrequency>("daily")
   const [error, setError] = useState<string | null>(null)
 
-  const WHEN_OPTIONS: { v: When; label: string }[] = [
-    { v: "morning", label: t("addStep.am") },
-    { v: "night", label: t("addStep.pm") },
-    { v: "both", label: t("addStep.both") },
-  ]
+  useEffect(() => {
+    loadGuestData().then((d) => {
+      setData(d)
+      const step = params.id ? d.steps.find((s) => s.id === params.id) : null
+      if (step) {
+        setName(step.name)
+        setWhen(step.when)
+        setFrequency(step.frequency)
+        if (step.kind) {
+          setKind(step.kind)
+          setKindPicked(true)
+        }
+      }
+    })
+  }, [params.id])
 
-  function frequencyOptions(w: When): { v: Frequency; label: string; flex: number }[] {
-    return [
-      { v: "daily", label: t("addStep.daily"), flex: 1 },
-      // "Alternate nights" only makes sense once there's a night step involved — an AM-only step
-      // gets the time-neutral phrasing instead.
-      { v: "alternate", label: w === "morning" ? t("addStep.alternateDays") : t("addStep.alternateNights"), flex: 1.3 },
-      { v: "twice_weekly", label: t("addStep.twiceWeek"), flex: 1 },
-    ]
-  }
+  const effectiveKind = kindPicked ? kind : stepKind(name)
 
-  async function submit() {
-    const trimmed = customName.trim()
-    if (!trimmed) return
-    setSaving(true)
-    setError(null)
-    // addGuestStep silently no-ops on a duplicate name (same as the web version) — check first so
-    // the user gets told instead of watching the screen navigate away as if it worked.
-    const before = await loadGuestData()
-    if (before.steps.some((s) => s.name.toLowerCase() === trimmed.toLowerCase())) {
-      setSaving(false)
-      setError(t("addStep.alreadyInRoutine", { name: trimmed }))
+  const goes = useMemo(() => {
+    if (!data || !name.trim()) return ""
+    const period = when === "morning" ? "morning" : "night"
+    const n = stepNeighbours(data, period, { name: name.trim(), kind: effectiveKind ?? undefined }, params.id)
+    if (n.after && n.before) return t("step.goesBetween", { a: n.after, b: n.before })
+    if (n.after) return t("step.goesAfter", { a: n.after })
+    if (n.before) return t("step.goesBefore", { b: n.before })
+    return t("step.goesOnly")
+  }, [data, name, when, effectiveKind, params.id, t])
+
+  async function save() {
+    const trimmed = name.trim()
+    if (!trimmed || !data) return
+    const clash = data.steps.find((s) => s.id !== params.id && s.name.toLowerCase() === trimmed.toLowerCase())
+    if (clash) {
+      setError(t("step.duplicate", { name: trimmed }))
       return
     }
-    await addGuestStep({ name: trimmed, when, frequency })
-    // A real pushed screen now (see app/add-step.tsx) — pop back to Routine rather than replace it;
-    // Routine's own useFocusEffect picks up the new step on refocus.
+    const kindField = effectiveKind ?? undefined
+    if (params.id) await updateGuestStep(params.id, { name: trimmed, when, frequency, kind: kindField })
+    else await addGuestStep({ name: trimmed, when, frequency, kind: kindField })
     router.back()
   }
 
-  const routineLabel = when === "both" ? t("addStep.routineLabelBoth") : when === "night" ? t("addStep.pm") : t("addStep.am")
+  function confirmRemove() {
+    if (!params.id) return
+    Alert.alert(t("step.removeConfirmTitle", { name: name.trim() }), t("step.removeConfirmBody"), [
+      { text: t("step.cancel"), style: "cancel" },
+      {
+        text: t("step.remove"),
+        style: "destructive",
+        onPress: async () => {
+          await removeGuestStep(params.id!)
+          router.back()
+        },
+      },
+    ])
+  }
+
+  const label = (s: string) => <Text style={{ marginTop: 24, marginBottom: 10, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{s}</Text>
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView
-        style={{ flex: 1, backgroundColor: colors.bone }}
-        contentContainerStyle={{ padding: 20, paddingTop: insets.top + 12, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
-      <Pressable onPress={() => router.back()}>
-        <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backRoutine")}</Text>
-      </Pressable>
-      <Text style={{ marginTop: 12, fontFamily: fonts.display, fontSize: 26, textTransform: "uppercase", color: colors.ink }}>
-        {t("addStep.title")}
-      </Text>
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: T.bg }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: Platform.OS === "ios" ? 14 : insets.top + 8, paddingBottom: 16 }} keyboardShouldPersistTaps="handled">
+        <View style={{ alignSelf: "center", width: 40, height: 5, borderRadius: 3, backgroundColor: T.line, marginBottom: 14 }} />
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <Text accessibilityRole="header" style={{ fontFamily: rubik.semibold, fontSize: 26, letterSpacing: -0.6, color: T.ink }}>
+            {editing ? t("step.editTitle") : t("step.addTitle")}
+          </Text>
+          <Pressable onPress={() => router.back()} style={{ minHeight: 44, justifyContent: "center" }}>
+            <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("step.close")}</Text>
+          </Pressable>
+        </View>
 
-      <FieldLabel>{t("addStep.orTypeNew")}</FieldLabel>
-      <TextInput
-        value={customName}
-        onChangeText={(text) => {
-          setCustomName(text)
-          if (error) setError(null)
-        }}
-        placeholder={t("addStep.placeholder")}
-        placeholderTextColor={colors.mute}
-        style={{
-          marginTop: 10,
-          backgroundColor: colors.card,
-          borderWidth: 1,
-          borderColor: colors.line,
-          borderRadius: 12,
-          paddingVertical: 13,
-          paddingHorizontal: 16,
-          fontFamily: fonts.body,
-          fontSize: 15,
-          color: colors.ink,
-        }}
-      />
+        {label(t("step.name"))}
+        <TextInput
+          value={name}
+          onChangeText={(v) => {
+            setName(v)
+            setError(null)
+          }}
+          placeholder={t("step.namePlaceholder")}
+          placeholderTextColor={T.ink3}
+          autoFocus={!editing && !params.name}
+          returnKeyType="done"
+          style={{ minHeight: 52, paddingHorizontal: 16, borderRadius: 14, borderWidth: 1.5, borderColor: name ? T.ink : T.line, fontFamily: rubik.regular, fontSize: 17, color: T.ink }}
+        />
+        {error && <Text style={{ marginTop: 8, fontFamily: rubik.regular, fontSize: 14, color: T.tAvoid }}>{error}</Text>}
 
-      <FieldLabel>{t("addStep.whenLabel")}</FieldLabel>
-      <View style={{ marginTop: 10, flexDirection: "row", gap: 8 }}>
-        {WHEN_OPTIONS.map((w) => (
-          <SoftPressable
-            key={w.v}
-            onPress={() => setWhen(w.v)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: when === w.v }}
-            style={{
-              flex: 1,
-              alignItems: "center",
-              paddingVertical: 11,
-              borderRadius: 10,
-              borderWidth: when === w.v ? 1.5 : 1,
-              borderColor: when === w.v ? colors.accent : colors.line,
-              backgroundColor: colors.card,
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: when === w.v ? fonts.bodySemiBold : fonts.body,
-                fontSize: 14,
-                color: when === w.v ? colors.accent : colors.ink,
+        {label(t("step.kind"))}
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+          {STEP_KINDS.map((k) => (
+            <Chip
+              key={k}
+              on={effectiveKind === k}
+              label={t(`routine.${KIND_KEY[k]}`)}
+              onPress={() => {
+                setKind(k)
+                setKindPicked(true)
               }}
-            >
-              {w.label}
-            </Text>
-          </SoftPressable>
-        ))}
-      </View>
+            />
+          ))}
+        </View>
 
-      <FieldLabel>{t("addStep.howOften")}</FieldLabel>
-      <View style={{ marginTop: 10, flexDirection: "row", gap: 8 }}>
-        {frequencyOptions(when).map((f) => (
-          <SoftPressable
-            key={f.v}
-            onPress={() => setFrequency(f.v)}
-            accessibilityRole="radio"
-            accessibilityState={{ selected: frequency === f.v }}
-            style={{
-              flex: f.flex,
-              alignItems: "center",
-              paddingVertical: 11,
-              borderRadius: 10,
-              borderWidth: frequency === f.v ? 1.5 : 1,
-              borderColor: frequency === f.v ? colors.accent : colors.line,
-              backgroundColor: colors.card,
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: frequency === f.v ? fonts.bodySemiBold : fonts.body,
-                fontSize: 13.5,
-                color: frequency === f.v ? colors.accent : colors.ink,
-              }}
-            >
-              {f.label}
-            </Text>
-          </SoftPressable>
-        ))}
-      </View>
+        {label(t("step.when"))}
+        <Segmented
+          value={when}
+          onChange={setWhen}
+          options={[
+            ["morning", t("step.morning")],
+            ["night", t("step.night")],
+            ["both", t("step.both")],
+          ]}
+        />
 
-      <View style={{ marginTop: 16, backgroundColor: "rgba(30,77,58,.07)", borderRadius: 12, padding: 15 }}>
-        <Text style={{ fontFamily: fonts.body, fontSize: 13, lineHeight: 19, color: "#16382B" }}>
-          {t("addStep.placementHint")}
-          {frequency === "alternate" && (when === "morning" ? t("addStep.alternateHintDay") : t("addStep.alternateHintNight"))}
-        </Text>
-      </View>
+        {label(t("step.often"))}
+        <Segmented
+          value={frequency}
+          onChange={setFrequency}
+          options={[
+            ["daily", t("step.daily")],
+            ["alternate", t("step.alternate")],
+            ["twice_weekly", t("step.twice")],
+          ]}
+        />
 
-      {error && (
-        <Text style={{ marginTop: 12, fontFamily: fonts.body, fontSize: 13, color: "#8A2E22" }}>{error}</Text>
-      )}
-
-      <SoftPressable
-        onPress={submit}
-        disabled={saving || !customName.trim()}
-        style={{
-          marginTop: 22,
-          backgroundColor: colors.accent,
-          borderRadius: 12,
-          paddingVertical: 15,
-          alignItems: "center",
-          // 0.4 (not e.g. 0.7) for "nothing typed yet" so it reads as off, not just dim — a first-
-          // time tapper shouldn't wonder whether the button is broken. "saving" is a separate,
-          // lighter dim since that state means "working," not "unavailable."
-          opacity: !customName.trim() ? 0.4 : saving ? 0.7 : 1,
-        }}
-      >
-        <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: "#fff" }}>
-          {saving ? t("addStep.adding") : t("addStep.addToRoutine", { label: routineLabel })}
-        </Text>
-      </SoftPressable>
+        {goes ? <Text style={{ marginTop: 20, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink2 }}>{goes}</Text> : null}
       </ScrollView>
+
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 12, paddingTop: 8 }}>
+        <PrimaryButton label={editing ? t("step.save") : t("step.add")} onPress={save} disabled={!name.trim()} />
+        {editing && (
+          <Pressable onPress={confirmRemove} style={{ minHeight: 48, marginTop: 4, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.tAvoid }}>{t("step.remove")}</Text>
+          </Pressable>
+        )}
+      </View>
     </KeyboardAvoidingView>
+  )
+}
+
+function Chip({ on, label, onPress }: { on: boolean; label: string; onPress: () => void }) {
+  const { T } = useTheme()
+  return (
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: on ? T.ink : T.line, backgroundColor: on ? T.ink : "transparent", justifyContent: "center" }}
+    >
+      <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: on ? T.bg : T.ink }}>{label}</Text>
+    </Pressable>
+  )
+}
+
+function Segmented<V extends string>({ value, onChange, options }: { value: V; onChange: (v: V) => void; options: [V, string][] }) {
+  const { T } = useTheme()
+  return (
+    <View accessibilityRole="radiogroup" style={{ flexDirection: "row", gap: 4, padding: 3, borderRadius: 16, backgroundColor: T.line }}>
+      {options.map(([v, text]) => {
+        const on = v === value
+        return (
+          <Pressable
+            key={v}
+            onPress={() => onChange(v)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: on }}
+            style={{ flex: 1, minHeight: 44, borderRadius: 13, alignItems: "center", justifyContent: "center", paddingHorizontal: 4, backgroundColor: on ? T.bg : "transparent" }}
+          >
+            <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8} style={{ fontFamily: on ? rubik.semibold : rubik.regular, fontSize: 15, color: T.ink }}>
+              {text}
+            </Text>
+          </Pressable>
+        )
+      })}
+    </View>
   )
 }

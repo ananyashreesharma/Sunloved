@@ -1,12 +1,12 @@
 // A 12-hour, AM/PM reminder-time input — replaces raw 24-hour digit entry (e.g. typing "21:30")
-// in OnboardingWizard and ProfileScreen. Storage stays 24-hour "HH:MM" (guest-store.ts,
+// in onboarding and Reminders. Storage stays 24-hour "HH:MM" (guest-store.ts,
 // formatTimeForDisplay's read-side counterpart) — this only changes how it's typed, matching how
 // it's now displayed for anyone whose device is set to a 12-hour clock.
 
 import { useEffect, useState } from "react"
 import { View, Text, TextInput, Pressable } from "react-native"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
+import { rubik } from "@/constants/fonts"
+import { useTheme } from "@/lib/theme"
 import { to12Hour, from12Hour, type Period } from "@/lib/time-format"
 
 function formatTime12Input(raw: string): string {
@@ -27,7 +27,7 @@ export function TimeEntryField({
   value,
   onChange,
   fontSize = 22,
-  color = colors.ink,
+  color,
   bordered = false,
 }: {
   value: string
@@ -36,6 +36,7 @@ export function TimeEntryField({
   color?: string
   bordered?: boolean
 }) {
+  const { T } = useTheme()
   const initial = to12Hour(value)
   const [text, setText] = useState(`${initial.hour}:${String(initial.minute).padStart(2, "0")}`)
   const [period, setPeriod] = useState<Period>(initial.period)
@@ -75,20 +76,21 @@ export function TimeEntryField({
         value={text}
         onChangeText={handleText}
         placeholder="9:30"
-        placeholderTextColor={colors.mute}
+        placeholderTextColor={T.ink3}
         keyboardType="number-pad"
         maxLength={5}
         style={{
-          fontFamily: fonts.monoMedium,
+          fontFamily: rubik.regular,
           fontSize,
-          color,
+          color: color ?? T.ink,
+          minWidth: 64,
           padding: 0,
           ...(bordered
-            ? { borderWidth: 1, borderColor: colors.line, borderRadius: 8, paddingVertical: 6, paddingHorizontal: 8 }
+            ? { borderWidth: 1.5, borderColor: T.line, borderRadius: 12, paddingVertical: 8, paddingHorizontal: 12 }
             : {}),
         }}
       />
-      <View style={{ flexDirection: "row", borderRadius: 8, overflow: "hidden", borderWidth: 1, borderColor: colors.line }}>
+      <View style={{ flexDirection: "row", gap: 2, padding: 2, borderRadius: 12, backgroundColor: T.line }}>
         {(["AM", "PM"] as Period[]).map((p) => (
           <Pressable
             key={p}
@@ -96,12 +98,14 @@ export function TimeEntryField({
             accessibilityRole="radio"
             accessibilityState={{ selected: period === p }}
             style={{
-              paddingVertical: 5,
-              paddingHorizontal: 9,
-              backgroundColor: period === p ? colors.accent : "transparent",
+              minHeight: 36,
+              justifyContent: "center",
+              paddingHorizontal: 12,
+              borderRadius: 10,
+              backgroundColor: period === p ? T.bg : "transparent",
             }}
           >
-            <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 12, color: period === p ? "#fff" : colors.mute }}>{p}</Text>
+            <Text style={{ fontFamily: period === p ? rubik.semibold : rubik.regular, fontSize: 14, color: T.ink }}>{p}</Text>
           </Pressable>
         ))}
       </View>

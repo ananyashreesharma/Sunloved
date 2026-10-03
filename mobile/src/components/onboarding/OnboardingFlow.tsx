@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Dimensions, I18nManager, Pressable, ScrollView, Switch, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
-import { router } from "expo-router"
+import { router, useLocalSearchParams } from "expo-router"
 import Animated, {
   Easing,
   FadeIn,
@@ -64,7 +64,10 @@ export function OnboardingFlow() {
   const reduce = useReduceMotion()
   const nameOf = useCountryName()
 
-  const [step, setStep] = useState(0)
+  // From Me: "/onboarding?edit=skin" or "?edit=country" opens just that step, with Save.
+  const { edit } = useLocalSearchParams<{ edit?: string }>()
+  const editing = edit === "skin" || edit === "country"
+  const [step, setStep] = useState(edit === "country" ? 1 : edit === "skin" ? 2 : 0)
   const [country, setCountry] = useState<string | null>(null)
   const [moreOpen, setMoreOpen] = useState(false)
   const [skinType, setSkinType] = useState<string | null>(null)
@@ -122,8 +125,14 @@ export function OnboardingFlow() {
     setStep(5)
   }
 
+  async function saveEdit() {
+    await updateGuestData(edit === "country" ? { country } : { skinType, concerns })
+    router.back()
+  }
+
   function next() {
-    if (step === 4) finish()
+    if (editing) saveEdit()
+    else if (step === 4) finish()
     else setStep((s) => s + 1)
   }
 
@@ -192,17 +201,19 @@ export function OnboardingFlow() {
   return (
     <View style={{ flex: 1, backgroundColor: T.bg, paddingTop: insets.top + 4 }}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 10, paddingLeft: 12, paddingRight: 28, paddingBottom: 10 }}>
-        <Pressable onPress={() => setStep((s) => s - 1)} accessibilityRole="button" accessibilityLabel={t("ob.back")} style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+        <Pressable onPress={() => (editing ? router.back() : setStep((s) => s - 1))} accessibilityRole="button" accessibilityLabel={t("ob.back")} style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
           <Text style={{ fontFamily: rubik.regular, fontSize: 24, color: T.ink }}>{BACK_ARROW}</Text>
         </Pressable>
         <View
           accessible
           accessibilityRole="progressbar"
+          // Editing one answer from Me isn't a journey, so no progress bar.
+          importantForAccessibility={editing ? "no-hide-descendants" : "auto"}
           accessibilityLabel={t("ob.progress", { a: step, b: 4 })}
           style={{ flex: 1, flexDirection: "row", gap: 6 }}
         >
           {[1, 2, 3, 4].map((i) => (
-            <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: i <= step ? T.ink : T.line }} />
+            <View key={i} style={{ flex: 1, height: 3, borderRadius: 2, backgroundColor: editing ? "transparent" : i <= step ? T.ink : T.line }} />
           ))}
         </View>
       </View>
@@ -365,7 +376,7 @@ export function OnboardingFlow() {
       </Animated.View>
 
       <View style={{ paddingHorizontal: 28, paddingBottom: insets.bottom + 12, paddingTop: 8 }}>
-        <PrimaryButton label={t("ob.continue")} onPress={next} disabled={!canGo} />
+        <PrimaryButton label={editing ? t("me.save") : t("ob.continue")} onPress={next} disabled={!canGo} />
         {step === 3 && (
           <Pressable onPress={next} style={{ minHeight: 44, marginTop: 4, alignItems: "center", justifyContent: "center" }}>
             <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("ob.skip")}</Text>

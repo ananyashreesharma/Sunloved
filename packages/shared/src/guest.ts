@@ -144,6 +144,38 @@ export function doneKey(stepId: string, period: RoutineKind): string {
   return `${stepId}@${period}`
 }
 
+export type GuestStepPatch = Partial<Pick<GuestStep, "name" | "when" | "frequency" | "kind">>
+
+export function withStepUpdated(data: GuestData, stepId: string, patch: GuestStepPatch): GuestData {
+  return { ...data, steps: data.steps.map((s) => (s.id === stepId ? { ...s, ...patch } : s)) }
+}
+
+/** Removes a step and its ticks for today. */
+export function withoutStep(data: GuestData, stepId: string): GuestData {
+  const doneToday = Object.fromEntries(Object.entries(data.doneToday).filter(([k]) => !k.startsWith(`${stepId}@`)))
+  return { ...data, steps: data.steps.filter((s) => s.id !== stepId), doneToday }
+}
+
+/**
+ * Where a step lands in a routine: the steps just before and after it once sorted ("Goes after
+ * cleanser, before moisturiser"). `stepId` excludes the step being edited from its own neighbours.
+ */
+export function stepNeighbours(
+  data: GuestData,
+  period: RoutineKind,
+  candidate: { name: string; kind?: StepKind },
+  stepId?: string,
+): { before: string | null; after: string | null } {
+  const key = stepSortKey(candidate.name, candidate.kind)
+  const others = data.steps
+    .filter((s) => s.id !== stepId && (s.when === period || s.when === "both"))
+    .map((s) => ({ name: s.name, key: stepSortKey(s.name, s.kind) }))
+    .sort((a, b) => a.key - b.key)
+  const prev = [...others].reverse().find((o) => o.key <= key)
+  const next = others.find((o) => o.key > key)
+  return { after: prev?.name ?? null, before: next?.name ?? null }
+}
+
 export function withStepToggled(data: GuestData, stepId: string, period: RoutineKind): GuestData {
   const key = doneKey(stepId, period)
   return { ...data, doneToday: { ...data.doneToday, [key]: !data.doneToday[key] } }

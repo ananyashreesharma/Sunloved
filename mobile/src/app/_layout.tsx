@@ -44,8 +44,9 @@ export default function RootLayout() {
                 stack — without this, swiping back from Routine lands you on the marketing carousel. */}
             <Stack.Screen name="(app)" options={{ gestureEnabled: false }} />
             <Stack.Screen name="products" />
-            <Stack.Screen name="add-step" />
+            <Stack.Screen name="add-step" options={{ presentation: "modal" }} />
             <Stack.Screen name="history" />
+            <Stack.Screen name="reminders" />
             <Stack.Screen name="scan-confirm" />
             <Stack.Screen name="scan-result" />
           </Stack>

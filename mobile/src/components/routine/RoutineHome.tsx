@@ -243,7 +243,7 @@ export function RoutineHome() {
             <View style={{ marginTop: 20 }}>
               {data.steps.map((s) => {
                 const numIndex = due.indexOf(s)
-                return <StepRow key={s.id} step={s} num={s.rest ? "—" : localDigits(String(numIndex + 1).padStart(2, "0"), i18n.language)} night={night} onPress={() => toggle(s)} />
+                return <StepRow key={s.id} step={s} num={s.rest ? "—" : localDigits(String(numIndex + 1).padStart(2, "0"), i18n.language)} night={night} onPress={() => toggle(s)} onEdit={() => router.push({ pathname: "/add-step", params: { id: s.id } })} />
               })}
               <Pressable
                 onPress={() => router.push({ pathname: "/add-step", params: { type: period } })}
@@ -294,7 +294,7 @@ export function RoutineHome() {
   )
 }
 
-function StepRow({ step, num, night, onPress }: { step: GuestRoutineStepView; num: string; night: boolean; onPress: () => void }) {
+function StepRow({ step, num, night, onPress, onEdit }: { step: GuestRoutineStepView; num: string; night: boolean; onPress: () => void; onEdit: () => void }) {
   const { t } = useTranslation()
   const { T } = useTheme()
   const reduce = useReduceMotion()
@@ -312,8 +312,11 @@ function StepRow({ step, num, night, onPress }: { step: GuestRoutineStepView; nu
 
   return (
     <Pressable
+      // Tap ticks the step (rest days can't be ticked); long-press edits it, rest days included.
       onPress={onPress}
-      disabled={step.rest}
+      onLongPress={onEdit}
+      accessibilityActions={[{ name: "edit", label: t("routine.editStep") }]}
+      onAccessibilityAction={(e) => e.nativeEvent.actionName === "edit" && onEdit()}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: step.done, disabled: step.rest }}
       accessibilityLabel={`${step.name}${step.brand ? `, ${step.brand}` : ""}. ${sub}`}
