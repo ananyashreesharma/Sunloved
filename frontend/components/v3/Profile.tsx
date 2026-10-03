@@ -23,7 +23,8 @@ export function countryLabel(code: string | null): string | null {
 }
 
 /** "Oily skin, with acne and dark spots, in India." Each part opens the editor. */
-export function ProfileSentence({ profile, onEdit }: { profile: Profile; onEdit: () => void }) {
+/** Without `onEdit` the sentence is read-only and the answers are highlighted instead of linked. */
+export function ProfileSentence({ profile, onEdit }: { profile: Profile; onEdit?: () => void }) {
   const type = SKIN_TYPES.find((s) => s.code === profile.skinType)
   const concerns = profile.concerns.map((c) => CONCERNS.find((x) => x.code === c)?.label.toLowerCase() ?? c)
   const link: React.CSSProperties = {
@@ -37,24 +38,24 @@ export function ProfileSentence({ profile, onEdit }: { profile: Profile; onEdit:
     textUnderlineOffset: 5,
     textDecorationColor: "var(--ink3)",
   }
+  const mark: React.CSSProperties = { background: "var(--done)", fontWeight: 400 }
+  const part = (text: string) =>
+    onEdit ? (
+      <button style={link} onClick={onEdit}>
+        {text}
+      </button>
+    ) : (
+      <span style={mark}>{text}</span>
+    )
   return (
     <p style={{ margin: 0, fontSize: 22, fontWeight: 300, lineHeight: 1.45 }}>
-      <button style={link} onClick={onEdit}>
-        {type && profile.skinType !== "unsure" ? `${type.label} skin` : "Any skin"}
-      </button>
+      {part(type && profile.skinType !== "unsure" ? `${type.label} skin` : "Any skin")}
       {concerns.length > 0 && (
         <>
-          , with{" "}
-          <button style={link} onClick={onEdit}>
-            {concerns.join(" and ")}
-          </button>
+          , with {part(concerns.join(" and "))}
         </>
       )}
-      , in{" "}
-      <button style={link} onClick={onEdit}>
-        {countryLabel(profile.country) ?? "…"}
-      </button>
-      .
+      , in {part(countryLabel(profile.country) ?? "…")}.
     </p>
   )
 }

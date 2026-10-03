@@ -166,6 +166,12 @@ export class OumaService {
         where: { routineId: routine.id },
         orderBy: { stepOrder: 'asc' },
       });
+      // Same product or same typed name already in this routine: don't add it twice (a double
+      // submit, or a guest routine moved to the account more than once).
+      const name = input.customName?.trim().toLowerCase();
+      if (existing.some((e) => (input.productId && e.productId === input.productId) || (name && e.customName?.trim().toLowerCase() === name))) {
+        continue;
+      }
       const rank = this.stepPosition(product?.categoryLegacy, existing.length + 100);
       // Slot in after every existing step whose own rank is <= this one, keeping stepOrder contiguous.
       const insertAt = existing.length; // existing steps don't carry a stored rank, so append and let stepOrder reflect insertion order for now

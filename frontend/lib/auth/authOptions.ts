@@ -17,6 +17,32 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.APPLE_CLIENT_SECRET ?? "",
     }),
 
+    // Email code sign-in: works in every country (the phone flow below was India-only).
+    CredentialsProvider({
+      id: "email-otp",
+      name: "Email code",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        code: { label: "Code", type: "text" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.code) return null
+        try {
+          const res = await fetch(`${API}/auth/email-otp/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: credentials.email.trim().toLowerCase(), code: credentials.code }),
+          })
+          if (!res.ok) return null
+          const json = await res.json()
+          const { userId, isNew } = json.data ?? json
+          return { id: userId, email: credentials.email.trim().toLowerCase(), isNew: !!isNew }
+        } catch {
+          return null
+        }
+      },
+    }),
+
     CredentialsProvider({
       id: "phone-otp",
       name: "Phone OTP",
@@ -71,6 +97,13 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account, trigger }) {
+      if (account?.provider === "email-otp" && user) {
+        token.userId = user.id
+        const u = user as unknown as { email?: unknown; isNew?: unknown }
+        if (typeof u.email === "string") token.email = u.email
+        if (typeof u.isNew === "boolean") token.isNew = u.isNew
+      }
+
       if (account?.provider === "phone-otp" && user) {
         token.userId = user.id
         const u = user as unknown as { phone?: unknown; isNew?: unknown }

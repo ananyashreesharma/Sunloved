@@ -1,7 +1,6 @@
-import { OumaOnboardingClient } from "@/components/ouma/onboarding/OumaOnboardingClient"
+import { OnboardingPage } from "@/components/v3/OnboardingPage"
 
-// Reachable by guests too (see OumaOnboardingClient's draft-save/resume flow) — the marketing
-// carousel and login page both route here whether someone signs in for real or browses as a guest.
-export default function OumaOnboardingPage() {
-  return <OumaOnboardingClient />
+// New accounts land here (the app requires a skin profile); guests can use it too.
+export default function Onboarding() {
+  return <OnboardingPage />
 }

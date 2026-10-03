@@ -18,7 +18,8 @@ import {
   type LabelItem,
   type Zone,
 } from "@skinlens/shared"
-import { analyzeIngredients } from "@/lib/api"
+import { analyzeIngredients, completeOnboarding, getMe } from "@/lib/api"
+import { useIsGuest } from "@/lib/use-guest"
 import { loadGuestData, saveGuestScan, updateGuestData } from "@/lib/guest-store"
 import { SiteFooter, SiteHeader } from "./SiteChrome"
 import { countryLabel, ProfileEditor, ProfileSentence, type Profile } from "./Profile"
@@ -30,6 +31,7 @@ const COPY = {
   samples: { sampleNiacinamide: "Niacinamide serum", sampleSunscreen: "Sunscreen", sampleCream: "Night cream" },
   yourSkin: "Your skin",
   skinNote: "Verdicts are personal: change these and the same label can read differently. Saved in this browser only.",
+  skinNoteAccount: "Verdicts are personal: change these and the same label can read differently. Saved to your account.",
   read: "Read ingredients",
   reading: "Reading the label…",
   yourLabel: "Your label",
@@ -84,6 +86,21 @@ export function Checker() {
   const [last, setLast] = useState<Extract<State, { kind: "done" }> | null>(null)
   const runs = useRef(0)
   const resultRef = useRef<HTMLElement>(null)
+  const isGuest = useIsGuest()
+  const lastRef = useRef<{ inci: string; name: string } | null>(null)
+
+  // Signed in: the profile comes from the account (the browser copy moves there at sign-up).
+  useEffect(() => {
+    if (isGuest) return
+    getMe()
+      .then((me) => {
+        const p = { country: me.country, skinType: me.skinType?.code ?? null, concerns: me.concerns.map((c) => c.code) }
+        setProfile(p)
+        // Re-read what's on screen for this person's skin.
+        if (lastRef.current) run(lastRef.current.inci, lastRef.current.name, p, false)
+      })
+      .catch(() => {})
+  }, [isGuest])
 
   // Profile from this browser; the first visit opens on a sample so the page shows what it does.
   useEffect(() => {
@@ -109,6 +126,7 @@ export function Checker() {
       const done = { kind: "done" as const, label: annotateLabel(api, p), name, inci, run: id }
       setState(done)
       setLast(done)
+      lastRef.current = { inci, name }
       // On a phone the reading sits below the form: bring it into view for runs the person started.
       if (reveal && window.matchMedia("(max-width: 960px)").matches) {
         resultRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })
@@ -120,12 +138,15 @@ export function Checker() {
 
   function saveProfile(next: Profile) {
     setProfile(next)
-    updateGuestData({ country: next.country, skinType: next.skinType, concerns: next.concerns })
+    if (isGuest) updateGuestData({ country: next.country, skinType: next.skinType, concerns: next.concerns })
   }
 
   // Changing the profile re-reads the current label, so the effect of the change is visible.
   function finishEditing() {
     setEditing(false)
+    if (!isGuest && profile.skinType) {
+      completeOnboarding({ skinType: profile.skinType, concerns: profile.concerns, country: profile.country ?? undefined }).catch(() => {})
+    }
     if (state.kind === "done") run(state.inci, state.name, profile)
   }
 
@@ -199,7 +220,7 @@ export function Checker() {
             {editing ? (
               <ProfileEditor profile={profile} onChange={saveProfile} onDone={finishEditing} />
             ) : (
-              <div style={{ fontSize: 14, color: "var(--ink2)", lineHeight: 1.5 }}>{COPY.skinNote}</div>
+              <div style={{ fontSize: 14, color: "var(--ink2)", lineHeight: 1.5 }}>{isGuest ? COPY.skinNote : COPY.skinNoteAccount}</div>
             )}
           </div>
 

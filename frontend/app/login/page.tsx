@@ -1,10 +1,10 @@
 import { Suspense } from "react"
-import { OumaLoginClient } from "@/components/ouma/OumaLoginClient"
+import { LoginPage } from "@/components/v3/LoginPage"
 
-export default function OumaLoginPage() {
+export default function Login() {
   return (
     <Suspense>
-      <OumaLoginClient />
+      <LoginPage />
     </Suspense>
   )
 }

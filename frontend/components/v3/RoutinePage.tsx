@@ -7,7 +7,7 @@
 
 import Link from "next/link"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { findRoutineClash, isDueOn, stepKind, todayKey, type StepFrequency, type StepKind, type StreakDayStatus } from "@skinlens/shared"
+import { findRoutineClash, isDueOn, stepKind, stepSortKey, todayKey, type StepFrequency, type StepKind, type StreakDayStatus } from "@skinlens/shared"
 import { getRoutine, getStreak, getStreakHistory, toggleRoutineStep, updateRoutineStep } from "@/lib/api"
 import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, setGuestStepFrequency, toggleGuestStep } from "@/lib/guest-store"
 import { useAppChrome } from "@/lib/app-chrome-context"
@@ -62,8 +62,9 @@ export function RoutinePage() {
           setStreak(getGuestStreak().currentStreak)
         } else {
           const r = await getRoutine(p)
+          // Accounts store steps in the order they were added; show them in the order they go on.
           setSteps(
-            r.steps.map((s) => ({
+            [...r.steps].sort((a, b) => stepSortKey(a.name) - stepSortKey(b.name)).map((s) => ({
               id: s.id,
               name: s.name,
               brand: s.brand,
