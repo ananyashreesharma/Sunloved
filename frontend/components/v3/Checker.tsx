@@ -29,7 +29,7 @@ const COPY = {
   title: "Check any skincare label, free.",
   sub: "Paste an ingredient list and get a plain-language reading for your skin. No account, no ads, no sponsored verdicts.",
   placeholder: "Aqua, Glycerin, Niacinamide…",
-  samples: { sampleNiacinamide: "Niacinamide serum", sampleSunscreen: "Sunscreen", sampleCream: "Night cream" },
+  samples: { sampleFairness: "Fairness cream", sampleNiacinamide: "Niacinamide serum", sampleSunscreen: "Sunscreen", sampleCream: "Night cream" },
   yourSkin: "Your skin",
   skinNote: "Verdicts are personal: change these and the same label can read differently. Saved in this browser only.",
   skinNoteAccount: "Verdicts are personal: change these and the same label can read differently. Saved to your account.",
@@ -66,6 +66,14 @@ const COPY = {
   country: "Where you live",
   skinType: "Skin type",
   concerns: "Up to two concerns",
+  hazardT: "If you've been using this",
+  hazard: [
+    "Stop using it. Don't share it with anyone.",
+    "If you've used it for weeks, stopping can cause a short flare of redness or spots. That settles; a doctor or pharmacist can help with it.",
+    "See a doctor if your skin is thin, burning, or has stretch marks or patches that won't fade.",
+    "For dark spots, gentler options include niacinamide, azelaic acid and sunscreen every day.",
+  ],
+  hazardNote: "This is general information, not medical advice.",
   empty: "Paste a label, or try one of the samples, and the reading appears here.",
 }
 
@@ -108,7 +116,8 @@ export function Checker() {
     const g = loadGuestData()
     const p = { country: g.country ?? guessCountry(navigator.language), skinType: g.skinType, concerns: g.concerns }
     setProfile(p)
-    const first = SAMPLE_LABELS[2]
+    // The fairness cream: shows a first-time visitor exactly what SkinLens catches.
+    const first = SAMPLE_LABELS[0]
     setText(first.inci)
     setSampleKey(first.key)
     run(first.inci, COPY.samples[first.key], p, false)
@@ -517,6 +526,19 @@ function Result({
         </p>
       )}
       {strip}
+      {label.lighteningHazard && (
+        <section className="v3-up" style={{ marginTop: 32, maxWidth: 640, padding: "20px 24px", borderRadius: 18, background: "var(--surface)", borderInlineStart: "3px solid var(--t-avoid)", animationDelay: "700ms" }}>
+          <h3 style={{ margin: 0, fontSize: 19, fontWeight: 600 }}>{COPY.hazardT}</h3>
+          <ul style={{ margin: "10px 0 0", paddingInlineStart: 20, fontSize: 17, lineHeight: 1.5 }}>
+            {COPY.hazard.map((h) => (
+              <li key={h} style={{ marginTop: 6 }}>
+                {h}
+              </li>
+            ))}
+          </ul>
+          <p style={{ margin: "12px 0 0", fontSize: 13, color: "var(--ink2)" }}>{COPY.hazardNote}</p>
+        </section>
+      )}
       <div className="v3-twocol">
         <div>
           <div className="v3-label" style={{ marginBottom: 8 }}>

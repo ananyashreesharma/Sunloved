@@ -56,6 +56,17 @@ const SLS = 'Strong cleansing agent. Can leave skin tight or irritated, especial
 const NIACINAMIDE = 'Vitamin B3. Helps calm redness, even out tone and support the skin barrier. Gentle for most skin.';
 const VITAMIN_C = 'Vitamin C. An antioxidant that helps brighten and even out skin tone.';
 
+const MONOBENZONE =
+  'Depigmenting drug used only for the skin condition vitiligo. It can remove skin colour permanently, well beyond where it is applied. It should never be in a cosmetic.';
+const LEAD =
+  'Lead compound. Banned in cosmetics in the EU and many countries: lead is toxic and builds up in the body. It has turned up in hair dyes and skin-lightening products.';
+const RESORCINOL =
+  'Peeling agent used in some acne and pigmentation treatments. Can irritate and, used heavily on skin over time, may affect the thyroid. Best used only as directed.';
+const KOJIC =
+  'Brightening ingredient from fungi, used to fade dark spots. Generally fine in skincare at low levels, but it can irritate or cause allergy, so patch-test first.';
+const DEOXYARBUTIN =
+  'Lab-made relative of arbutin, used to fade dark spots. Less studied than arbutin; it can break down into hydroquinone in some formulas.';
+
 const FRAGRANCE =
   'Fragrance: a blend of scent chemicals that brands don\'t have to list individually. Fine for many people, but a common cause of irritation and allergy, especially on sensitive skin.';
 
@@ -75,12 +86,25 @@ const ENTRIES: Entry[] = [
       'Betamethasone Dipropionate',
       'Mometasone Furoate',
       'Fluocinolone Acetonide',
+      // Also found in illegal lightening and "fairness" creams.
+      'Hydrocortisone',
+      'Hydrocortisone Acetate',
+      'Dexamethasone',
+      'Triamcinolone Acetonide',
+      'Beclomethasone Dipropionate',
+      'Halobetasol Propionate',
+      'Fluticasone Propionate',
     ],
     zone: 'red',
     safetyRating: 'avoid',
     shortDescription: STEROID,
   },
   { names: ['Tretinoin'], zone: 'red', safetyRating: 'avoid', shortDescription: TRETINOIN },
+  { names: ['Monobenzone', 'Monobenzyl Ether of Hydroquinone', 'Hydroquinone Monobenzyl Ether'], zone: 'red', safetyRating: 'avoid', shortDescription: MONOBENZONE },
+  { names: ['Lead Acetate', 'Lead'], zone: 'red', safetyRating: 'avoid', shortDescription: LEAD },
+  { names: ['Resorcinol'], zone: 'yellow', safetyRating: 'caution', shortDescription: RESORCINOL },
+  { names: ['Kojic Acid', 'Kojic Dipalmitate'], zone: 'yellow', safetyRating: 'caution', shortDescription: KOJIC },
+  { names: ['Deoxyarbutin'], zone: 'yellow', safetyRating: 'caution', shortDescription: DEOXYARBUTIN },
   {
     names: ['Butylphenyl Methylpropional', 'Hydroxyisohexyl 3-Cyclohexene Carboxaldehyde'],
     zone: 'red',

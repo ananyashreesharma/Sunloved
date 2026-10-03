@@ -311,6 +311,8 @@ export function ScanResultScreen() {
 
         {strip}
 
+        {label.lighteningHazard && <HazardCard />}
+
         <View style={{ marginTop: 30, marginBottom: 4 }}>
           <SectionLabel>{t("check.flaggedT")}</SectionLabel>
         </View>
@@ -408,5 +410,25 @@ function Toast({ text, bottom }: { text: string | null; bottom: number }) {
     >
       <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.btnInk, textAlign: "center" }}>{text}</Text>
     </Animated.View>
+  )
+}
+
+/** What to do when a label has a drug or toxic metal from illegal lightening creams. Calm, practical. */
+function HazardCard() {
+  const { t } = useTranslation()
+  const { T } = useTheme()
+  return (
+    <View style={{ marginTop: 24, padding: 18, borderRadius: 18, backgroundColor: T.surface, borderStartWidth: 3, borderStartColor: T.tAvoid }}>
+      <Text accessibilityRole="header" style={{ fontFamily: rubik.semibold, fontSize: 18, color: T.ink }}>
+        {t("check.hazardT")}
+      </Text>
+      {(["hazard1", "hazard2", "hazard3", "hazard4"] as const).map((k) => (
+        <View key={k} style={{ marginTop: 10, flexDirection: "row", gap: 10 }}>
+          <Text style={{ fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink2 }}>•</Text>
+          <Text style={{ flex: 1, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t(`check.${k}`)}</Text>
+        </View>
+      ))}
+      <Text style={{ marginTop: 12, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("check.hazardNote")}</Text>
+    </View>
   )
 }

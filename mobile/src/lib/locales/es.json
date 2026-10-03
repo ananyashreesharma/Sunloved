@@ -205,7 +205,14 @@
     "noDataLong": "No tenemos datos de este ingrediente. Eso no lo hace seguro ni inseguro. Simplemente no podemos decirlo.",
     "close": "Cerrar",
     "shareText": "{{verdict}} {{name}}, revisado con SkinLens. Este veredicto es personal; revísalo para tu propia piel.",
-    "toastSaved": "Guardado en tus revisiones."
+    "toastSaved": "Guardado en tus revisiones.",
+    "hazardT": "Si lo has estado usando",
+    "hazard1": "Deja de usarlo. No lo compartas.",
+    "hazard2": "Si lo usaste durante semanas, dejarlo puede causar un brote breve de rojez o granitos. Pasa; un médico o farmacéutico puede ayudarte.",
+    "hazard3": "Consulta a un médico si tu piel está fina, arde o tiene estrías o manchas que no desaparecen.",
+    "hazard4": "Para las manchas, hay opciones más suaves: niacinamida, ácido azelaico y protector solar a diario.",
+    "hazardNote": "Información general, no consejo médico.",
+    "sampleFairness": "Crema aclarante"
   },
   "reminders": {
     "gentleMorning": "Tu rutina de mañana te espera cuando quieras.",

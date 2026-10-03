@@ -32,7 +32,15 @@ export type AnnotatedLabel = {
   /** null = "We can't judge this one yet". */
   verdict: Zone | null
   summary: string
+  /**
+   * The label contains a drug or toxic substance that turns up in illegal skin-lightening creams
+   * (steroids, hydroquinone, mercury, lead, monobenzone). The apps then show what to do next.
+   */
+  lighteningHazard: boolean
 }
+
+// Prescription drugs and toxic metals found in illegal "fairness" and lightening creams.
+const LIGHTENING_HAZARD = /hydroquinone|monobenz|merc(ur|ury)|calomel|\blead\b|clobetasol|betamethasone|mometasone|fluocinolone|hydrocortisone|dexamethasone|triamcinolone|beclomethasone|halobetasol|fluticasone|tretinoin/i
 
 const NO_DATA_LINE = "We have no data on this one, so we're not calling it fine."
 const SEVERITY: Record<ItemState, number> = { avoid: 0, nfy: 1, caution: 2, none: 3, fine: 4 }
@@ -76,7 +84,19 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
   // list counts 1, 2, 3; the marks on the label point back to the same numbers.
   ;[...flagged, ...noData].forEach((it, i) => (it.num = i + 1))
 
-  return { items, flagged, noData, rated, total: items.length, coverage: bd.coverage, score: bd.score, verdict, summary: summarize(verdict, flagged, noData, items) }
+  const lighteningHazard = items.some((i) => i.state === "avoid" && LIGHTENING_HAZARD.test(`${i.name} ${api.foundIngredients.find((f) => f.name === i.name)?.scientificName ?? ""}`))
+  return {
+    items,
+    flagged,
+    noData,
+    rated,
+    total: items.length,
+    coverage: bd.coverage,
+    score: bd.score,
+    verdict,
+    summary: summarize(verdict, flagged, noData, items),
+    lighteningHazard,
+  }
 }
 
 /**

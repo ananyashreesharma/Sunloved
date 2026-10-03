@@ -205,7 +205,14 @@
     "noDataLong": "We have no data on this ingredient. That doesn't make it safe or unsafe. We just can't say.",
     "close": "Close",
     "shareText": "{{verdict}} {{name}}, checked with SkinLens. This verdict is personal, so check it for your own skin.",
-    "toastSaved": "Saved to your checks."
+    "toastSaved": "Saved to your checks.",
+    "hazardT": "If you've been using this",
+    "hazard1": "Stop using it. Don't share it with anyone.",
+    "hazard2": "If you've used it for weeks, stopping can cause a short flare of redness or spots. That settles; a doctor or pharmacist can help with it.",
+    "hazard3": "See a doctor if your skin is thin, burning, or has stretch marks or patches that won't fade.",
+    "hazard4": "For dark spots, gentler options include niacinamide, azelaic acid and sunscreen every day.",
+    "hazardNote": "This is general information, not medical advice.",
+    "sampleFairness": "Fairness cream"
   },
   "reminders": {
     "gentleMorning": "Your morning routine is ready when you are.",
