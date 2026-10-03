@@ -57,6 +57,11 @@ export const BACK_ARROW = isRTL ? "→" : "←"
 // content, which reads right-to-left for an RTL speaker.
 export const FORWARD_ARROW = isRTL ? "←" : "→"
 
+/** Western digits → Arabic-Indic for Arabic, so numerals read naturally. */
+export function localDigits(s: string, lang: string) {
+  return lang.startsWith("ar") ? s.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : s
+}
+
 // RN mirrors flex layout automatically once this is set, but it only takes effect after a reload —
 // there's no way to flip a running app's layout direction mid-session. On a real RTL device this
 // runs before first render (this module is imported at the top of app/_layout.tsx) so it's already

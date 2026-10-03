@@ -20,7 +20,7 @@ import Animated, {
 } from "react-native-reanimated"
 import { findRoutineClash, motion, palettes, stepKind, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { FORWARD_ARROW } from "@/lib/i18n"
+import { FORWARD_ARROW, localDigits } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
 import { ease, useReduceMotion, useTheme } from "@/lib/theme"
 import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, setGuestStepFrequency, toggleGuestStep } from "@/lib/guest-store"
@@ -48,11 +48,6 @@ const KIND_KEY = {
 } as const
 
 const FREQ_KEY = { daily: "freqDaily", alternate: "freqAlternate", twice_weekly: "freqTwice" } as const
-
-/** Western digits → Arabic-Indic for Arabic, so step numerals read naturally. */
-function localDigits(s: string, lang: string) {
-  return lang.startsWith("ar") ? s.replace(/[0-9]/g, (d) => "٠١٢٣٤٥٦٧٨٩"[Number(d)]) : s
-}
 
 function shiftDay(date: string, days: number) {
   const d = new Date(`${date}T00:00:00Z`)
@@ -289,6 +284,8 @@ export function RoutineHome() {
           )}
         </Animated.View>
       </ScrollView>
+      {/* Paper behind the status bar, so scrolled content does not run under the clock */}
+      <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 0, left: 0, right: 0, height: insets.top }, bgStyle]} />
     </Animated.View>
   )
 }

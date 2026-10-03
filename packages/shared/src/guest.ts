@@ -224,6 +224,8 @@ export type GuestScan = {
   score: number
   productId?: string
   rawIngredientText?: string
+  /** Verdict at the time of saving; null = no verdict (too little rated). Missing on older saves. */
+  verdict?: "GREEN" | "YELLOW" | "RED" | null
 }
 
 export function parseGuestScans(raw: string | null): GuestScan[] {

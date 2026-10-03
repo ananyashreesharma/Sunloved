@@ -1,252 +1,268 @@
-// Port of frontend/components/ouma/OumaScanClient.tsx. The web version's "Photo" tab isn't real
-// camera+OCR either — it's a decorative viewfinder mockup, and tapping the shutter just switches to
-// the Paste tab (see its onClick: setTab("paste")). The actual analysis path is entirely
-// type-or-paste-the-ingredients → Confirm → Result, which is what this ports faithfully. A real
-// camera capture (expo-camera) would be a genuine upgrade over the web version, not parity — noted
-// as a follow-up, not required to match what the web app itself does today.
+// V3 "Check" tab: paste a label (photo reading comes later, so it isn't offered), optionally name
+// it, or try a sample. Saved checks sit underneath with the verdict they had when saved.
 
 import { useCallback, useState } from "react"
-import { View, Text, Pressable, TextInput, ScrollView } from "react-native"
+import { Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
-import { getGuestScans, type GuestScan } from "@/lib/guest-store"
-import { riskFromScore } from "@/lib/ingredient-scoring"
-import { SoftPressable } from "@/components/shared/SoftPressable"
+import type { GuestScan, ItemState } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
+import { getGuestScans } from "@/lib/guest-store"
+import { useTheme } from "@/lib/theme"
+import { PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
 
-const DEMO_INCI =
-  "Aqua, Glycerin, Niacinamide, Dimethicone, Phenoxyethanol, Fragrance (Parfum), Carbomer, Sodium Hyaluronate, Methylparaben, Tocopherol, Retinol, Limonene, Linalool, Citric Acid"
+// Typical INCI lists for each kind of product, unbranded. Each shows a different part of the check.
+const SAMPLES = [
+  {
+    key: "sampleNiacinamide",
+    inci: "Aqua, Niacinamide, Pentylene Glycol, Zinc PCA, Dimethyl Isosorbide, Tamarindus Indica Seed Gum, Xanthan Gum, Isoceteth-20, Ethoxydiglycol, Phenoxyethanol, Chlorphenesin",
+  },
+  {
+    key: "sampleSunscreen",
+    inci: "Aqua, Homosalate, Ethylhexyl Salicylate, Butyl Methoxydibenzoylmethane, Glycerin, Octocrylene, Silica, Alcohol Denat., Tocopherol, Parfum, Linalool, Limonene",
+  },
+  {
+    key: "sampleCream",
+    inci: "Aqua, Glycerin, Caprylic/Capric Triglyceride, Cetearyl Alcohol, Butyrospermum Parkii Butter, Retinol, Ceramide NP, Isopropyl Myristate, Dimethicone, Phenoxyethanol, Sodium Hyaluronate, Parfum",
+  },
+] as const
 
-type Tab = "photo" | "paste"
-
-const VERDICT_PILL_KEY = {
-  "HIGH RISK": { bg: colors.zone.red.soft, fg: colors.zone.red.fg, labelKey: "legendAvoid" },
-  CAUTION: { bg: colors.zone.yellow.soft, fg: colors.zone.yellow.fg, labelKey: "legendCaution" },
-  SAFE: { bg: colors.zone.green.soft, fg: colors.zone.green.fg, labelKey: "legendFine" },
-} as const
+const VERDICT_STATE: Record<"GREEN" | "YELLOW" | "RED", ItemState> = {
+  GREEN: "fine",
+  YELLOW: "caution",
+  RED: "avoid",
+}
 
 export function ScanCaptureScreen() {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
-  const [tab, setTab] = useState<Tab>("photo")
+  const { T } = useTheme()
   const [inci, setInci] = useState("")
-  const [recents, setRecents] = useState<GuestScan[]>([])
+  const [name, setName] = useState("")
+  const [saved, setSaved] = useState<GuestScan[]>([])
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      getGuestScans().then((scans) => {
-        if (!cancelled) setRecents(scans)
-      })
+      getGuestScans().then((scans) => !cancelled && setSaved(scans))
       return () => {
         cancelled = true
       }
     }, []),
   )
 
-  function relativeDate(iso: string): string {
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
-    if (days <= 0) return t("scan.relativeToday")
-    if (days === 1) return t("scan.relativeDaysAgo", { days: 1 })
-    return t("scan.relativeDaysAgo", { days })
+  function read(list = inci, label = name) {
+    if (!list.trim()) return
+    router.push({
+      pathname: "/scan-confirm",
+      params: { inci: list, name: label.trim() },
+    })
   }
 
-  const parsedChips = inci
-    .split(/[,\n]/)
-    .map((s) => s.trim())
-    .filter(Boolean)
-
-  function analyse() {
-    if (!inci.trim()) return
-    router.push({ pathname: "/scan-confirm", params: { inci } })
+  function when(iso: string) {
+    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+    return days <= 0 ? t("check.today") : t("check.daysAgo", { count: days })
   }
 
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.bone }}
-      contentContainerStyle={{ padding: 20, paddingTop: insets.top + 8, paddingBottom: 40 }}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Text style={{ fontFamily: fonts.display, fontSize: 30, lineHeight: 32, color: colors.ink, textTransform: "uppercase" }}>
-        {t("scan.title")}
-      </Text>
-      <Text style={{ marginTop: 6, fontFamily: fonts.body, fontSize: 15, color: "#2A342C" }}>{t("scan.subtitle")}</Text>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingTop: insets.top + 24,
+          paddingBottom: 40,
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text
+          accessibilityRole="header"
+          style={{
+            fontFamily: rubik.light,
+            fontSize: 44,
+            lineHeight: 50,
+            letterSpacing: -1.8,
+            color: T.ink,
+          }}
+        >
+          {t("check.title")}
+        </Text>
+        <Text
+          style={{
+            marginTop: 8,
+            fontFamily: rubik.regular,
+            fontSize: 17,
+            lineHeight: 24,
+            color: T.ink2,
+          }}
+        >
+          {t("check.sub")}
+        </Text>
 
-      <View style={{ marginTop: 18, flexDirection: "row", backgroundColor: "#E4EBE2", borderRadius: 12, padding: 4 }}>
-        {(["photo", "paste"] as Tab[]).map((tabKey) => (
-          <SoftPressable
-            key={tabKey}
-            onPress={() => setTab(tabKey)}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: tab === tabKey }}
-            scaleTo={0.98}
-            style={{
-              flex: 1,
-              alignItems: "center",
-              paddingVertical: 10,
-              borderRadius: 9,
-              backgroundColor: tab === tabKey ? "#fff" : "transparent",
-            }}
-          >
-            <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.3, color: tab === tabKey ? colors.ink : colors.mute }}>
-              {tabKey === "photo" ? t("scan.photoTab") : t("scan.pasteTab")}
-            </Text>
-          </SoftPressable>
-        ))}
-      </View>
+        <TextInput
+          value={inci}
+          onChangeText={setInci}
+          multiline
+          placeholder={t("check.placeholder")}
+          placeholderTextColor={T.ink3}
+          textAlignVertical="top"
+          autoCorrect={false}
+          autoCapitalize="none"
+          accessibilityLabel={t("check.sub")}
+          style={{
+            marginTop: 20,
+            minHeight: 150,
+            padding: 16,
+            paddingTop: 16,
+            borderRadius: 16,
+            borderWidth: 1.5,
+            borderColor: inci ? T.ink : T.line,
+            backgroundColor: T.surface,
+            fontFamily: rubik.regular,
+            fontSize: 17,
+            lineHeight: 24,
+            color: T.ink,
+            // INCI lists are Latin script: keep them left-to-right in Arabic too.
+            writingDirection: "ltr",
+            textAlign: "left",
+          }}
+        />
+        <TextInput
+          value={name}
+          onChangeText={setName}
+          placeholder={t("check.namePlaceholder")}
+          placeholderTextColor={T.ink3}
+          accessibilityLabel={t("check.nameLabel")}
+          returnKeyType="done"
+          style={{
+            marginTop: 10,
+            minHeight: 50,
+            paddingHorizontal: 16,
+            borderRadius: 14,
+            borderWidth: 1.5,
+            borderColor: T.line,
+            fontFamily: rubik.regular,
+            fontSize: 16,
+            color: T.ink,
+          }}
+        />
 
-      {tab === "photo" ? (
-        <>
-          <View style={{ marginTop: 12, backgroundColor: "#141A16", borderRadius: 16, height: 280, alignItems: "center", justifyContent: "center" }}>
-            <View style={{ position: "absolute", top: 32, left: 26, right: 26, bottom: 74, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(255,255,255,.35)", borderRadius: 10 }} />
-            <Text style={{ position: "absolute", top: "38%", paddingHorizontal: 32, textAlign: "center", fontFamily: fonts.bodySemiBold, fontSize: 14, color: "rgba(255,255,255,.9)" }}>
-              {t("scan.cameraComingSoon")}
-            </Text>
-            <Text style={{ position: "absolute", top: "48%", paddingHorizontal: 40, textAlign: "center", fontFamily: fonts.body, fontSize: 12, color: "rgba(255,255,255,.6)" }}>
-              {t("scan.tapBelowToType")}
-            </Text>
-            <Pressable
-              onPress={() => setTab("paste")}
-              accessibilityLabel={t("scan.tapBelowToType")}
-              accessibilityHint={t("scan.cameraComingSoon")}
-              style={{
-                position: "absolute",
-                bottom: 12,
-                width: 58,
-                height: 58,
-                borderRadius: 29,
-                borderWidth: 3,
-                borderColor: "rgba(255,255,255,.5)",
-                backgroundColor: "rgba(255,255,255,.12)",
-              }}
-            />
-          </View>
-          <Text style={{ marginTop: 8, textAlign: "center", fontFamily: fonts.body, fontSize: 12, color: colors.mute }}>
-            {t("scan.noCameraNeeded")}
-          </Text>
-        </>
-      ) : (
         <View style={{ marginTop: 16 }}>
-          <TextInput
-            value={inci}
-            onChangeText={setInci}
-            placeholder={t("scan.placeholder")}
-            placeholderTextColor={colors.mute}
-            multiline
-            numberOfLines={6}
-            style={{
-              backgroundColor: colors.card,
-              borderWidth: 1,
-              borderColor: colors.line,
-              borderRadius: 16,
-              padding: 16,
-              minHeight: 150,
-              fontFamily: fonts.body,
-              fontSize: 16,
-              lineHeight: 22,
-              color: colors.ink,
-              textAlignVertical: "top",
-            }}
-          />
+          <PrimaryButton label={t("check.read")} onPress={() => read()} disabled={!inci.trim()} />
+        </View>
 
-          {!inci && (
-            <Pressable onPress={() => setInci(DEMO_INCI)} style={{ marginTop: 8 }}>
-              <Text style={{ fontFamily: fonts.body, fontSize: 14, color: colors.mute, textDecorationLine: "underline" }}>
-                {t("scan.useSample")}
+        <Text
+          style={{
+            marginTop: 26,
+            fontFamily: rubik.regular,
+            fontSize: 14,
+            color: T.ink2,
+          }}
+        >
+          {t("check.tryOne")}
+        </Text>
+        <View
+          style={{
+            marginTop: 10,
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 8,
+          }}
+        >
+          {SAMPLES.map((s) => (
+            <Pressable
+              key={s.key}
+              onPress={() => read(s.inci, t(`check.${s.key}`))}
+              style={{
+                minHeight: 44,
+                paddingHorizontal: 16,
+                borderRadius: 22,
+                borderWidth: 1.5,
+                borderColor: T.line,
+                justifyContent: "center",
+              }}
+            >
+              <Text
+                style={{
+                  fontFamily: rubik.regular,
+                  fontSize: 15,
+                  color: T.ink,
+                }}
+              >
+                {t(`check.${s.key}`)}
               </Text>
             </Pressable>
-          )}
-
-          {parsedChips.length > 0 && (
-            <>
-              <Text style={{ marginTop: 14, fontFamily: fonts.mono, fontSize: 12, color: colors.mute }}>
-                {t("scan.weRead", { count: parsedChips.length })}
-              </Text>
-              <View style={{ marginTop: 8, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
-                {parsedChips.map((c, i) => (
-                  <Text
-                    key={i}
-                    style={{
-                      paddingVertical: 6,
-                      paddingHorizontal: 11,
-                      borderRadius: 8,
-                      backgroundColor: colors.card,
-                      borderWidth: 1,
-                      borderColor: colors.line,
-                      fontFamily: fonts.body,
-                      fontSize: 12.5,
-                      color: colors.ink,
-                    }}
-                  >
-                    {c}
-                  </Text>
-                ))}
-              </View>
-            </>
-          )}
-
-          <SoftPressable
-            onPress={analyse}
-            disabled={!inci.trim()}
-            style={{
-              marginTop: 14,
-              paddingVertical: 16,
-              borderRadius: 999,
-              backgroundColor: colors.ink,
-              alignItems: "center",
-              opacity: inci.trim() ? 1 : 0.4,
-            }}
-          >
-            <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 16, color: colors.bone }}>
-              {t("scan.analyse", { count: parsedChips.length })}
-            </Text>
-          </SoftPressable>
+          ))}
         </View>
-      )}
 
-      {recents.length > 0 && (
-        <View style={{ marginTop: 24 }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
-            {t("scan.recentScans")}
-          </Text>
-          <View style={{ marginTop: 9, gap: 8 }}>
-            {recents.map((r) => {
-              const risk = riskFromScore(r.score)
-              const pill = VERDICT_PILL_KEY[risk]
-              return (
+        <Text
+          style={{
+            marginTop: 20,
+            fontFamily: rubik.regular,
+            fontSize: 13,
+            lineHeight: 19,
+            color: T.ink2,
+          }}
+        >
+          {t("check.promise")}
+        </Text>
+
+        {saved.length > 0 && (
+          <View style={{ marginTop: 36 }}>
+            <SectionLabel>{t("check.savedChecks")}</SectionLabel>
+            <View style={{ marginTop: 8 }}>
+              {saved.map((s) => (
                 <Pressable
-                  key={r.id}
-                  onPress={() => {
-                    if (!r.rawIngredientText) return
-                    router.push({ pathname: "/scan-result", params: { inci: r.rawIngredientText } })
-                  }}
+                  key={s.id}
+                  disabled={!s.rawIngredientText}
+                  onPress={() =>
+                    s.rawIngredientText &&
+                    router.push({
+                      pathname: "/scan-result",
+                      params: { inci: s.rawIngredientText, name: s.title },
+                    })
+                  }
                   style={{
+                    minHeight: 64,
+                    paddingVertical: 12,
+                    borderBottomWidth: 1,
+                    borderBottomColor: T.line,
                     flexDirection: "row",
                     alignItems: "center",
-                    gap: 10,
-                    backgroundColor: colors.card,
-                    borderRadius: 12,
-                    borderWidth: 1,
-                    borderColor: colors.line,
-                    paddingVertical: 12,
-                    paddingHorizontal: 14,
+                    gap: 12,
                   }}
                 >
-                  <Text style={{ flex: 1, fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.ink }} numberOfLines={1}>
-                    {r.title}
-                  </Text>
-                  <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 11, paddingVertical: 3, paddingHorizontal: 9, borderRadius: 999, backgroundColor: pill.bg, color: pill.fg }}>
-                    {t(`scanResult.${pill.labelKey}`)}
-                  </Text>
-                  <Text style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.mute }}>{relativeDate(r.savedAt)}</Text>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                        fontFamily: rubik.medium,
+                        fontSize: 17,
+                        color: T.ink,
+                      }}
+                    >
+                      {s.title}
+                    </Text>
+                    <Text
+                      style={{
+                        marginTop: 2,
+                        fontFamily: rubik.regular,
+                        fontSize: 13,
+                        color: T.ink2,
+                      }}
+                    >
+                      {when(s.savedAt)}
+                    </Text>
+                  </View>
+                  {s.verdict ? <StateTag state={VERDICT_STATE[s.verdict]} /> : s.verdict === null ? <StateTag state="none" label={t("check.noVerdict")} /> : null}
                 </Pressable>
-              )
-            })}
+              ))}
+            </View>
           </View>
-        </View>
-      )}
-    </ScrollView>
+        )}
+      </ScrollView>
+      <StatusScrim />
+    </View>
   )
 }

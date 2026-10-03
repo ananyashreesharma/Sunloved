@@ -1,86 +1,70 @@
-// Port of frontend/components/ouma/OumaScanResultClient.tsx, guest/inci-only branch (mobile has no
-// product catalog to browse, so the productId path from the web version is dropped — every scan
-// here comes from typed/pasted ingredient text). skinLabel personalization is dropped too: the web
-// version only fetches it for signed-in users (`if (!isApp || isGuest) return`), so it's always null
-// for guests anyway — not a deviation, just the guest path with the always-false branch removed.
+// V3 label result. Flow: read the label aloud (each ingredient gets its mark as we reach it), then
+// the verdict with its key word highlighted, the block strip with the 70% line, numbered notes for
+// everything flagged or unknown, and the annotated label. Below 70% rated there is no verdict, and
+// a failed request never turns into one.
 
-import { useEffect, useState } from "react"
-import { View, Text, Pressable, ScrollView, ActivityIndicator, Animated } from "react-native"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { Pressable, ScrollView, Share, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
-import { BACK_ARROW } from "@/lib/i18n"
-import { analyzeIngredients, reportUnknownIngredient } from "@/lib/api-client"
-import { saveGuestScan } from "@/lib/guest-store"
-import { COVERAGE_THRESHOLD, EMPTY_BREAKDOWN, breakdownFromAnalyze, flaggedRows, rowsFromAnalyze, verdictFor, type IngredientBreakdown, type IngredientRow, type RowZone, type Zone } from "@skinlens/shared"
-import { TickIcon, WarningIcon } from "@/components/onboarding/icons"
-import { SoftPressable } from "@/components/shared/SoftPressable"
+import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated"
+import { annotateLabel, countryByCode, COVERAGE_THRESHOLD, type AnnotatedLabel, type LabelItem, type Zone } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
+import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api-client"
+import { loadGuestData, saveGuestScan } from "@/lib/guest-store"
+import { BACK_ARROW, localDigits } from "@/lib/i18n"
+import { useReduceMotion, useTheme } from "@/lib/theme"
+import { Highlight } from "@/components/shared/Highlight"
+import { BlockStrip, IngredientSheet, LabelWords, NumBadge, OutlineButton, PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
+import { splitLabel } from "@/components/scan/ScanConfirmScreen"
 
-const STRIP_HEX: Record<RowZone, string> = { RED: colors.zone.red.fg, YELLOW: colors.zone.yellow.fg, GREEN: colors.zone.green.fg, NONE: colors.zone.none }
+type Phase = "reading" | "result" | "offline" | "error"
+type Profile = { skinType: string | null; concerns: string[]; country: string | null }
+
+const VERDICT_KEYS: Record<Zone, { pre: string; key: string; post: string; mark: "hiFine" | "hiCaution" | "hiAvoid" }> = {
+  GREEN: { pre: "vFinePre", key: "vFineKey", post: "vFinePost", mark: "hiFine" },
+  YELLOW: { pre: "vCautionPre", key: "vCautionKey", post: "vCautionPost", mark: "hiCaution" },
+  RED: { pre: "vAvoidPre", key: "vAvoidKey", post: "vAvoidPost", mark: "hiAvoid" },
+}
+/** Labels longer than this open on the flagged ingredients, with the full label one tap away. */
+const LONG_LABEL = 15
 
 export function ScanResultScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const insets = useSafeAreaInsets()
-  const params = useLocalSearchParams<{ inci?: string }>()
+  const { T } = useTheme()
+  const reduce = useReduceMotion()
+  const params = useLocalSearchParams<{ inci?: string; name?: string }>()
   const inci = (params.inci ?? "").trim()
+  const name = (params.name ?? "").trim()
 
-  const VERDICTS: Record<Zone, { hex: string; soft: string; caps: string }> = {
-    RED: { hex: colors.zone.red.fg, soft: colors.zone.red.soft, caps: t("scanResult.verdictAvoidCaps") },
-    YELLOW: { hex: colors.zone.yellow.fg, soft: colors.zone.yellow.soft, caps: t("scanResult.verdictCautionCaps") },
-    GREEN: { hex: colors.zone.green.fg, soft: colors.zone.green.soft, caps: t("scanResult.verdictFineCaps") },
-  }
-
-  function buildInShort(leadName: string | undefined, flagged: IngredientRow[], verdictKey: Zone): string {
-    const lead = leadName ? t("scanResult.leadWithName", { name: leadName.toLowerCase() }) : t("scanResult.leadGeneric")
-    if (flagged.length === 0) return t("scanResult.inShortNoFlags", { lead })
-    const top = flagged[0]
-    const advice = verdictKey === "RED" ? t("scanResult.adviceAvoid") : t("scanResult.adviceTry")
-    return t("scanResult.inShortFlagged", { lead, name: top.name, note: top.note, advice })
-  }
-
-  const [phase, setPhase] = useState<"analyzing" | "reveal">("analyzing")
-  const [err, setErr] = useState<string | null>(null)
-  const [bd, setBd] = useState<IngredientBreakdown>(EMPTY_BREAKDOWN)
-  const [rows, setRows] = useState<IngredientRow[]>([])
-  const [parsedCount, setParsedCount] = useState(0)
-  const [reported, setReported] = useState<Set<string>>(new Set())
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle")
+  const [phase, setPhase] = useState<Phase>("reading")
+  const [label, setLabel] = useState<AnnotatedLabel | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [readIdx, setReadIdx] = useState(0)
   const [attempt, setAttempt] = useState(0)
-  const spin = useState(() => new Animated.Value(0))[0]
+  const [sheet, setSheet] = useState<LabelItem | null>(null)
+  const [view, setView] = useState<"flagged" | "full">("flagged")
+  const [saved, setSaved] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
+  const skipRef = useRef(false)
 
+  // Fetch, then annotate for this person's skin.
   useEffect(() => {
-    Animated.loop(Animated.timing(spin, { toValue: 1, duration: 1400, useNativeDriver: true })).start()
-  }, [spin])
-
-  useEffect(() => {
-    if (!inci) {
-      setTimeout(() => setPhase("reveal"), 1100)
-      return
-    }
     let cancelled = false
-    setPhase("analyzing")
-    setErr(null)
+    setPhase("reading")
+    setLabel(null)
+    setReadIdx(0)
     ;(async () => {
+      const g = await loadGuestData()
+      const p = { skinType: g.skinType ?? null, concerns: g.concerns ?? [], country: g.country ?? null }
+      if (!cancelled) setProfile(p)
       try {
         const api = await analyzeIngredients(inci)
-        if (cancelled) return
-        const b = breakdownFromAnalyze(api)
-        setBd(b)
-        setParsedCount(api.parsed.length)
-        setRows(rowsFromAnalyze(api))
-        setTimeout(() => setPhase("reveal"), 600)
+        if (!cancelled) setLabel(annotateLabel(api, p))
       } catch (e) {
-        // phase still needs to leave "analyzing" here, same as the success path — the render's
-        // `if (err)` branch (checked right after the analyzing-spinner branch) is what keeps this
-        // from falling through to the verdict card: bd's default {score: 0, ...} scores as HIGH
-        // RISK (see riskFromScore), so reaching the verdict card here would show a fabricated
-        // "AVOID FOR YOU" verdict on a plain network failure — worse than no verdict at all.
-        if (!cancelled) {
-          setErr(e instanceof Error ? e.message : "Analysis failed.")
-          setTimeout(() => setPhase("reveal"), 300)
-        }
+        if (!cancelled) setPhase(e instanceof ApiError ? "error" : "offline")
       }
     })()
     return () => {
@@ -88,333 +72,308 @@ export function ScanResultScreen() {
     }
   }, [inci, attempt])
 
-  function retry() {
-    setAttempt((a) => a + 1)
+  // Read the label one ingredient at a time (at most 1.6 s in all), then show the result.
+  useEffect(() => {
+    if (!label || phase !== "reading") return
+    if (reduce || skipRef.current) {
+      setPhase("result")
+      return
+    }
+    const N = label.items.length
+    const step = Math.max(40, Math.min(120, 1600 / Math.max(N, 1)))
+    let i = 0
+    const timer = setInterval(() => {
+      i += 1
+      setReadIdx(i)
+      if (i >= N) {
+        clearInterval(timer)
+        setTimeout(() => setPhase("result"), 350)
+      }
+    }, step)
+    return () => clearInterval(timer)
+  }, [label, phase, reduce])
+
+  useEffect(() => {
+    if (!toast) return
+    const id = setTimeout(() => setToast(null), 2400)
+    return () => clearTimeout(id)
+  }, [toast])
+
+  const title = name || t("check.yourLabel")
+  const placeholderItems = useMemo<LabelItem[]>(() => splitLabel(inci).map((n) => ({ name: n, state: "fine", line: "" })), [inci])
+
+  const profLine = useMemo(() => {
+    if (!profile) return ""
+    const parts = [
+      countryByCode(profile.country)?.name,
+      profile.skinType ? t("check.skinOf", { type: t(`onboarding.skinTypes.${profile.skinType}`).toLowerCase() }) : null,
+      profile.concerns.map((c) => t(`onboarding.concerns.${c}`).toLowerCase()).join(", ") || null,
+    ].filter(Boolean)
+    return parts.length ? t("check.basedOn") + parts.join(" · ") : ""
+  }, [profile, t])
+
+  const num = (n: number) => localDigits(String(n), i18n.language)
+
+  function verdictText(v: Zone) {
+    const k = VERDICT_KEYS[v]
+    return `${t(`check.${k.pre}`)}${t(`check.${k.key}`)}${t(`check.${k.post}`)}`
   }
 
-  // null = nothing we can responsibly judge (too little read, or nothing analysed at all).
-  const verdictKey = verdictFor(bd)
-  // Derived from the rows so every unrated ingredient is counted as unread and listed under "No info".
-  const unknownNames = rows.filter((r) => r.zone === "NONE").map((r) => r.name)
-  const readCount = rows.length - unknownNames.length
-
-  if (phase === "analyzing") {
-    const rotate = spin.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "360deg"] })
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.ink, alignItems: "center", justifyContent: "center", padding: 40 }}>
-        <Animated.View
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: 36,
-            borderWidth: 3,
-            borderColor: "rgba(243,245,239,0.2)",
-            borderTopColor: colors.bone,
-            transform: [{ rotate }],
-          }}
-        />
-        <Text style={{ marginTop: 30, fontFamily: fonts.display, fontSize: 24, fontStyle: "italic", color: colors.bone, textAlign: "center" }}>
-          {t("scanResult.analyzing")}
-        </Text>
-      </View>
-    )
-  }
-
-  // ── Analysis failed (offline, server error, timeout) ──
-  // Renders instead of the verdict card, not alongside it — a zeroed breakdown scores HIGH RISK,
-  // so falling through to "reveal" here would show a scary, fabricated "AVOID FOR YOU" verdict for
-  // what's actually just a failed network call.
-  if (err) {
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.bone }}>
-        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: insets.top + 8, flexGrow: 1 }}>
-          <Pressable onPress={() => router.back()}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backScan")}</Text>
-          </Pressable>
-          <Text style={{ marginTop: 12, fontFamily: fonts.display, fontSize: 26, lineHeight: 29, textTransform: "uppercase", color: colors.ink }}>
-            {t("scanResult.couldntAnalyse")}
-          </Text>
-          <View style={{ marginTop: 16, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.line, padding: 18 }}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: "#2A342C" }}>{t("scanResult.couldntAnalyseBody")}</Text>
-            <Text style={{ marginTop: 10, fontFamily: fonts.mono, fontSize: 11.5, color: colors.mute }}>{err}</Text>
-          </View>
-          <View style={{ marginTop: "auto", paddingTop: 18, flexDirection: "row", gap: 10 }}>
-            <SoftPressable
-              onPress={() => router.back()}
-              style={{ flex: 1, borderWidth: 1.5, borderColor: "rgba(23,33,26,.2)", borderRadius: 12, paddingVertical: 15, alignItems: "center" }}
-            >
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: "#2A342C" }}>{t("scanResult.back")}</Text>
-            </SoftPressable>
-            <SoftPressable
-              onPress={retry}
-              style={{ flex: 1.4, backgroundColor: colors.accent, borderRadius: 12, paddingVertical: 15, alignItems: "center" }}
-            >
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: "#fff" }}>{t("scanResult.tryAgain")}</Text>
-            </SoftPressable>
-          </View>
-        </ScrollView>
-      </View>
-    )
-  }
-
-  // ── Coverage refusal ──
-  if (!verdictKey) {
-    const totalCount = parsedCount || rows.length
-    const pct = Math.round(bd.coverage * 100)
-    const swatchCount = Math.max(totalCount, 10)
-    return (
-      <View style={{ flex: 1, backgroundColor: colors.bone }}>
-        <ScrollView contentContainerStyle={{ padding: 20, paddingTop: insets.top + 8, flexGrow: 1 }}>
-          <Pressable onPress={() => router.back()}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backScan")}</Text>
-          </Pressable>
-          <Text style={{ marginTop: 12, fontFamily: fonts.display, fontSize: 26, lineHeight: 29, textTransform: "uppercase", color: colors.ink }}>
-            {t("scanResult.cantJudgeYet")}
-          </Text>
-
-          <View style={{ marginTop: 16, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.line, padding: 18 }}>
-            <View style={{ flexDirection: "row", gap: 2, height: 26, borderRadius: 6, overflow: "hidden" }}>
-              {Array.from({ length: swatchCount }).map((_, i) => (
-                <View key={i} style={{ flex: 1, backgroundColor: i < readCount ? colors.mute : "#E4EBE2" }} />
-              ))}
-            </View>
-            <Text style={{ marginTop: 10, fontFamily: fonts.mono, fontSize: 13, color: colors.ink }}>
-              {t("scanResult.readPct", { read: readCount, total: totalCount || "?", pct })}
-            </Text>
-            <Text style={{ marginTop: 10, fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: "#2A342C" }}>
-              {t("scanResult.coverageBody", { read: readCount, total: totalCount || t("scanResult.unknownCount") })}
-            </Text>
-          </View>
-
-          <Text style={{ marginTop: 12, fontFamily: fonts.body, fontSize: 12.5, lineHeight: 18, color: colors.mute }}>
-            {t("scanResult.coverageFootnote", { pct: Math.round(COVERAGE_THRESHOLD * 100) })}
-          </Text>
-
-          <View style={{ marginTop: "auto", paddingTop: 18, flexDirection: "row", gap: 10 }}>
-            <SoftPressable
-              onPress={() => router.back()}
-              style={{ flex: 1, borderWidth: 1.5, borderStyle: "dashed", borderColor: "rgba(23,33,26,.3)", borderRadius: 12, paddingVertical: 15, alignItems: "center" }}
-            >
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: "#2A342C" }}>{t("scanResult.retakePhoto")}</Text>
-            </SoftPressable>
-            <SoftPressable
-              onPress={() => router.replace({ pathname: "/scan-confirm", params: { inci } })}
-              style={{ flex: 1.4, backgroundColor: colors.accent, borderRadius: 12, paddingVertical: 15, alignItems: "center" }}
-            >
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: "#fff" }}>{t("scanResult.typeInstead")}</Text>
-            </SoftPressable>
-          </View>
-        </ScrollView>
-      </View>
-    )
-  }
-
-  // ── Reveal ──
-  const verdict = VERDICTS[verdictKey]
-  const totalIngredients = parsedCount || rows.length
-  const readIngredients = readCount || rows.length
-  const flagged = flaggedRows(rows)
-  const fineRows = rows.filter((r) => r.zone === "GREEN")
-  const inShortText = buildInShort(rows[0]?.name, flagged, verdictKey)
-
-  async function saveScan() {
-    setSaveState("saving")
+  async function save() {
+    if (!label || saved) return
     await saveGuestScan({
-      title: t("scanResult.ingredientAnalysis"),
-      brand: t("scanResult.fromIngredientList"),
-      flagCount: bd.high + bd.med,
-      coverage: bd.coverage,
-      score: bd.score,
+      title,
+      brand: "",
+      flagCount: label.flagged.length,
+      coverage: label.coverage,
+      score: label.score,
       rawIngredientText: inci,
+      verdict: label.verdict,
     })
-    setSaveState("saved")
+    setSaved(true)
+    setToast(t("check.toastSaved"))
   }
 
-  return (
-    <View style={{ flex: 1, backgroundColor: colors.bone }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: insets.top + 8, paddingBottom: 100 }}>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-          <Pressable onPress={() => router.back()}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backScan")}</Text>
+  function share() {
+    if (!label) return
+    const verdict = label.verdict ? verdictText(label.verdict) : t("check.noVerdict") + "."
+    Share.share({ message: t("check.shareText", { verdict, name: title }) }).catch(() => {})
+  }
+
+  async function reportMissing() {
+    if (!label) return
+    await Promise.all(label.noData.map((it) => reportUnknownIngredient(it.name, title).catch(() => {})))
+    setToast(t("check.reportedThanks"))
+  }
+
+  const topBar = (
+    <View style={{ flexDirection: "row", alignItems: "center", minHeight: 52, marginHorizontal: -12 }}>
+      <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("check.back")} style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ fontFamily: rubik.regular, fontSize: 24, color: T.ink }}>{BACK_ARROW}</Text>
+      </Pressable>
+      <Text numberOfLines={1} style={{ flex: 1, textAlign: "center", fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>
+        {phase === "result" ? title : ""}
+      </Text>
+      <Pressable
+        onPress={share}
+        disabled={phase !== "result"}
+        style={{ minHeight: 44, minWidth: 44, paddingHorizontal: 12, justifyContent: "center", opacity: phase === "result" ? 1 : 0 }}
+      >
+        <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink }}>{t("check.share")}</Text>
+      </Pressable>
+    </View>
+  )
+
+  // ── Reading the label ──
+  if (phase === "reading") {
+    const items = label?.items ?? placeholderItems
+    return (
+      <View style={{ flex: 1, backgroundColor: T.bg }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 4, paddingBottom: 24 }}>
+          {topBar}
+          <Text accessibilityRole="header" accessibilityLiveRegion="polite" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: 40, lineHeight: 46, letterSpacing: -1.6, color: T.ink }}>
+            {t("check.reading")}
+          </Text>
+          <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>
+            {t("check.readOf", { a: num(Math.min(readIdx, items.length)), b: num(items.length) })}
+          </Text>
+          <View style={{ marginTop: 22 }}>
+            <LabelWords items={items} numbered={false} marked={(i) => !!label && i < readIdx} current={label ? readIdx : 0} />
+          </View>
+        </ScrollView>
+        <StatusScrim />
+        <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 12 }}>
+          <Pressable
+            onPress={() => {
+              skipRef.current = true
+              if (label) setPhase("result")
+            }}
+            style={{ minHeight: 48, alignItems: "center", justifyContent: "center" }}
+          >
+            <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink, textDecorationLine: "underline" }}>{t("check.showNow")}</Text>
           </Pressable>
         </View>
+      </View>
+    )
+  }
 
-        <Text style={{ marginTop: 12, fontFamily: fonts.mono, fontSize: 13, color: colors.mute }}>{t("scanResult.fromIngredientList")}</Text>
-        <Text style={{ marginTop: 2, fontFamily: fonts.display, fontSize: 26, lineHeight: 29, textTransform: "uppercase", color: colors.ink }}>
-          {t("scanResult.ingredientAnalysis")}
+  // ── Offline / failed: never a verdict ──
+  if (phase === "offline" || phase === "error" || !label) {
+    const off = phase === "offline"
+    return (
+      <View style={{ flex: 1, backgroundColor: T.bg, paddingHorizontal: 24, paddingTop: insets.top + 4 }}>
+        {topBar}
+        <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: 40, lineHeight: 46, letterSpacing: -1.6, color: T.ink }}>
+          {off ? t("check.offT") : t("check.errT")}
         </Text>
-
-        {/* Verdict card */}
-        <View style={{ marginTop: 16, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.line, padding: 18 }}>
-          <View style={{ alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, backgroundColor: verdict.soft }}>
-            {verdictKey === "GREEN" ? <TickIcon size={13} color={verdict.hex} /> : <WarningIcon size={13} color={verdict.hex} />}
-            <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 12, letterSpacing: 0.7, color: verdict.hex }}>{verdict.caps}</Text>
-          </View>
-
-          <View style={{ marginTop: 16, flexDirection: "row", gap: 2, height: 26, borderRadius: 6, overflow: "hidden" }}>
-            {(rows.length > 0 ? rows : Array.from({ length: Math.max(totalIngredients, 1) })).map((r, i) => (
-              <View
-                key={i}
-                style={{ flex: 1, backgroundColor: r ? STRIP_HEX[(r as IngredientRow).zone] : "#E4EBE2" }}
-              />
-            ))}
-          </View>
-          <View style={{ marginTop: 8, flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 11.5, color: colors.mute }}>{t("scanResult.labelOrder")}</Text>
-            <Text style={{ fontFamily: fonts.mono, fontSize: 11.5, color: colors.ink }}>
-              {t("scanResult.readOfTotal", { read: readIngredients, total: totalIngredients })}
-            </Text>
-          </View>
-          <View style={{ marginTop: 12, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-            {[
-              { label: t("scanResult.legendFine"), c: STRIP_HEX.GREEN },
-              { label: t("scanResult.legendCaution"), c: STRIP_HEX.YELLOW },
-              { label: t("scanResult.legendAvoid"), c: STRIP_HEX.RED },
-              { label: t("scanResult.legendNoInfo"), c: STRIP_HEX.NONE },
-            ].map((l) => (
-              <View key={l.label} style={{ flexDirection: "row", alignItems: "center", gap: 4 }}>
-                <View style={{ width: 9, height: 9, borderRadius: 2, backgroundColor: l.c }} />
-                <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.mute }}>{l.label}</Text>
-              </View>
-            ))}
-          </View>
+        <Text style={{ marginTop: 12, fontFamily: rubik.regular, fontSize: 18, lineHeight: 26, color: T.ink }}>{off ? t("check.offBody") : t("check.errBody")}</Text>
+        {off && <Text style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("check.offRoutine")}</Text>}
+        <View style={{ marginTop: 24 }}>
+          <PrimaryButton label={t("check.tryAgain")} onPress={() => setAttempt((a) => a + 1)} />
         </View>
+      </View>
+    )
+  }
 
-        {/* In short */}
-        <View style={{ marginTop: 12, backgroundColor: colors.card, borderRadius: 16, borderWidth: 1, borderColor: colors.line, padding: 18 }}>
-          <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
-            {t("scanResult.inShort")}
-          </Text>
-          <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 14.5, lineHeight: 21, color: "#2A342C" }}>{inShortText}</Text>
-        </View>
-
-        {/* Flagged for you */}
-        {flagged.length > 0 && (
-          <>
-            <Text style={{ marginTop: 16, fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
-              {t("scanResult.flaggedForYou")}
-            </Text>
-            <View style={{ marginTop: 8, gap: 8 }}>
-              {flagged.map((r) => {
-                const pos = rows.indexOf(r) + 1
-                const pillBg = r.zone === "RED" ? colors.zone.red.soft : colors.zone.yellow.soft
-                const pillFg = r.zone === "RED" ? colors.zone.red.fg : colors.zone.yellow.fg
-                return (
-                  <View key={r.name} style={{ backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line, padding: 14 }}>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-                      <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 14.5, color: colors.ink }}>{r.name}</Text>
-                      <Text style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.mute }}>#{pos}</Text>
-                      <Text style={{ marginLeft: "auto", fontFamily: fonts.bodySemiBold, fontSize: 11, paddingVertical: 3, paddingHorizontal: 9, borderRadius: 999, backgroundColor: pillBg, color: pillFg }}>
-                        {r.zone === "RED" ? t("scanResult.legendAvoid") : t("scanResult.legendCaution")}
-                      </Text>
-                    </View>
-                    <Text style={{ marginTop: 5, fontFamily: fonts.body, fontSize: 13, color: "#2A342C" }}>{r.note}</Text>
-                  </View>
-                )
-              })}
-            </View>
-          </>
-        )}
-
-        {/* Everything else */}
-        {fineRows.length > 0 && (
-          <>
-            <Text style={{ marginTop: 16, fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
-              {t("scanResult.everythingElse")}
-            </Text>
-            <View style={{ marginTop: 8, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line }}>
-              {fineRows.map((r, i) => {
-                const pos = rows.indexOf(r) + 1
-                return (
-                  <View
-                    key={r.name}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "baseline",
-                      gap: 8,
-                      padding: 14,
-                      borderBottomWidth: i < fineRows.length - 1 ? 1 : 0,
-                      borderBottomColor: colors.line,
-                    }}
-                  >
-                    <Text style={{ fontFamily: fonts.bodyMedium, fontSize: 14, color: colors.ink }}>{r.name}</Text>
-                    <Text style={{ fontFamily: fonts.mono, fontSize: 11, color: colors.mute }}>#{pos}</Text>
-                    <Text style={{ marginLeft: "auto", fontFamily: fonts.body, fontSize: 12, color: colors.mute, textAlign: "right" }}>{r.note}</Text>
-                  </View>
-                )
-              })}
-            </View>
-          </>
-        )}
-
-        {/* No info */}
-        {unknownNames.length > 0 && (
-          <View style={{ marginTop: 16 }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 13, letterSpacing: 1.1, textTransform: "uppercase", color: colors.mute }}>
-              {t("scanResult.noInfo", { count: unknownNames.length })}
-            </Text>
-            <View style={{ marginTop: 8, backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line }}>
-              {unknownNames.map((name, i) => (
-                <View
-                  key={name}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 8,
-                    padding: 14,
-                    borderBottomWidth: i < unknownNames.length - 1 ? 1 : 0,
-                    borderBottomColor: colors.line,
-                  }}
-                >
-                  <Text style={{ fontFamily: fonts.body, fontSize: 14, color: colors.mute }}>{name}</Text>
-                  <Pressable
-                    disabled={reported.has(name)}
-                    onPress={() => {
-                      reportUnknownIngredient(name, "Ingredient analysis").catch(() => {})
-                      setReported((prev) => new Set(prev).add(name))
-                    }}
-                    style={{ marginLeft: "auto" }}
-                  >
-                    <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 12, color: reported.has(name) ? colors.mute : colors.accent }}>
-                      {reported.has(name) ? t("scanResult.reported") : t("scanResult.report")}
-                    </Text>
-                  </Pressable>
-                </View>
-              ))}
-            </View>
-            <Text style={{ marginTop: 8, fontFamily: fonts.body, fontSize: 12, color: colors.mute }}>{t("scanResult.notInDatabase")}</Text>
-          </View>
-        )}
-      </ScrollView>
-
-      <View
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          paddingHorizontal: 20,
-          paddingTop: 12,
-          paddingBottom: insets.bottom + 16,
-          backgroundColor: "rgba(243,245,239,.97)",
-          borderTopWidth: 1,
-          borderTopColor: colors.line,
-        }}
-      >
-        <SoftPressable
-          onPress={saveScan}
-          disabled={saveState !== "idle"}
-          style={{ borderWidth: 1.5, borderColor: colors.accent, borderRadius: 12, paddingVertical: 15, alignItems: "center" }}
-        >
-          {saveState === "saving" ? (
-            <ActivityIndicator color={colors.accent} />
-          ) : (
-            <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.accent }}>
-              {saveState === "saved" ? t("scanResult.saved") : t("scanResult.saveScan")}
-            </Text>
-          )}
-        </SoftPressable>
+  const enter = (ms: number, delay: number) => (reduce ? FadeIn.duration(160) : FadeInUp.duration(ms).delay(delay))
+  const ratedLine = t("check.rated", { a: num(label.rated), b: num(label.total) }) + (label.noData.length ? " · " + t("check.noInfoN", { count: label.noData.length }) : "")
+  const strip = (
+    <View style={{ marginTop: 24 }}>
+      <BlockStrip items={label.items} baseDelay={reduce ? 0 : 300} />
+      <View style={{ marginTop: 10, flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+        <Text style={{ fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{ratedLine}</Text>
+        <Text style={{ fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("check.needed")}</Text>
       </View>
     </View>
+  )
+
+  // ── Can't judge: too little rated ──
+  if (!label.verdict) {
+    return (
+      <View style={{ flex: 1, backgroundColor: T.bg }}>
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 4, paddingBottom: insets.bottom + 32 }}>
+          {topBar}
+          {profLine ? <Text style={{ marginTop: 8, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{profLine}</Text> : null}
+          <Animated.View entering={enter(460, 60)} style={{ marginTop: 14 }}>
+            <SectionLabel>{t("check.noVerdict")}</SectionLabel>
+            <Text style={{ marginTop: 8, fontFamily: rubik.semibold, fontSize: 36, lineHeight: 40, letterSpacing: -1.4, color: T.ink }}>{t("check.cantT")}</Text>
+            <Text style={{ marginTop: 12, fontFamily: rubik.regular, fontSize: 18, lineHeight: 27, color: T.ink }}>
+              {t("check.cantBody", { a: num(label.rated), b: num(label.total), c: num(Math.ceil(COVERAGE_THRESHOLD * label.total)) })}
+            </Text>
+          </Animated.View>
+          {strip}
+          <View style={{ marginTop: 28, marginBottom: 6 }}>
+            <SectionLabel>{t("check.whatRead")}</SectionLabel>
+          </View>
+          <LabelWords items={label.items} onPress={setSheet} delayFor={(i) => (reduce ? 0 : 500 + Math.min(i, 14) * 60)} />
+          <View style={{ marginTop: 24, gap: 10 }}>
+            <PrimaryButton label={t("check.fixList")} onPress={() => router.replace({ pathname: "/scan-confirm", params: { inci, name } })} />
+            {label.noData.length > 0 && <OutlineButton label={t("check.reportMissing")} onPress={reportMissing} />}
+          </View>
+        </ScrollView>
+        <StatusScrim />
+        <IngredientSheet item={sheet} onClose={() => setSheet(null)} />
+        <Toast text={toast} bottom={insets.bottom + 16} />
+      </View>
+    )
+  }
+
+  // ── Verdict ──
+  const vk = VERDICT_KEYS[label.verdict]
+  const notes = [...label.flagged, ...label.noData]
+  const long = label.total > LONG_LABEL
+  const flaggedView = long && view === "flagged"
+  const shown = flaggedView ? label.items.filter((i) => i.num) : label.items
+  const pre = t(`check.${vk.pre}`).trim()
+  const post = t(`check.${vk.post}`)
+  const headStyle = { fontFamily: rubik.semibold, fontSize: 52, lineHeight: 58, letterSpacing: -2.4, color: T.ink }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 4, paddingBottom: insets.bottom + 32 }}>
+        {topBar}
+        {profLine ? (
+          <Animated.Text entering={reduce ? FadeIn.duration(160) : FadeIn.duration(300)} style={{ marginTop: 8, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>
+            {profLine}
+          </Animated.Text>
+        ) : null}
+
+        <Animated.View
+          entering={enter(460, 60)}
+          accessible
+          accessibilityRole="header"
+          accessibilityLabel={verdictText(label.verdict)}
+          style={{ marginTop: 12, flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end" }}
+        >
+          {pre ? <Text style={[headStyle, { marginRight: 14 }]}>{pre}</Text> : null}
+          <Highlight on color={T[vk.mark]} thickness={0.42} position={0.86} delay={reduce ? 0 : 500} duration={480} style={headStyle}>
+            {t(`check.${vk.key}`)}
+          </Highlight>
+          {post ? <Text style={headStyle}>{post}</Text> : null}
+        </Animated.View>
+
+        {label.summary ? (
+          <Animated.Text entering={reduce ? FadeIn.duration(160) : FadeIn.duration(320).delay(380)} style={{ marginTop: 16, fontFamily: rubik.regular, fontSize: 19, lineHeight: 28, color: T.ink }}>
+            {label.summary}
+          </Animated.Text>
+        ) : null}
+
+        {strip}
+
+        <View style={{ marginTop: 30, marginBottom: 4 }}>
+          <SectionLabel>{t("check.flaggedT")}</SectionLabel>
+        </View>
+        {label.flagged.length === 0 && <Text style={{ paddingVertical: 8, fontFamily: rubik.regular, fontSize: 17, color: T.ink }}>{t("check.nothingFlagged")}</Text>}
+        {notes.map((it, i) => (
+          <Animated.View key={`${it.name}-${i}`} entering={enter(300, 900 + i * 70)}>
+            <Pressable
+              onPress={() => setSheet(it)}
+              style={{ flexDirection: "row", gap: 12, alignItems: "flex-start", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: T.line }}
+            >
+              {it.num ? <NumBadge n={it.num} /> : null}
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 8 }}>
+                  <Text style={{ fontFamily: rubik.semibold, fontSize: 17, color: T.ink, writingDirection: "ltr" }}>{it.name}</Text>
+                  <StateTag state={it.state} />
+                </View>
+                <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink2 }}>{it.line}</Text>
+              </View>
+            </Pressable>
+          </Animated.View>
+        ))}
+
+        <View style={{ marginTop: 30, marginBottom: 6, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+          <SectionLabel>{t("check.theLabel")}</SectionLabel>
+          {long && (
+            <View style={{ flexDirection: "row", gap: 4, padding: 3, borderRadius: 16, backgroundColor: T.line, flexGrow: 1, maxWidth: 240 }}>
+              {(["flagged", "full"] as const).map((v) => {
+                const on = view === v
+                return (
+                  <Pressable
+                    key={v}
+                    onPress={() => setView(v)}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: on }}
+                    style={{ flex: 1, minHeight: 40, borderRadius: 13, alignItems: "center", justifyContent: "center", backgroundColor: on ? T.bg : "transparent" }}
+                  >
+                    <Text style={{ fontFamily: on ? rubik.semibold : rubik.regular, fontSize: 14, color: T.ink }}>{v === "flagged" ? t("check.flaggedOnly") : t("check.fullLabel")}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+          )}
+        </View>
+        <LabelWords
+          key={view}
+          items={shown}
+          onPress={setSheet}
+          delayFor={(i) => (reduce ? 0 : 500 + Math.min(i, 14) * 60)}
+          trailing={flaggedView ? t("check.moreFine", { count: label.items.filter((i) => !i.num).length }) : undefined}
+        />
+
+        <View style={{ marginTop: 22, flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
+          <OutlineButton flex label={saved ? t("check.saved") : t("check.save")} onPress={save} />
+          {label.verdict !== "RED" && <OutlineButton flex label={t("check.addRoutine")} onPress={() => router.push({ pathname: "/add-step", params: name ? { name } : {} })} />}
+        </View>
+      </ScrollView>
+      <StatusScrim />
+      <IngredientSheet item={sheet} onClose={() => setSheet(null)} />
+      <Toast text={toast} bottom={insets.bottom + 16} />
+    </View>
+  )
+}
+
+function Toast({ text, bottom }: { text: string | null; bottom: number }) {
+  const { T } = useTheme()
+  if (!text) return null
+  return (
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+      accessibilityLiveRegion="polite"
+      style={{ position: "absolute", left: 24, right: 24, bottom, padding: 14, borderRadius: 14, backgroundColor: T.btn }}
+    >
+      <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.btnInk, textAlign: "center" }}>{text}</Text>
+    </Animated.View>
   )
 }

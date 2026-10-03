@@ -15,7 +15,7 @@ export type LabelItem = {
   line: string
   /** One-line explanation in general, when it differs from `line` (e.g. "not for you" items). */
   general?: string
-  /** Footnote number for flagged and no-information items, in label order. */
+  /** Footnote number for flagged and no-information items, in the order the notes list them. */
   num?: number
 }
 
@@ -27,6 +27,8 @@ export type AnnotatedLabel = {
   rated: number
   total: number
   coverage: number
+  /** 0–100, same scale as everywhere else (saved checks keep it). */
+  score: number
   /** null = "We can't judge this one yet". */
   verdict: Zone | null
   summary: string
@@ -44,17 +46,16 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
   const unknown = new Set(api.unknownIngredients.map(norm))
   const order = api.parsed.length ? api.parsed : [...api.foundIngredients.map((f) => f.name), ...api.unknownIngredients]
 
-  let n = 0
   const items: LabelItem[] = order.map((raw) => {
     const f = found.get(norm(raw))
-    if (!f || unknown.has(norm(raw))) return { name: raw, state: "none", line: NO_DATA_LINE, num: ++n }
+    if (!f || unknown.has(norm(raw))) return { name: raw, state: "none", line: NO_DATA_LINE, num: 0 }
     const general = f.shortDescription || f.function || NOTE_IN_REFERENCE
     const zone = zoneOf(f)
-    if (zone === "NONE") return { name: f.name, state: "none", line: NO_DATA_LINE, num: ++n }
-    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: ++n }
+    if (zone === "NONE") return { name: f.name, state: "none", line: NO_DATA_LINE, num: 0 }
+    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0 }
     const personal = personalFlag(f.name, profile)
-    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: ++n }
-    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: ++n }
+    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0 }
+    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0 }
     return { name: f.name, state: "fine", line: general }
   })
 
@@ -70,8 +71,11 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
   const flagged = items.filter((i) => i.state === "avoid" || i.state === "nfy" || i.state === "caution").sort((a, b) => SEVERITY[a.state] - SEVERITY[b.state])
   const noData = items.filter((i) => i.state === "none")
   const rated = items.length - noData.length
+  // Footnotes follow the order the notes are read in (worst first, then no information), so the
+  // list counts 1, 2, 3; the marks on the label point back to the same numbers.
+  ;[...flagged, ...noData].forEach((it, i) => (it.num = i + 1))
 
-  return { items, flagged, noData, rated, total: items.length, coverage: bd.coverage, verdict, summary: summarize(verdict, flagged, noData, items) }
+  return { items, flagged, noData, rated, total: items.length, coverage: bd.coverage, score: bd.score, verdict, summary: summarize(verdict, flagged, noData, items) }
 }
 
 /**
