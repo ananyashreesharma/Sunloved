@@ -11,6 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 import type { GuestStep, MeResponse, RoutineResponse } from "@skinlens/shared"
 import { api } from "./api-client"
 import { clearTokens, getRefreshToken, setTokens } from "./auth-tokens"
+import { track } from "./analytics"
 import { getGuestScans, loadGuestData, updateGuestData } from "./guest-store"
 
 type State = { signedIn: boolean; email: string | null; ready: boolean }
@@ -54,9 +55,10 @@ export async function initAccount(): Promise<void> {
 const SYNCED_SCANS_KEY = "skinlens_synced_scan_ids"
 
 /** After a successful email code: store the session and move this phone's data into the account. */
-export async function completeSignIn(accessToken: string, refreshToken: string): Promise<void> {
+export async function completeSignIn(accessToken: string, refreshToken: string, isNew = false): Promise<void> {
   await setTokens(accessToken, refreshToken)
   set({ signedIn: true })
+  if (isNew) track("account_created")
   const me = await api.get<MeResponse>("/auth/me")
   set({ email: me.email })
   const g = await loadGuestData()

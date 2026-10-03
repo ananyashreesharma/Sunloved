@@ -21,6 +21,7 @@ import {
 } from "@skinlens/shared"
 import { analyzeIngredients, completeOnboarding, getMe } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
+import { initAnalytics, track } from "@/lib/analytics"
 import { loadGuestData, saveGuestScan, updateGuestData } from "@/lib/guest-store"
 import { SiteFooter, SiteHeader } from "./SiteChrome"
 import { countryLabel, ProfileEditor, ProfileSentence, type Profile } from "./Profile"
@@ -113,6 +114,7 @@ export function Checker() {
 
   // Profile from this browser; the first visit opens on a sample so the page shows what it does.
   useEffect(() => {
+    initAnalytics()
     const g = loadGuestData()
     const p = { country: g.country ?? guessCountry(navigator.language), skinType: g.skinType, concerns: g.concerns }
     setProfile(p)
@@ -134,6 +136,8 @@ export function Checker() {
       const api = await analyzeIngredients(inci)
       if (id !== runs.current) return
       const done = { kind: "done" as const, label: annotateLabel(api, p), name, inci, run: id }
+      // The automatic sample on first load isn't a check the person made.
+      if (reveal) track("label_checked", done.label.verdict ?? "NONE", p.country)
       setState(done)
       setLast(done)
       lastRef.current = { inci, name }

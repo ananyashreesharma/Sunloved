@@ -12,6 +12,7 @@ import { CONCERNS, COUNTRIES, countryByCode, guessCountry, MAX_CONCERNS, SKIN_TY
 import { completeOnboarding, createRoutineStep } from "@/lib/api"
 import { addGuestStep, clearGuestData, clearGuestScans, hasGuestData, loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { useIsGuest } from "@/lib/use-guest"
+import { track } from "@/lib/analytics"
 import { ProfileSentence } from "./Profile"
 
 const SHORT = ["IN", "US", "GB", "AE", "SA", "MX", "ES", "NG", "ID"]
@@ -63,6 +64,7 @@ export function OnboardingPage() {
     ;(async () => {
       try {
         await completeOnboarding({ skinType: g.skinType!, concerns: g.concerns, country: g.country ?? undefined })
+        track("account_created")
         const ordered = [...g.steps].sort((a, b) => stepSortKey(a.name, a.kind) - stepSortKey(b.name, b.kind))
         for (const s of ordered) {
           await createRoutineStep({ type: s.when, productId: s.productId, customName: s.productId ? undefined : s.name, frequency: s.frequency })
@@ -96,6 +98,8 @@ export function OnboardingPage() {
     }
     try {
       await completeOnboarding({ skinType: skinType!, concerns, country: country ?? undefined })
+      // Onboarding runs once per account: this is a new account.
+      track("account_created")
       for (const p of chosen) await createRoutineStep({ type: "night", customName: p.name })
       await update({ trigger: "update" })
       router.replace("/app/routine")

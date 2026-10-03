@@ -15,6 +15,7 @@ import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api
 import { loadGuestData } from "@/lib/guest-store"
 import { getScans, saveScan } from "@/lib/data"
 import { useAccount } from "@/lib/account"
+import { track } from "@/lib/analytics"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { BACK_ARROW, localDigits } from "@/lib/i18n"
 import { useReduceMotion, useTheme } from "@/lib/theme"
@@ -68,7 +69,10 @@ export function ScanResultScreen() {
       if (!cancelled) setProfile(p)
       try {
         const api = await analyzeIngredients(inci)
-        if (!cancelled) setLabel(annotateLabel(api, p))
+        if (cancelled) return
+        const read = annotateLabel(api, p)
+        setLabel(read)
+        track("label_checked", read.verdict ?? "NONE", p.country)
       } catch (e) {
         if (!cancelled) setPhase(e instanceof ApiError ? "error" : "offline")
       }

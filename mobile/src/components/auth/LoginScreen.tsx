@@ -58,7 +58,7 @@ export function LoginScreen() {
       return
     }
     try {
-      await completeSignIn(tokens.accessToken, tokens.refreshToken)
+      await completeSignIn(tokens.accessToken, tokens.refreshToken, tokens.isNew)
       setStep("done")
     } catch {
       // Signed in, but moving the phone's data didn't finish: say so honestly.

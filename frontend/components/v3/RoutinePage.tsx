@@ -12,6 +12,7 @@ import { getRoutine, getStreak, getStreakHistory, toggleRoutineStep, updateRouti
 import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, setGuestStepFrequency, toggleGuestStep } from "@/lib/guest-store"
 import { useAppChrome } from "@/lib/app-chrome-context"
 import { useIsGuest } from "@/lib/use-guest"
+import { initAnalytics, track } from "@/lib/analytics"
 import { Moon, Sunrise } from "./Sky"
 
 type Period = "morning" | "night"
@@ -94,8 +95,16 @@ export function RoutinePage() {
     load(period)
   }, [period, load])
 
+  useEffect(() => {
+    initAnalytics()
+  }, [])
+
   async function toggle(s: Step) {
     if (s.rest) return
+    if (!s.done) {
+      track("routine_step_ticked", period)
+      if (due.every((x) => x.id === s.id || x.done)) track("routine_completed", period)
+    }
     // Instant feedback; the saved state follows.
     setSteps((list) => list?.map((x) => (x.id === s.id ? { ...x, done: !x.done } : x)) ?? null)
     if (isGuest) toggleGuestStep(s.id, period)

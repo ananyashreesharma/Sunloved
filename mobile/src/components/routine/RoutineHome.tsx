@@ -26,6 +26,7 @@ import { ease, useReduceMotion, useTheme } from "@/lib/theme"
 import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { getRoutine, getStreak, getStreakHistory, setStepFrequency, toggleStep } from "@/lib/data"
 import { useAccount } from "@/lib/account"
+import { track } from "@/lib/analytics"
 import { MilestoneOverlay } from "./Milestone"
 import { Highlight } from "@/components/shared/Highlight"
 import { Moon, Sunrise } from "./Moon"
@@ -117,7 +118,12 @@ export function RoutineHome() {
     if (!step.done) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {})
     await toggleStep(step.id, period)
     load(period)
-    if (!step.done) celebrateIfMilestone()
+    if (!step.done) {
+      track("routine_step_ticked", period)
+      // This tick finishes the routine: every other step due today was already done.
+      if (due.every((s) => s.id === step.id || s.done)) track("routine_completed", period)
+      celebrateIfMilestone()
+    }
   }
 
   // A tick that completes the day can reach 7, 30 or 100: celebrate once, after the done animation.

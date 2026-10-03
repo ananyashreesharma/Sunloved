@@ -12,6 +12,7 @@ import { useOumaFonts } from "@/constants/fonts"
 import { loadGuestData } from "@/lib/guest-store"
 import { syncReminders } from "@/lib/notifications"
 import { initAccount, useAccount } from "@/lib/account"
+import { initAnalytics } from "@/lib/analytics"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -21,6 +22,7 @@ export default function RootLayout() {
   const { ready } = useAccount()
   useEffect(() => {
     initAccount()
+    initAnalytics()
   }, [])
 
   useEffect(() => {
