@@ -1,5 +1,5 @@
-import { OumaProfileClient } from "@/components/ouma/app/OumaProfileClient"
+import { MePage } from "@/components/v3/MePage"
 
-export default function OumaProfilePage() {
-  return <OumaProfileClient />
+export default function Me() {
+  return <MePage />
 }

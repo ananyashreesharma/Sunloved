@@ -1,9 +1,5 @@
-import { OumaAddStepClient } from "@/components/ouma/app/OumaAddStepClient"
+import { StepPage } from "@/components/v3/StepPage"
 
-export default function OumaAddStepPage({
-  searchParams,
-}: {
-  searchParams: { type?: "morning" | "night"; name?: string }
-}) {
-  return <OumaAddStepClient initialType={searchParams.type} initialName={searchParams.name} />
+export default function AddStep({ searchParams }: { searchParams: { type?: string; name?: string } }) {
+  return <StepPage initialType={searchParams.type} initialName={searchParams.name} />
 }

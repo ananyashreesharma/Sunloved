@@ -1,12 +1,6 @@
-import { OumaScanResultClient } from "@/components/ouma/OumaScanResultClient"
+import { redirect } from "next/navigation"
 
-export default function PublicScanResultPage({
-  searchParams,
-}: {
-  searchParams: { productId?: string; inci?: string }
-}) {
-  return (
-    <OumaScanResultClient productId={searchParams.productId ?? null} inci={searchParams.inci ?? null} />
-  )
+// Checking a label now happens on the homepage (the V3 checker); old links land there.
+export default function OldScanRoute() {
+  redirect("/")
 }
-

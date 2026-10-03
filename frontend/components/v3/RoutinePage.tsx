@@ -235,14 +235,15 @@ export function RoutinePage() {
             const num = s.rest ? "—" : String(++n).padStart(2, "0")
             const sub = s.rest ? `${night ? "Rest night" : "Rest day"} · ${FREQ[s.frequency]}` : `${s.kind ? `${KIND[s.kind]} · ` : ""}${FREQ[s.frequency]}`
             return (
-              <li key={s.id} style={{ borderTop: "1px solid var(--line)" }}>
+              <li key={s.id} style={{ borderTop: "1px solid var(--line)", display: "flex", alignItems: "center", gap: 12 }}>
                 <button
                   role="checkbox"
                   aria-checked={s.done}
                   aria-disabled={s.rest}
                   onClick={() => toggle(s)}
                   style={{
-                    width: "100%",
+                    flex: 1,
+                    minWidth: 0,
                     display: "flex",
                     alignItems: "baseline",
                     gap: 16,
@@ -281,6 +282,10 @@ export function RoutinePage() {
                     <span style={{ display: "block", marginTop: 4, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--ink2)" }}>{sub}</span>
                   </span>
                 </button>
+                {/* Edit sits beside the tick target, not inside it. */}
+                <Link href={`/app/routine/edit?id=${s.id}`} aria-label={`Edit ${s.name}`} className="v3-step-edit">
+                  Edit
+                </Link>
               </li>
             )
           })}

@@ -1,5 +1,5 @@
-import { OumaStreakHistoryClient } from "@/components/ouma/app/OumaStreakHistoryClient"
+import { HistoryPage } from "@/components/v3/HistoryPage"
 
-export default function OumaStreakHistoryPage() {
-  return <OumaStreakHistoryClient />
+export default function History() {
+  return <HistoryPage />
 }

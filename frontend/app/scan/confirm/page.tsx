@@ -1,11 +1,6 @@
-import { OumaScanConfirmClient } from "@/components/ouma/OumaScanConfirmClient"
+import { redirect } from "next/navigation"
 
-export default function PublicScanConfirmPage({ searchParams }: { searchParams: { inci?: string } }) {
-  return (
-    <OumaScanConfirmClient
-      inci={searchParams.inci ?? ""}
-      backHref="/scan"
-      resultBasePath="/scan/result"
-    />
-  )
+// Checking a label now happens on the homepage (the V3 checker); old links land there.
+export default function OldScanRoute() {
+  redirect("/")
 }

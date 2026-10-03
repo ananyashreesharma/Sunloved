@@ -1,5 +1,5 @@
-import { OumaProductsClient } from "@/components/ouma/app/OumaProductsClient"
+import { ProductsPage } from "@/components/v3/ProductsPage"
 
-export default function OumaProductsPage() {
-  return <OumaProductsClient />
+export default function Products() {
+  return <ProductsPage />
 }

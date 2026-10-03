@@ -1,10 +1,6 @@
-import { Suspense } from "react"
-import { OumaShareCardClient } from "@/components/ouma/OumaShareCardClient"
+import { redirect } from "next/navigation"
 
-export default function ShareCardPage() {
-  return (
-    <Suspense>
-      <OumaShareCardClient />
-    </Suspense>
-  )
+// Checking a label now happens on the homepage (the V3 checker); old links land there.
+export default function OldScanRoute() {
+  redirect("/")
 }

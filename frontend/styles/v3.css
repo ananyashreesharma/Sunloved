@@ -42,6 +42,7 @@
   --done: rgba(255, 236, 200, 0.22);
   --hi-fine: rgba(120, 190, 140, 0.32);
   --moon-shadow: #24211B;
+  --t-avoid: #E59A82;
 }
 
 .v3 *,
@@ -97,6 +98,10 @@
   font-weight: 600;
   cursor: pointer;
   transition: opacity 160ms;
+}
+/* Links styled as buttons keep the button's text colour (".v3 a" would otherwise win). */
+.v3 a.v3-btn {
+  color: var(--btn-ink);
 }
 .v3-btn:disabled {
   opacity: 0.35;
@@ -283,4 +288,20 @@
     background: var(--bg);
     transition: background-color 600ms var(--standard);
   }
+}
+
+.v3-step-edit {
+  flex: none;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 4px;
+  font-size: 14px;
+  color: var(--ink3);
+  text-decoration: none;
+}
+.v3-step-edit:hover,
+.v3-step-edit:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
 }
