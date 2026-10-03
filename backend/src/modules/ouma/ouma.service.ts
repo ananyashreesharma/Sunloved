@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RoutineType, StepFrequency, Streak } from '@prisma/client';
+import { isDueOn } from './schedule';
 
 /** Skincare step order, matched against Product.categoryLegacy (see scraper.service.ts's normalized labels). */
 const CATEGORY_STEP_ORDER: Record<string, number> = {
@@ -130,6 +131,8 @@ export class OumaService {
       frequency: s.frequency,
       waitAfterMins: s.waitAfterMins,
       done: doneIds.has(s.id),
+      // Rest day for an every-other-day or twice-a-week step: shown, but not counted.
+      rest: !isDueOn(s.frequency, new Date()),
       // A linked product with no ingredient rows was never scanned/entered — prompt the user to enrich it.
       enrich: Boolean(s.productId) && (s.product?.ingredients.length ?? 0) === 0,
     }));
@@ -138,7 +141,7 @@ export class OumaService {
       routineId: routine.id,
       type,
       steps: stepDtos,
-      allDone: stepDtos.length > 0 && stepDtos.every((s) => s.done),
+      allDone: stepDtos.some((s) => !s.rest) && stepDtos.every((s) => s.rest || s.done),
       conflicts,
     };
   }
@@ -181,6 +184,32 @@ export class OumaService {
     return { created };
   }
 
+  private async ownedStep(userId: string, stepId: string) {
+    const step = await this.prisma.routineStep.findUnique({ where: { id: stepId }, include: { routine: true } });
+    if (!step || step.routine.userId !== userId) throw new NotFoundException('Step not found');
+    return step;
+  }
+
+  /** Rename a step or change how often it's used (e.g. "Alternate them" for retinol and an acid). */
+  async updateStep(userId: string, stepId: string, input: { customName?: string; frequency?: StepFrequency }) {
+    await this.ownedStep(userId, stepId);
+    const step = await this.prisma.routineStep.update({
+      where: { id: stepId },
+      data: {
+        ...(input.customName !== undefined ? { customName: input.customName.trim() } : {}),
+        ...(input.frequency ? { frequency: input.frequency } : {}),
+      },
+    });
+    return { id: step.id, frequency: step.frequency, name: step.customName };
+  }
+
+  /** Remove a step from its routine. Streak history is untouched. */
+  async deleteStep(userId: string, stepId: string) {
+    await this.ownedStep(userId, stepId);
+    await this.prisma.routineStep.delete({ where: { id: stepId } });
+    return { deleted: stepId };
+  }
+
   /** Toggle today's done-state for one step; marks the whole routine/day done once every step is checked. */
   async toggleStep(userId: string, stepId: string) {
     const step = await this.prisma.routineStep.findUnique({ where: { id: stepId } });
@@ -195,7 +224,9 @@ export class OumaService {
     const nextCompleted = wasDone
       ? log.completedStepIds.filter((id) => id !== stepId)
       : [...log.completedStepIds, stepId];
-    const allDone = allSteps.length > 0 && allSteps.every((s) => nextCompleted.includes(s.id));
+    // Only steps due today count; rest days of alternating steps never block "done".
+    const due = allSteps.filter((s) => isDueOn(s.frequency, new Date()));
+    const allDone = due.length > 0 && due.every((s) => nextCompleted.includes(s.id));
 
     const wasFullyDoneBefore = log.completedAt != null;
     await this.prisma.routineLog.update({

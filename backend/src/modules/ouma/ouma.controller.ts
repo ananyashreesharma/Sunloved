@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { OumaService } from './ouma.service';
 import { UserAuthGuard } from '../../common/guards/user-auth.guard';
-import { GetRoutineDto, CreateRoutineStepDto, StreakHistoryQueryDto } from './dto/routine.dto';
+import { GetRoutineDto, CreateRoutineStepDto, StreakHistoryQueryDto, UpdateRoutineStepDto } from './dto/routine.dto';
 import { UpdateNotificationPreferencesDto, SaveScanDto } from './dto/notification-preferences.dto';
 
 type AuthedRequest = { userId: string };
@@ -26,6 +26,18 @@ export class OumaController {
   @UseGuards(UserAuthGuard)
   toggleStep(@Req() req: AuthedRequest, @Param('id') id: string) {
     return this.ouma.toggleStep(req.userId, id);
+  }
+
+  @Patch('routine/steps/:id')
+  @UseGuards(UserAuthGuard)
+  updateStep(@Req() req: AuthedRequest, @Param('id') id: string, @Body() dto: UpdateRoutineStepDto) {
+    return this.ouma.updateStep(req.userId, id, dto);
+  }
+
+  @Delete('routine/steps/:id')
+  @UseGuards(UserAuthGuard)
+  deleteStep(@Req() req: AuthedRequest, @Param('id') id: string) {
+    return this.ouma.deleteStep(req.userId, id);
   }
 
   @Get('streak')

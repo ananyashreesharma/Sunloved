@@ -1,5 +1,5 @@
-import { OumaRoutineClient } from "@/components/ouma/app/OumaRoutineClient"
+import { RoutinePage } from "@/components/v3/RoutinePage"
 
-export default function OumaRoutinePage() {
-  return <OumaRoutineClient />
+export default function Routine() {
+  return <RoutinePage />
 }

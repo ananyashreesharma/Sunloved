@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString, IsNotEmpty } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
 export class GetRoutineDto {
   @IsIn(['morning', 'night'])
@@ -27,4 +27,16 @@ export class StreakHistoryQueryDto {
   @IsString()
   @IsNotEmpty()
   month: string;
+}
+
+export class UpdateRoutineStepDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(120)
+  customName?: string;
+
+  @IsOptional()
+  @IsIn(['daily', 'alternate', 'twice_weekly'])
+  frequency?: 'daily' | 'alternate' | 'twice_weekly';
 }

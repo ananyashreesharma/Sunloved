@@ -91,6 +91,8 @@ export type RoutineStepDto = {
   waitAfterMins: number | null
   done: boolean
   enrich: boolean
+  /** Not due today (rest day of an alternating step). Older servers omit it. */
+  rest?: boolean
 }
 
 export type RoutineConflict = {

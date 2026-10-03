@@ -17,12 +17,17 @@ import {
   withScan,
   withStep,
   withStepToggled,
+  withStepFrequency,
+  withStepUpdated,
+  withoutStep,
+  type GuestStepPatch,
   type GuestData,
   type GuestRoutineView,
   type GuestScan,
   type GuestStreakDay,
   type NewGuestStep,
   type RoutineKind,
+  type StepFrequency,
   type StreakSummary,
 } from "@skinlens/shared"
 
@@ -86,6 +91,18 @@ export function updateGuestData(patch: Partial<GuestData>): GuestData {
 
 export function addGuestStep(input: NewGuestStep): GuestData {
   return save(withStep(loadGuestData(), input))
+}
+
+export function setGuestStepFrequency(stepId: string, frequency: StepFrequency): GuestData {
+  return save(withStepFrequency(loadGuestData(), stepId, frequency))
+}
+
+export function updateGuestStep(stepId: string, patch: GuestStepPatch): GuestData {
+  return save(withStepUpdated(loadGuestData(), stepId, patch))
+}
+
+export function removeGuestStep(stepId: string): GuestData {
+  return save(withoutStep(loadGuestData(), stepId))
 }
 
 export function toggleGuestStep(stepId: string, period: RoutineKind): GuestData {

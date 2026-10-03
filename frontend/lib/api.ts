@@ -176,6 +176,25 @@ export async function toggleRoutineStep(
   return res.json()
 }
 
+export async function updateRoutineStep(
+  stepId: string,
+  input: { customName?: string; frequency?: "daily" | "alternate" | "twice_weekly" },
+): Promise<{ id: string }> {
+  const res = await fetch(`/api/routine/steps/${stepId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  })
+  if (!res.ok) throw new Error(`update routine step ${res.status}`)
+  return res.json()
+}
+
+export async function deleteRoutineStep(stepId: string): Promise<{ deleted: string }> {
+  const res = await fetch(`/api/routine/steps/${stepId}`, { method: "DELETE" })
+  if (!res.ok) throw new Error(`delete routine step ${res.status}`)
+  return res.json()
+}
+
 export async function getStreak(): Promise<{ currentStreak: number; longestStreak: number; totalDaysCompleted: number }> {
   const res = await fetch(`/api/streak`, { cache: "no-store" })
   if (!res.ok) throw new Error(`streak ${res.status}`)
