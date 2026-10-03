@@ -1,20 +1,37 @@
 import { PrismaClient } from '@prisma/client';
 
-// Codes match the onboarding wizard's chip options 1:1 (frontend/components/ouma/onboarding).
+// Codes match onboarding's options (packages/shared/src/profile.ts). Retired options stay, so
+// profiles saved with them keep resolving.
 const SKIN_TYPES = [
   { code: 'oily', label: 'Oily' },
   { code: 'dry', label: 'Dry' },
   { code: 'combination', label: 'Combination' },
+  { code: 'normal', label: 'Normal' },
+  { code: 'unsure', label: 'Not sure' },
   { code: 'sensitive', label: 'Sensitive' },
 ];
 
 const SKIN_CONCERNS = [
   { code: 'acne', label: 'Acne' },
-  { code: 'pigmentation', label: 'Pigmentation' },
+  { code: 'pigmentation', label: 'Dark spots' },
+  { code: 'sensitivity', label: 'Sensitivity' },
+  { code: 'dryness', label: 'Dryness' },
   { code: 'redness', label: 'Redness' },
+  { code: 'aging', label: 'Fine lines' },
+  { code: 'pores', label: 'Large pores' },
   { code: 'texture', label: 'Texture' },
   { code: 'dullness', label: 'Dullness' },
 ];
+
+if (require.main === module) {
+  const prisma = new PrismaClient();
+  seedSkinProfiles(prisma)
+    .catch((e) => {
+      console.error(e);
+      process.exitCode = 1;
+    })
+    .finally(() => prisma.$disconnect());
+}
 
 export async function seedSkinProfiles(prisma: PrismaClient) {
   for (const t of SKIN_TYPES) {

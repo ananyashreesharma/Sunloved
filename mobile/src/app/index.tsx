@@ -1,9 +1,21 @@
-import { ValuePropCarousel } from "@/components/onboarding/ValuePropCarousel"
+import { useEffect, useState } from "react"
+import { View } from "react-native"
+import { Redirect } from "expo-router"
+import { hasGuestData } from "@/lib/guest-store"
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow"
+import { useTheme } from "@/lib/theme"
 
-// Ported from frontend/app/page.tsx's guest branch (ValuePropCarousel). The session-based
-// redirect to (app)/routine or /onboarding for signed-in users isn't wired up yet — there's no
-// mobile auth/session state to check against (see src/lib/auth-tokens.ts), so this always shows
-// the guest carousel for now.
+// First launch → onboarding. Anyone who has already told us about their skin or built a routine
+// goes straight to it. (Signed-in sessions aren't restored on mobile yet; see lib/auth-tokens.ts.)
 export default function RootEntry() {
-  return <ValuePropCarousel />
+  const { T } = useTheme()
+  const [state, setState] = useState<"loading" | "new" | "returning">("loading")
+
+  useEffect(() => {
+    hasGuestData().then((known) => setState(known ? "returning" : "new"))
+  }, [])
+
+  if (state === "loading") return <View style={{ flex: 1, backgroundColor: T.bg }} />
+  if (state === "returning") return <Redirect href="/routine" />
+  return <OnboardingFlow />
 }

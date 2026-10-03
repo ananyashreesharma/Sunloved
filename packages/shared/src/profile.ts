@@ -4,16 +4,24 @@ export const SKIN_TYPES = [
   { code: "oily", label: "Oily" },
   { code: "dry", label: "Dry" },
   { code: "combination", label: "Combination" },
-  { code: "sensitive", label: "Sensitive" },
+  { code: "normal", label: "Normal" },
+  { code: "unsure", label: "Not sure" },
 ] as const
 
+/** Sensitivity is a concern, not a skin type: oily or dry skin can be sensitive too. */
 export const CONCERNS = [
   { code: "acne", label: "Acne" },
-  { code: "pigmentation", label: "Pigmentation" },
+  { code: "pigmentation", label: "Dark spots" },
+  { code: "sensitivity", label: "Sensitivity" },
+  { code: "dryness", label: "Dryness" },
   { code: "redness", label: "Redness" },
-  { code: "texture", label: "Texture" },
-  { code: "dullness", label: "Dullness" },
+  { code: "aging", label: "Fine lines" },
+  { code: "pores", label: "Large pores" },
 ] as const
+
+/** Codes earlier app versions offered. Still stored for older profiles, so still understood. */
+export const LEGACY_SKIN_TYPES = ["sensitive"] as const
+export const LEGACY_CONCERNS = ["texture", "dullness"] as const
 
 /** Two keeps summaries specific. */
 export const MAX_CONCERNS = 2

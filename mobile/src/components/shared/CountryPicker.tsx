@@ -1,16 +1,16 @@
-// Country field: shows the chosen country, opens a searchable list. Used in onboarding and Me.
+// Country choice: a searchable sheet (CountrySheet), plus a field that opens it (CountryPicker).
+// Onboarding shows a short list and opens the sheet for everything else; Me uses the field.
 
 import { useMemo, useState } from "react"
 import { View, Text, Pressable, Modal, TextInput, FlatList } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { COUNTRIES } from "@skinlens/shared"
-import { colors } from "@/constants/tokens"
-import { fonts } from "@/constants/fonts"
-import { SoftPressable } from "@/components/shared/SoftPressable"
+import { rubik } from "@/constants/fonts"
+import { useTheme } from "@/lib/theme"
 
 /** Country names in the app's language when the JS engine supports it; English otherwise. */
-function useCountryName() {
+export function useCountryName() {
   const { i18n } = useTranslation()
   return useMemo(() => {
     let display: { of: (code: string) => string | undefined } | null = null
@@ -29,98 +29,119 @@ function useCountryName() {
   }, [i18n.language])
 }
 
-export function CountryPicker({ value, onChange, label }: { value: string; onChange: (code: string) => void; label: string }) {
+export function CountrySheet({
+  visible,
+  onClose,
+  value,
+  onChange,
+  title,
+}: {
+  visible: boolean
+  onClose: () => void
+  value: string | null
+  onChange: (code: string) => void
+  title: string
+}) {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
+  const { T } = useTheme()
+  const nameOf = useCountryName()
+  const [query, setQuery] = useState("")
+  const q = query.trim().toLowerCase()
+  const list = COUNTRIES.map((c) => ({ ...c, label: nameOf(c.code, c.name) }))
+    .filter((c) => !q || c.label.toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
+    .sort((a, b) => a.label.localeCompare(b.label))
+
+  function close() {
+    setQuery("")
+    onClose()
+  }
+
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet" onRequestClose={close}>
+      <View style={{ flex: 1, backgroundColor: T.bg, paddingTop: 18 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 24 }}>
+          <Text style={{ fontFamily: rubik.semibold, fontSize: 20, color: T.ink }}>{title}</Text>
+          <Pressable onPress={close} hitSlop={8} style={{ minHeight: 44, justifyContent: "center" }}>
+            <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("common.close")}</Text>
+          </Pressable>
+        </View>
+        <TextInput
+          value={query}
+          onChangeText={setQuery}
+          placeholder={t("common.searchCountries")}
+          placeholderTextColor={T.ink3}
+          autoCorrect={false}
+          style={{
+            marginHorizontal: 24,
+            marginTop: 10,
+            minHeight: 48,
+            borderWidth: 1.5,
+            borderColor: T.line,
+            borderRadius: 14,
+            paddingHorizontal: 14,
+            fontFamily: rubik.regular,
+            fontSize: 16,
+            color: T.ink,
+          }}
+        />
+        <FlatList
+          data={list}
+          keyExtractor={(c) => c.code}
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: insets.bottom + 20 }}
+          renderItem={({ item }) => {
+            const selected = item.code === value
+            return (
+              <Pressable
+                onPress={() => {
+                  onChange(item.code)
+                  close()
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                style={{ minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: T.line }}
+              >
+                <Text style={{ fontFamily: selected ? rubik.semibold : rubik.light, fontSize: 19, color: T.ink }}>{item.label}</Text>
+                {selected && <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>✓</Text>}
+              </Pressable>
+            )
+          }}
+        />
+      </View>
+    </Modal>
+  )
+}
+
+export function CountryPicker({ value, onChange, label }: { value: string; onChange: (code: string) => void; label: string }) {
+  const { T } = useTheme()
   const nameOf = useCountryName()
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState("")
-
   const current = COUNTRIES.find((c) => c.code === value)
-  const q = query.trim().toLowerCase()
-  const list = COUNTRIES.filter((c) => !q || nameOf(c.code, c.name).toLowerCase().includes(q) || c.name.toLowerCase().includes(q))
+  const name = current ? nameOf(current.code, current.name) : value
 
   return (
     <>
-      <SoftPressable
+      <Pressable
         onPress={() => setOpen(true)}
         accessibilityRole="button"
-        accessibilityLabel={`${label}: ${current ? nameOf(current.code, current.name) : value}`}
+        accessibilityLabel={`${label}: ${name}`}
         style={{
           marginTop: 10,
+          minHeight: 52,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          backgroundColor: colors.card,
-          borderWidth: 1,
-          borderColor: colors.line,
-          borderRadius: 12,
-          paddingVertical: 13,
-          paddingHorizontal: 14,
+          borderWidth: 1.5,
+          borderColor: T.line,
+          borderRadius: 14,
+          paddingHorizontal: 16,
         }}
       >
-        <Text style={{ fontFamily: fonts.body, fontSize: 15, color: colors.ink }}>
-          {current ? nameOf(current.code, current.name) : value}
-        </Text>
-        <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>▾</Text>
-      </SoftPressable>
-
-      <Modal visible={open} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setOpen(false)}>
-        <View style={{ flex: 1, backgroundColor: colors.bone, paddingTop: 16 }}>
-          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 20 }}>
-            <Text style={{ fontFamily: fonts.display, fontSize: 18, textTransform: "uppercase", color: colors.ink }}>{label}</Text>
-            <Pressable onPress={() => setOpen(false)} hitSlop={8}>
-              <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 14, color: colors.accent }}>{t("common.close")}</Text>
-            </Pressable>
-          </View>
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t("common.searchCountries")}
-            placeholderTextColor={colors.mute}
-            autoCorrect={false}
-            style={{
-              marginHorizontal: 20,
-              marginTop: 14,
-              backgroundColor: colors.card,
-              borderWidth: 1,
-              borderColor: colors.line,
-              borderRadius: 10,
-              paddingVertical: 10,
-              paddingHorizontal: 12,
-              fontFamily: fonts.body,
-              fontSize: 15,
-              color: colors.ink,
-            }}
-          />
-          <FlatList
-            data={list}
-            keyExtractor={(c) => c.code}
-            keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8, paddingBottom: insets.bottom + 20 }}
-            renderItem={({ item }) => {
-              const selected = item.code === value
-              return (
-                <Pressable
-                  onPress={() => {
-                    onChange(item.code)
-                    setOpen(false)
-                    setQuery("")
-                  }}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected }}
-                  style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: colors.line }}
-                >
-                  <Text style={{ fontFamily: selected ? fonts.bodySemiBold : fonts.body, fontSize: 15, color: colors.ink }}>
-                    {nameOf(item.code, item.name)}
-                  </Text>
-                  {selected && <Text style={{ fontFamily: fonts.bodySemiBold, fontSize: 15, color: colors.accent }}>✓</Text>}
-                </Pressable>
-              )
-            }}
-          />
-        </View>
-      </Modal>
+        <Text style={{ fontFamily: rubik.regular, fontSize: 16, color: T.ink }}>{name}</Text>
+        <Text style={{ fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>▾</Text>
+      </Pressable>
+      <CountrySheet visible={open} onClose={() => setOpen(false)} value={value} onChange={onChange} title={label} />
     </>
   )
 }

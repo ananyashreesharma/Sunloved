@@ -11,6 +11,7 @@
 import * as Notifications from "expo-notifications"
 import { Platform } from "react-native"
 import type { GuestData } from "@/lib/guest-store"
+import i18n from "@/lib/i18n"
 
 const MORNING_ID = "skinlens-reminder-morning"
 const NIGHT_ID = "skinlens-reminder-night"
@@ -24,18 +25,12 @@ Notifications.setNotificationHandler({
   }),
 })
 
-function copyFor(tone: GuestData["reminderTone"], when: "morning" | "night"): { title: string; body: string } {
-  const isMorning = when === "morning"
-  if (tone === "plain") {
-    return {
-      title: "SkinLens",
-      body: isMorning ? "Reminder: your morning skincare routine." : "Reminder: your night skincare routine.",
-    }
-  }
-  return {
-    title: isMorning ? "Good morning ☀️" : "Wind down 🌙",
-    body: isMorning ? "Time for your morning routine — you've got this." : "Time for your night routine — you've got this.",
-  }
+// Calm, specific copy (no emoji, no pressure). "coach" is the Gentle tone, "plain" Just the facts.
+function copyFor(data: Pick<GuestData, "reminderTone" | "steps">, when: "morning" | "night"): { title: string; body: string } {
+  const n = data.steps.filter((s) => s.when === when || s.when === "both").length
+  const k = when === "morning" ? "Morning" : "Night"
+  const body = data.reminderTone === "plain" && n > 0 ? i18n.t(`reminders.facts${k}`, { count: n }) : i18n.t(`reminders.gentle${k}`)
+  return { title: "SkinLens", body }
 }
 
 // `interactive` controls whether a missing permission may trigger iOS/Android's native system
@@ -80,13 +75,14 @@ export async function getReminderStatus(
  * call any time settings change, and once at app startup — always cancels+rebuilds both slots
  * rather than diffing, since there are only ever the two (morning/night). */
 export async function syncReminders(
-  data: Pick<GuestData, "morningTime" | "nightTime" | "reminderTone" | "muted" | "channel">,
+  data: Pick<GuestData, "morningTime" | "nightTime" | "reminderTone" | "muted" | "channel" | "remindMorning" | "remindNight" | "steps">,
   options?: { interactive?: boolean },
 ): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(MORNING_ID).catch(() => {})
   await Notifications.cancelScheduledNotificationAsync(NIGHT_ID).catch(() => {})
 
   if (data.muted || data.reminderTone === "off" || data.channel !== "push") return
+  if (!data.remindMorning && !data.remindNight) return
 
   const granted = await ensurePermission(options?.interactive ?? false)
   if (!granted) return
@@ -101,17 +97,17 @@ export async function syncReminders(
   const morning = parseHM(data.morningTime)
   const night = parseHM(data.nightTime)
 
-  if (morning) {
+  if (morning && data.remindMorning) {
     await Notifications.scheduleNotificationAsync({
       identifier: MORNING_ID,
-      content: { ...copyFor(data.reminderTone, "morning"), sound: true },
+      content: { ...copyFor(data, "morning"), sound: true },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: morning.hour, minute: morning.minute },
     })
   }
-  if (night) {
+  if (night && data.remindNight) {
     await Notifications.scheduleNotificationAsync({
       identifier: NIGHT_ID,
-      content: { ...copyFor(data.reminderTone, "night"), sound: true },
+      content: { ...copyFor(data, "night"), sound: true },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: night.hour, minute: night.minute },
     })
   }

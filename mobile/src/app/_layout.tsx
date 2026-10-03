@@ -22,7 +22,7 @@ export default function RootLayout() {
   }, [fontsLoaded])
 
   useEffect(() => {
-    // Self-healing backstop for returning users (ProfileScreen/OnboardingWizard already reschedule
+    // Self-healing backstop for returning users (ProfileScreen/OnboardingFlow already reschedule
     // on every change) — only for guests who've actually built a routine, so a fresh install never
     // prompts for notification permission before onboarding even starts.
     loadGuestData().then((data) => {

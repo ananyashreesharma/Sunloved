@@ -14,6 +14,8 @@ export type GuestStep = {
   when: RoutineKind | "both"
   frequency: StepFrequency
   productId?: string
+  /** Known when the step was picked from a list; otherwise guessed from the name. */
+  kind?: StepKind
 }
 
 export type GuestData = {
@@ -26,6 +28,9 @@ export type GuestData = {
   nightTime: string
   channel: "push" | "whatsapp"
   reminderTone: "coach" | "plain" | "off"
+  /** Each routine's reminder can be turned off on its own. */
+  remindMorning: boolean
+  remindNight: boolean
   muted: boolean
   doneToday: Record<string, boolean>
   doneDate: string
@@ -43,8 +48,9 @@ export const STEP_ORDER: Record<string, number> = { Cleanser: 0, Toner: 2, Serum
 // Slots between the quick-step positions above (Cleanser 0, Toner 2, Serum 4, Moisturiser 6, SPF 7).
 const KIND_SORT: Record<StepKind, number> = { cleanse: 0, exfoliate: 2, serum: 4, treat: 5, moisturise: 6, seal: 6.5, sunscreen: 7 }
 
-/** Sort key for a step: exact quick-step names first, else the kind guessed from its name. */
-export function stepSortKey(name: string): number {
+/** Sort key for a step: its known kind, else exact quick-step names, else the kind guessed from its name. */
+export function stepSortKey(name: string, known?: StepKind): number {
+  if (known) return KIND_SORT[known]
   const exact = STEP_ORDER[name]
   if (exact !== undefined) return exact
   const kind = stepKind(name)
@@ -61,6 +67,8 @@ export function defaultGuestData(): GuestData {
     nightTime: "21:30",
     channel: "push",
     reminderTone: "coach",
+    remindMorning: true,
+    remindNight: true,
     muted: false,
     doneToday: {},
     doneDate: todayKey(),
@@ -108,6 +116,7 @@ export type NewGuestStep = {
   frequency: StepFrequency
   productId?: string
   brand?: string | null
+  kind?: StepKind
 }
 
 /** Adds a step unless one with the same name exists. */
@@ -121,6 +130,7 @@ export function withStep(data: GuestData, input: NewGuestStep): GuestData {
     when: input.when,
     frequency: input.frequency,
     productId: input.productId,
+    ...(input.kind ? { kind: input.kind } : {}),
   }
   return { ...data, steps: [...data.steps, step] }
 }
@@ -151,6 +161,7 @@ export type GuestRoutineStepView = {
   enrich: false
   /** Not due today (rest day of an every-other-day or twice-a-week step). */
   rest: boolean
+  kind: StepKind | null
 }
 
 export type GuestRoutineView = {
@@ -165,7 +176,7 @@ export type GuestRoutineView = {
 export function guestRoutine(data: GuestData, type: RoutineKind): GuestRoutineView {
   const steps: GuestRoutineStepView[] = data.steps
     .filter((s) => s.when === type || s.when === "both")
-    .sort((a, b) => stepSortKey(a.name) - stepSortKey(b.name))
+    .sort((a, b) => stepSortKey(a.name, a.kind) - stepSortKey(b.name, b.kind))
     .map((s, i) => ({
       id: s.id,
       productId: s.productId ?? null,
@@ -177,6 +188,7 @@ export function guestRoutine(data: GuestData, type: RoutineKind): GuestRoutineVi
       done: !!data.doneToday[doneKey(s.id, type)],
       enrich: false,
       rest: !isDueOn(s.frequency, data.doneDate),
+      kind: s.kind ?? stepKind(s.name),
     }))
   const due = steps.filter((s) => !s.rest)
   return { routineId: "guest", type, steps, allDone: due.length > 0 && due.every((s) => s.done), conflicts: [] }

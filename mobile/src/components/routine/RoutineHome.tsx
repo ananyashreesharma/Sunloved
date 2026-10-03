@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { View, Text, Pressable, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
-import { router, useFocusEffect } from "expo-router"
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router"
 import * as Haptics from "expo-haptics"
 import Animated, {
   FadeIn,
@@ -18,7 +18,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated"
-import { findRoutineClash, motion, palettes, stepKind, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
+import { findRoutineClash, motion, palettes, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { FORWARD_ARROW, localDigits } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
@@ -61,7 +61,11 @@ export function RoutineHome() {
   const { setNight } = useAppChrome()
   const { T } = useTheme()
   const reduce = useReduceMotion()
-  const [period, setPeriod] = useState<Period>(() => (new Date().getHours() < 15 ? "morning" : "night"))
+  // Opens on whichever routine is next, unless the caller asked for one ("Start tonight's routine").
+  const params = useLocalSearchParams<{ period?: string }>()
+  const [period, setPeriod] = useState<Period>(() =>
+    params.period === "night" || params.period === "morning" ? params.period : new Date().getHours() < 15 ? "morning" : "night",
+  )
   const [data, setData] = useState<GuestRoutineView | null>(null)
   const [streak, setStreak] = useState(0)
   const [week, setWeek] = useState<StreakDayStatus[]>([])
@@ -301,7 +305,7 @@ function StepRow({ step, num, night, onPress }: { step: GuestRoutineStepView; nu
   }, [step.done, reduce, dip])
   const numStyle = useAnimatedStyle(() => ({ transform: [{ scale: dip.value }] }))
 
-  const kind = stepKind(step.name)
+  const kind = step.kind
   const sub = step.rest
     ? `${night ? t("routine.restNight") : t("routine.restDay")} · ${t(`routine.${FREQ_KEY[step.frequency]}`)}`
     : `${kind ? `${t(`routine.${KIND_KEY[kind]}`)} · ` : ""}${t(`routine.${FREQ_KEY[step.frequency]}`)}`
