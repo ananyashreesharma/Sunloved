@@ -41,3 +41,12 @@ export function isStreakAlive(lastActiveDate: string | null | undefined, today: 
   if (!lastActiveDate) return false
   return daysBetween(lastActiveDate, today) <= MAX_GAP
 }
+
+/** Streak lengths that get a celebration: a week, a lunar month, a hundred nights. */
+export const MILESTONES = [7, 30, 100] as const
+
+/** The milestone the streak has just reached and that hasn't been celebrated yet, if any. */
+export function newMilestone(current: number, seen: number[]): number | null {
+  const hit = [...MILESTONES].reverse().find((m) => current >= m && !seen.includes(m))
+  return hit ?? null
+}

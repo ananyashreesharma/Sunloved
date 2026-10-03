@@ -32,6 +32,8 @@ export type GuestData = {
   remindMorning: boolean
   remindNight: boolean
   muted: boolean
+  /** Streak milestones (7, 30, 100) whose celebration has been shown, so each appears once. */
+  milestonesSeen: number[]
   doneToday: Record<string, boolean>
   doneDate: string
   history: Record<string, "both" | "one">
@@ -70,6 +72,7 @@ export function defaultGuestData(): GuestData {
     remindMorning: true,
     remindNight: true,
     muted: false,
+    milestonesSeen: [],
     doneToday: {},
     doneDate: todayKey(),
     history: {},
@@ -90,7 +93,7 @@ export function hasGuestProfile(data: GuestData): boolean {
   return data.steps.length > 0 || !!data.skinType || data.concerns.length > 0
 }
 
-/** "both" when morning and night are both fully done today, "one" when either is, else null. */
+/** "both" when every routine with steps due today is done, "one" when only some are, else null. */
 export function dayStatus(data: GuestData): "both" | "one" | null {
   // Only steps due that day count; rest days of every-other-day steps never block "done".
   const due = data.steps.filter((s) => isDueOn(s.frequency, data.doneDate))
@@ -99,7 +102,10 @@ export function dayStatus(data: GuestData): "both" | "one" | null {
   const nightDone = nightSteps.length > 0 && nightSteps.every((s) => data.doneToday[doneKey(s.id, "night")])
   const morningDone = morningSteps.length > 0 && morningSteps.every((s) => data.doneToday[doneKey(s.id, "morning")])
   if (!nightDone && !morningDone) return null
-  return nightDone && morningDone ? "both" : "one"
+  // A routine with nothing due today (none set up, or all rest days) doesn't count against the day.
+  const nightOk = nightDone || nightSteps.length === 0
+  const morningOk = morningDone || morningSteps.length === 0
+  return nightOk && morningOk ? "both" : "one"
 }
 
 /** If the stored day has rolled over, file its status into history and reset today's checks. */

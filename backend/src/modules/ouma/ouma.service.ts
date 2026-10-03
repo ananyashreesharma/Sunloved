@@ -277,6 +277,15 @@ export class OumaService {
       byDay.set(key, entry);
     }
 
+    // A routine type with no steps (e.g. only a night routine) doesn't count against a day, so
+    // finishing the routines someone actually has is a full day. Same rule as the guest logic.
+    const withSteps = await this.prisma.routine.findMany({
+      where: { userId, deletedAt: null, steps: { some: {} } },
+      select: { type: true },
+    });
+    const hasMorning = withSteps.some((r) => r.type === 'morning');
+    const hasNight = withSteps.some((r) => r.type === 'night');
+
     const days: { date: string; status: 'both' | 'one' | 'paused' | 'future' }[] = [];
     for (let d = new Date(start); d < end; d.setUTCDate(d.getUTCDate() + 1)) {
       const key = d.toISOString().slice(0, 10);
@@ -285,7 +294,9 @@ export class OumaService {
         continue;
       }
       const entry = byDay.get(key);
-      const status = entry?.morning && entry?.night ? 'both' : entry?.morning || entry?.night ? 'one' : 'paused';
+      const any = !!(entry?.morning || entry?.night);
+      const full = any && (entry?.morning || !hasMorning) && (entry?.night || !hasNight);
+      const status = full ? 'both' : any ? 'one' : 'paused';
       days.push({ date: key, status });
     }
     return { days };

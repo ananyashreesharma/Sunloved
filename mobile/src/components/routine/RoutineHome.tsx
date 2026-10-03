@@ -18,12 +18,13 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated"
-import { findRoutineClash, motion, palettes, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
+import { findRoutineClash, MILESTONES, motion, newMilestone, palettes, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { FORWARD_ARROW, localDigits } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
 import { ease, useReduceMotion, useTheme } from "@/lib/theme"
-import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, setGuestStepFrequency, toggleGuestStep } from "@/lib/guest-store"
+import { getGuestRoutine, getGuestStreak, getGuestStreakHistory, loadGuestData, setGuestStepFrequency, toggleGuestStep, updateGuestData } from "@/lib/guest-store"
+import { MilestoneOverlay } from "./Milestone"
 import { Highlight } from "@/components/shared/Highlight"
 import { Moon, Sunrise } from "./Moon"
 
@@ -70,6 +71,7 @@ export function RoutineHome() {
   const [streak, setStreak] = useState(0)
   const [week, setWeek] = useState<StreakDayStatus[]>([])
   const [clashDismissed, setClashDismissed] = useState(false)
+  const [milestone, setMilestone] = useState<number | null>(null)
 
   const night = period === "night"
 
@@ -112,6 +114,17 @@ export function RoutineHome() {
     if (!step.done) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {})
     await toggleGuestStep(step.id, period)
     load(period)
+    if (!step.done) celebrateIfMilestone()
+  }
+
+  // A tick that completes the day can reach 7, 30 or 100: celebrate once, after the done animation.
+  // Smaller milestones are marked seen too, so a week never pops up after a month.
+  async function celebrateIfMilestone() {
+    const [s, g] = await Promise.all([getGuestStreak(), loadGuestData()])
+    const m = newMilestone(s.currentStreak, g.milestonesSeen)
+    if (!m) return
+    await updateGuestData({ milestonesSeen: Array.from(new Set([...g.milestonesSeen, ...MILESTONES.filter((x) => x <= m)])) })
+    setTimeout(() => setMilestone(m), reduce ? 400 : 1600)
   }
 
   const clash = useMemo(() => (data ? findRoutineClash(data.steps) : null), [data])
@@ -290,6 +303,7 @@ export function RoutineHome() {
       </ScrollView>
       {/* Paper behind the status bar, so scrolled content does not run under the clock */}
       <Animated.View pointerEvents="none" style={[{ position: "absolute", top: 0, left: 0, right: 0, height: insets.top }, bgStyle]} />
+      <MilestoneOverlay milestone={milestone} onClose={() => setMilestone(null)} />
     </Animated.View>
   )
 }

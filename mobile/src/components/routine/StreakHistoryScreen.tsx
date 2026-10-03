@@ -1,21 +1,18 @@
-// Port of frontend/components/ouma/app/OumaStreakHistoryClient.tsx. Guest-only, same reasoning as
-// RoutineHome/ProfileScreen — reads getGuestStreak()/getGuestStreakHistory() from guest-store, which
-// existed already (built alongside the routine/scan work) but had no screen calling them yet.
+// V3 Streak: the streak as a big number, the pause rule in plain words, a month of dots (done,
+// part done, paused, today) and the milestones, each of which replays its celebration.
 
 import { useCallback, useState } from "react"
-import { View, Text, Pressable, ScrollView } from "react-native"
+import { Pressable, ScrollView, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import { fonts } from "@/constants/fonts"
-import { colors } from "@/constants/tokens"
-import { BACK_ARROW, FORWARD_ARROW } from "@/lib/i18n"
+import { MILESTONES, todayKey, type StreakSummary } from "@skinlens/shared"
+import { rubik } from "@/constants/fonts"
 import { getGuestStreak, getGuestStreakHistory, type GuestStreakDay } from "@/lib/guest-store"
-import { StreakLeafIcon } from "./icons"
-
-function currentMonth(): string {
-  return new Date().toISOString().slice(0, 7)
-}
+import { BACK_ARROW, isRTL, localDigits } from "@/lib/i18n"
+import { useTheme } from "@/lib/theme"
+import { SectionLabel, StatusScrim } from "@/components/check/parts"
+import { MilestoneOverlay } from "./Milestone"
 
 function shiftMonth(month: string, delta: number): string {
   const [y, m] = month.split("-").map(Number)
@@ -23,135 +20,149 @@ function shiftMonth(month: string, delta: number): string {
   return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`
 }
 
-function monthLabel(month: string, locale: string): string {
-  const [y, m] = month.split("-").map(Number)
-  return new Date(Date.UTC(y, m - 1, 1))
-    .toLocaleDateString(locale, { month: "long", timeZone: "UTC" })
-    .toUpperCase()
-}
-
-const STATUS_STYLE: Record<GuestStreakDay["status"], { bg: string; fg: string; border?: string; dashed?: boolean }> = {
-  both: { bg: "#1D5C3B", fg: "#FFFFFF" },
-  one: { bg: "rgba(29,92,59,.35)", fg: "#FFFFFF" },
-  paused: { bg: "#E4EBE2", fg: colors.mute },
-  // fg was #AAB4AB (1.95:1 contrast on the bone background — fails WCAG AA badly, close to
-  // unreadable for anyone with low vision). colors.mute is the app's existing "de-emphasized but
-  // legible" text color elsewhere (5.75:1) — reuses that instead of a one-off very-light grey.
-  future: { bg: "transparent", fg: colors.mute, border: "rgba(23,33,26,.15)", dashed: true },
-}
-
 export function StreakHistoryScreen() {
   const { t, i18n } = useTranslation()
   const insets = useSafeAreaInsets()
-  const [month, setMonth] = useState(currentMonth())
+  const { T } = useTheme()
+  const today = todayKey()
+  const [month, setMonth] = useState(today.slice(0, 7))
   const [days, setDays] = useState<GuestStreakDay[]>([])
-  const [streak, setStreak] = useState<{ currentStreak: number; longestStreak: number; totalDaysCompleted: number } | null>(null)
-
-  const STATUS_LABEL: Record<GuestStreakDay["status"], string> = {
-    both: t("history.statusBoth"),
-    one: t("history.statusOne"),
-    paused: t("history.statusPaused"),
-    future: t("history.statusFuture"),
-  }
+  const [streak, setStreak] = useState<StreakSummary | null>(null)
+  const [open, setOpen] = useState<number | null>(null)
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
       getGuestStreak().then((s) => !cancelled && setStreak(s))
-      getGuestStreakHistory(month).then((r) => !cancelled && setDays(r.days))
+      getGuestStreakHistory(month).then((h) => !cancelled && setDays(h.days))
       return () => {
         cancelled = true
       }
     }, [month]),
   )
 
-  const firstWeekday = (() => {
-    const [y, m] = month.split("-").map(Number)
-    return new Date(Date.UTC(y, m - 1, 1)).getUTCDay()
-  })()
+  const num = (n: number) => localDigits(String(n), i18n.language)
+  const [y, m] = month.split("-").map(Number)
+  const monthName = new Intl.DateTimeFormat(i18n.language, { month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(Date.UTC(y, m - 1, 1)))
+  // Weeks start on Monday; blanks before the 1st.
+  const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7
+  const weekdays = Array.from({ length: 7 }, (_, i) =>
+    new Intl.DateTimeFormat(i18n.language, { weekday: "narrow", timeZone: "UTC" }).format(new Date(Date.UTC(2024, 0, 1 + i))),
+  )
+  const current = streak?.currentStreak ?? 0
+  const longest = streak?.longestStreak ?? 0
+  const isCurrentMonth = month === today.slice(0, 7)
+
+  function dot(d: GuestStreakDay) {
+    const isToday = d.date === today
+    // Today keeps a ring around whatever it shows, so it's always findable.
+    const ring = isToday ? { borderWidth: 2, borderColor: T.ink, padding: 2, borderRadius: 10 } : null
+    if (d.status === "both" || d.status === "one")
+      return (
+        <View style={ring ?? undefined}>
+          <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: T.ink, opacity: d.status === "one" ? 0.4 : 1 }} />
+        </View>
+      )
+    if (isToday) return <View style={{ width: 12, height: 12, borderRadius: 6, borderWidth: 1.5, borderColor: T.ink }} />
+    if (d.status === "paused") return <View style={{ width: 12, height: 12, borderRadius: 6, borderWidth: 1.5, borderStyle: "dashed", borderColor: T.ink2 }} />
+    return <View style={{ width: 4, height: 4, borderRadius: 2, margin: 4, backgroundColor: T.line }} />
+  }
+
+  function label(d: GuestStreakDay) {
+    const date = new Intl.DateTimeFormat(i18n.language, { day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${d.date}T00:00:00Z`))
+    const key = d.status === "both" ? "dayDone" : d.status === "one" ? "dayPart" : d.status === "paused" ? "dayPaused" : "dayFuture"
+    return t(`history.${key}`, { date })
+  }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.bone }}>
-      <ScrollView contentContainerStyle={{ padding: 20, paddingTop: insets.top + 8, paddingBottom: 40, gap: 16 }}>
-        <Pressable onPress={() => router.back()}>
-          <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("common.backRoutine")}</Text>
-        </Pressable>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: insets.top + 4, paddingBottom: insets.bottom + 32 }}>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginLeft: -12 }}>
+          <Pressable onPress={() => router.back()} accessibilityRole="button" accessibilityLabel={t("check.back")} style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontFamily: rubik.regular, fontSize: 24, color: T.ink }}>{BACK_ARROW}</Text>
+          </Pressable>
+          <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("history.title")}</Text>
+        </View>
 
-        <View>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <StreakLeafIcon size={20} color={colors.accent} />
-            <Text style={{ fontFamily: fonts.monoSemiBold, fontSize: 34, color: colors.ink }}>{streak?.currentStreak ?? "–"}</Text>
-            <Text style={{ fontFamily: fonts.body, fontSize: 14, color: colors.mute }}>{t("history.nightsInRow")}</Text>
+        <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: 68, lineHeight: 72, letterSpacing: -3.4, color: T.ink }}>
+          {localDigits(t("history.nights", { count: current }), i18n.language)}
+        </Text>
+        <Text style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink2 }}>{t("history.note")}</Text>
+        {longest > current && <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{localDigits(t("history.longest", { count: longest }), i18n.language)}</Text>}
+
+        {/* Month */}
+        <View style={{ marginTop: 28, marginBottom: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <SectionLabel>{monthName}</SectionLabel>
+          <View style={{ flexDirection: "row", gap: 4 }}>
+            <Pressable onPress={() => setMonth(shiftMonth(month, -1))} accessibilityRole="button" accessibilityLabel={t("history.prev")} style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center" }}>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 20, color: T.ink }}>{isRTL ? "›" : "‹"}</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setMonth(shiftMonth(month, 1))}
+              disabled={isCurrentMonth}
+              accessibilityRole="button"
+              accessibilityLabel={t("history.next")}
+              style={{ width: 44, height: 44, alignItems: "center", justifyContent: "center", opacity: isCurrentMonth ? 0.25 : 1 }}
+            >
+              <Text style={{ fontFamily: rubik.regular, fontSize: 20, color: T.ink }}>{isRTL ? "‹" : "›"}</Text>
+            </Pressable>
           </View>
-          <Text style={{ marginTop: 4, fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>
-            {t("history.longest")} <Text style={{ fontFamily: fonts.mono, color: colors.ink }}>{streak?.longestStreak ?? "–"}</Text> ·{" "}
-            {t("history.totalLogged")} <Text style={{ fontFamily: fonts.mono, color: colors.ink }}>{streak?.totalDaysCompleted ?? "–"}</Text>
-          </Text>
         </View>
-
-        <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between" }}>
-          <Pressable onPress={() => setMonth((m) => shiftMonth(m, -1))}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{BACK_ARROW} {t("history.prev")}</Text>
-          </Pressable>
-          <Text style={{ fontFamily: fonts.mono, fontSize: 13, color: colors.mute, letterSpacing: 1.3 }}>
-            {monthLabel(month, i18n.language)}
-          </Text>
-          <Pressable onPress={() => setMonth((m) => shiftMonth(m, 1))}>
-            <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.mute }}>{t("history.next")} {FORWARD_ARROW}</Text>
-          </Pressable>
-        </View>
-
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-          {Array.from({ length: firstWeekday }).map((_, i) => (
-            <View key={`pad-${i}`} style={{ width: "14.28%", aspectRatio: 1 }} />
+          {weekdays.map((w, i) => (
+            <Text key={`w${i}`} style={{ width: `${100 / 7}%`, textAlign: "center", paddingBottom: 6, fontFamily: rubik.regular, fontSize: 12, color: T.ink2 }}>
+              {w}
+            </Text>
           ))}
-          {days.map((d) => {
-            const style = STATUS_STYLE[d.status]
-            const dayNum = Number(d.date.slice(-2))
-            const dateLabel = new Date(`${d.date}T00:00:00Z`).toLocaleDateString(i18n.language, { month: "long", day: "numeric", timeZone: "UTC" })
-            return (
-              <View
-                key={d.date}
-                accessible
-                accessibilityLabel={`${dateLabel}: ${STATUS_LABEL[d.status]}`}
-                style={{ width: "14.28%", aspectRatio: 1, padding: 3 }}
-              >
-                <View
-                  style={{
-                    flex: 1,
-                    borderRadius: 8,
-                    backgroundColor: style.bg,
-                    borderWidth: style.border ? 1 : 0,
-                    borderColor: style.border,
-                    borderStyle: style.dashed ? "dashed" : "solid",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Text style={{ fontFamily: fonts.mono, fontSize: 11, color: style.fg }}>{dayNum}</Text>
-                </View>
-              </View>
-            )
-          })}
+          {Array.from({ length: lead }, (_, i) => (
+            <View key={`b${i}`} style={{ width: `${100 / 7}%` }} />
+          ))}
+          {days.map((d) => (
+            <View key={d.date} accessible accessibilityLabel={label(d)} style={{ width: `${100 / 7}%`, alignItems: "center", gap: 3, paddingVertical: 5 }}>
+              <View style={{ height: 20, justifyContent: "center" }}>{dot(d)}</View>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 11, color: T.ink3 }}>{num(Number(d.date.slice(8)))}</Text>
+            </View>
+          ))}
         </View>
-
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 14 }}>
-          {[
-            { label: t("history.legendBoth"), color: "#1D5C3B" },
-            { label: t("history.legendOne"), color: "rgba(29,92,59,.35)" },
-            { label: t("history.legendPaused"), color: "#E4EBE2" },
-          ].map((l) => (
-            <View key={l.label} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
-              <View style={{ width: 10, height: 10, borderRadius: 3, backgroundColor: l.color }} />
-              <Text style={{ fontFamily: fonts.body, fontSize: 11, color: colors.mute }}>{l.label}</Text>
+        <View style={{ marginTop: 14, flexDirection: "row", flexWrap: "wrap", columnGap: 16, rowGap: 6 }}>
+          {(
+            [
+              ["done", <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink }} />],
+              ["part", <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink, opacity: 0.4 }} />],
+              ["paused", <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderStyle: "dashed", borderColor: T.ink2 }} />],
+              ["today", <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: T.ink }} />],
+            ] as const
+          ).map(([k, sw]) => (
+            <View key={k} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              {sw}
+              <Text style={{ fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t(`history.${k}`)}</Text>
             </View>
           ))}
         </View>
 
-        <View style={{ backgroundColor: colors.card, borderRadius: 12, borderWidth: 1, borderColor: colors.line, padding: 14 }}>
-          <Text style={{ fontFamily: fonts.body, fontSize: 13, color: colors.ink, lineHeight: 19 }}>{t("history.footerNote")}</Text>
+        {/* Milestones */}
+        <View style={{ marginTop: 28, marginBottom: 4 }}>
+          <SectionLabel>{t("history.milestones")}</SectionLabel>
         </View>
+        {MILESTONES.map((n) => {
+          const reached = longest >= n
+          return (
+            <Pressable
+              key={n}
+              onPress={() => reached && setOpen(n)}
+              disabled={!reached}
+              accessibilityRole={reached ? "button" : undefined}
+              style={{ minHeight: 56, flexDirection: "row", alignItems: "baseline", gap: 14, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: T.line }}
+            >
+              <Text style={{ width: 56, fontFamily: rubik.light, fontSize: 28, letterSpacing: -1, color: reached ? T.ink : T.ink3 }}>{num(n)}</Text>
+              <Text style={{ flex: 1, fontFamily: rubik.regular, fontSize: 16, color: T.ink }}>{t(`history.ms${n}`)}</Text>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{reached ? t("history.reached") : localDigits(t("history.toGo", { count: n - current }), i18n.language)}</Text>
+            </Pressable>
+          )
+        })}
       </ScrollView>
+      <StatusScrim />
+      <MilestoneOverlay milestone={open} onClose={() => setOpen(null)} />
     </View>
   )
 }
