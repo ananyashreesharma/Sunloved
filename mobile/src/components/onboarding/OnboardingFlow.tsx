@@ -23,7 +23,8 @@ import Animated, {
 } from "react-native-reanimated"
 import { CONCERNS, countryByCode, guessCountry, MAX_CONCERNS, SKIN_TYPES, type StepKind } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { addGuestStep, loadGuestData, updateGuestData } from "@/lib/guest-store"
+import { loadGuestData, updateGuestData } from "@/lib/guest-store"
+import { addStep, saveProfile } from "@/lib/data"
 import { syncReminders } from "@/lib/notifications"
 import { BACK_ARROW, localDigits } from "@/lib/i18n"
 import { formatTimeForDisplay } from "@/lib/time-format"
@@ -116,7 +117,7 @@ export function OnboardingFlow() {
     const existing = new Set(data.steps.map((s) => s.name.toLowerCase()))
     for (const p of sorted) {
       const name = t(`ob.${p.key}`)
-      if (!existing.has(name.toLowerCase())) await addGuestStep({ name, when: "night", frequency: "daily", kind: p.kind })
+      if (!existing.has(name.toLowerCase())) await addStep({ name, when: "night", frequency: "daily", kind: p.kind })
     }
     const latest = await loadGuestData()
     // They just chose reminders, so this is the moment to ask for permission (iOS asks only once).
@@ -126,7 +127,8 @@ export function OnboardingFlow() {
   }
 
   async function saveEdit() {
-    await updateGuestData(edit === "country" ? { country } : { skinType, concerns })
+    // Saved on the phone, and to the account when signed in.
+    await saveProfile(edit === "country" ? { country } : { skinType, concerns })
     router.back()
   }
 
@@ -162,8 +164,9 @@ export function OnboardingFlow() {
           <PrimaryButton label={t("ob.getStarted")} onPress={() => setStep(1)} />
         </View>
         <Text style={{ marginTop: 12, textAlign: "center", fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("ob.noAccount")}</Text>
-        {/* "I have an account" returns when mobile syncs with the account; until then signing in
-            would change nothing here. */}
+        <Pressable onPress={() => router.push({ pathname: "/login", params: { from: "welcome" } })} style={{ minHeight: 44, alignItems: "center", justifyContent: "center" }}>
+          <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("ob.haveAccount")}</Text>
+        </Pressable>
       </View>
     )
   }

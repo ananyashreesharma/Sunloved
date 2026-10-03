@@ -283,6 +283,52 @@ export class OumaService {
     });
   }
 
+  /**
+   * Moves days completed on a phone (before signing in) into the account, so the streak survives
+   * the move. "both" marks morning and night done; "one" marks night. Then the streak is recounted
+   * from every completed day with the usual rule (one missed day pauses, two in a row end it).
+   */
+  async importHistory(userId: string, days: { date: string; status: 'both' | 'one' }[]) {
+    const today = startOfUtcDay(new Date());
+    const valid = days.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.date) && new Date(`${d.date}T00:00:00Z`) <= today).slice(-400);
+    if (valid.length) {
+      const night = await this.getOrCreateRoutine(userId, 'night');
+      const morning = await this.getOrCreateRoutine(userId, 'morning');
+      for (const d of valid) {
+        const logDate = new Date(`${d.date}T00:00:00Z`);
+        const routines = d.status === 'both' ? [night, morning] : [night];
+        for (const r of routines) {
+          await this.prisma.routineLog.upsert({
+            where: { userId_routineId_logDate: { userId, routineId: r.id, logDate } },
+            update: {},
+            create: { userId, routineId: r.id, logDate, completedAt: new Date(logDate.getTime() + 12 * 3600_000), completedStepIds: [] },
+          });
+        }
+      }
+    }
+    return this.recountStreak(userId);
+  }
+
+  /** Rebuild the stored streak from every day with a completed routine. */
+  private async recountStreak(userId: string) {
+    const logs = await this.prisma.routineLog.findMany({
+      where: { userId, completedAt: { not: null } },
+      select: { logDate: true },
+      orderBy: { logDate: 'asc' },
+    });
+    const dates = Array.from(new Set(logs.map((l) => startOfUtcDay(l.logDate).getTime()))).sort((a, b) => a - b);
+    if (!dates.length) return this.getStreak(userId);
+    let run = 1;
+    let longest = 1;
+    for (let i = 1; i < dates.length; i++) {
+      run = Math.round((dates[i] - dates[i - 1]) / 86_400_000) <= 2 ? run + 1 : 1;
+      longest = Math.max(longest, run);
+    }
+    const data = { currentStreak: run, longestStreak: longest, lastActiveDate: new Date(dates[dates.length - 1]), totalDaysCompleted: dates.length };
+    await this.prisma.streak.upsert({ where: { userId }, update: data, create: { userId, ...data } });
+    return this.getStreak(userId);
+  }
+
   async getStreak(userId: string) {
     const streak = await this.prisma.streak.findUnique({ where: { userId } });
     return {
@@ -434,7 +480,7 @@ export class OumaService {
   }
 
   /** Last few saved scans for the "Recent scans" list — most recent first. */
-  async getRecentScans(userId: string, limit = 8) {
+  async getRecentScans(userId: string, limit = 20) {
     const rows = await this.prisma.skinScanHistory.findMany({
       where: { userId },
       orderBy: { scannedAt: 'desc' },
@@ -451,7 +497,11 @@ export class OumaService {
         rawIngredientText: row.productId ? null : row.rawIngredientText,
         name: row.product?.name ?? (result.title as string | undefined) ?? 'Ingredient analysis',
         brand: row.product?.brand?.name ?? (result.brand as string | undefined) ?? null,
-        score: typeof bd.score === 'number' ? bd.score : null,
+        score: typeof bd.score === 'number' ? bd.score : typeof result.score === 'number' ? result.score : null,
+        // Saved by the V3 apps: the verdict at the time (null = no verdict) and how much was rated.
+        verdict: (['GREEN', 'YELLOW', 'RED'] as const).find((v) => v === result.verdict) ?? (result.verdict === null ? null : undefined),
+        coverage: typeof result.coverage === 'number' ? result.coverage : null,
+        flagCount: row.flagCount,
         scannedAt: row.scannedAt,
       };
     });

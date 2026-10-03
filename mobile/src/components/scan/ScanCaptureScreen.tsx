@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
 import { SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { getGuestScans } from "@/lib/guest-store"
+import { getScans } from "@/lib/data"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
 
@@ -31,7 +31,7 @@ export function ScanCaptureScreen() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      getGuestScans().then((scans) => !cancelled && setSaved(scans))
+      getScans().then((scans) => !cancelled && setSaved(scans))
       return () => {
         cancelled = true
       }

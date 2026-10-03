@@ -36,7 +36,8 @@ function SmallMoon({ size, lit, delay, id }: { size: number; lit: number; delay:
   )
 }
 
-export function MilestoneOverlay({ milestone, onClose }: { milestone: number | null; onClose: () => void }) {
+/** `onSave`: offered when the person isn't signed in. A streak this long is worth not losing. */
+export function MilestoneOverlay({ milestone, onClose, onSave }: { milestone: number | null; onClose: () => void; onSave?: () => void }) {
   const { t, i18n } = useTranslation()
   const insets = useSafeAreaInsets()
   const reduce = useReduceMotion()
@@ -113,6 +114,11 @@ export function MilestoneOverlay({ milestone, onClose }: { milestone: number | n
         >
           <Text style={{ fontFamily: rubik.semibold, fontSize: 17, color: N.btnInk }}>{t("history.goodNight")}</Text>
         </Pressable>
+        {onSave && (
+          <Pressable onPress={onSave} accessibilityRole="button" style={{ minHeight: 48, marginTop: 6, alignItems: "center", justifyContent: "center" }}>
+            <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: N.ink2, textDecorationLine: "underline" }}>{t("acct.reasonStreak")}</Text>
+          </Pressable>
+        )}
       </View>
     </Modal>
   )

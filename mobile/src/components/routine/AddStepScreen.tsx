@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
 import { STEP_KINDS, stepKind, stepNeighbours, type GuestData, type StepFrequency, type StepKind } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { addGuestStep, loadGuestData, removeGuestStep, updateGuestStep } from "@/lib/guest-store"
+import { addStep, listSteps, removeStep, stepsAsGuestData, updateStep, type EditableStep } from "@/lib/data"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton } from "@/components/check/parts"
 
@@ -32,6 +32,8 @@ export function AddStepScreen() {
   const editing = !!params.id
 
   const [data, setData] = useState<GuestData | null>(null)
+  // The step being edited, with every server row it covers (morning and night are two when signed in).
+  const [editingStep, setEditingStep] = useState<EditableStep | null>(null)
   const [name, setName] = useState(params.name ?? "")
   // Guessed from the name until the person picks one themselves.
   const [kind, setKind] = useState<StepKind | null>(null)
@@ -41,10 +43,11 @@ export function AddStepScreen() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    loadGuestData().then((d) => {
+    Promise.all([stepsAsGuestData(), listSteps()]).then(([d, all]) => {
       setData(d)
-      const step = params.id ? d.steps.find((s) => s.id === params.id) : null
+      const step = params.id ? all.find((s) => s.ids.includes(params.id!)) : null
       if (step) {
+        setEditingStep(step)
         setName(step.name)
         setWhen(step.when)
         setFrequency(step.frequency)
@@ -61,7 +64,7 @@ export function AddStepScreen() {
   const goes = useMemo(() => {
     if (!data || !name.trim()) return ""
     const period = when === "morning" ? "morning" : "night"
-    const n = stepNeighbours(data, period, { name: name.trim(), kind: effectiveKind ?? undefined }, params.id)
+    const n = stepNeighbours(data, period, { name: name.trim(), kind: effectiveKind ?? undefined }, editingStep?.id)
     if (n.after && n.before) return t("step.goesBetween", { a: n.after, b: n.before })
     if (n.after) return t("step.goesAfter", { a: n.after })
     if (n.before) return t("step.goesBefore", { b: n.before })
@@ -71,14 +74,14 @@ export function AddStepScreen() {
   async function save() {
     const trimmed = name.trim()
     if (!trimmed || !data) return
-    const clash = data.steps.find((s) => s.id !== params.id && s.name.toLowerCase() === trimmed.toLowerCase())
+    const clash = data.steps.find((s) => s.id !== editingStep?.id && s.name.toLowerCase() === trimmed.toLowerCase())
     if (clash) {
       setError(t("step.duplicate", { name: trimmed }))
       return
     }
     const kindField = effectiveKind ?? undefined
-    if (params.id) await updateGuestStep(params.id, { name: trimmed, when, frequency, kind: kindField })
-    else await addGuestStep({ name: trimmed, when, frequency, kind: kindField })
+    if (editingStep) await updateStep(editingStep, { name: trimmed, when, frequency, kind: kindField })
+    else await addStep({ name: trimmed, when, frequency, kind: kindField })
     router.back()
   }
 
@@ -90,7 +93,7 @@ export function AddStepScreen() {
         text: t("step.remove"),
         style: "destructive",
         onPress: async () => {
-          await removeGuestStep(params.id!)
+          if (editingStep) await removeStep(editingStep)
           router.back()
         },
       },

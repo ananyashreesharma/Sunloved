@@ -11,15 +11,21 @@ import { AppChromeProvider } from "@/lib/app-chrome-context"
 import { useOumaFonts } from "@/constants/fonts"
 import { loadGuestData } from "@/lib/guest-store"
 import { syncReminders } from "@/lib/notifications"
+import { initAccount, useAccount } from "@/lib/account"
 
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
   const fontsLoaded = useOumaFonts()
+  // Whether this phone is signed in decides where the routine is read from; know it before screens load.
+  const { ready } = useAccount()
+  useEffect(() => {
+    initAccount()
+  }, [])
 
   useEffect(() => {
-    if (fontsLoaded) SplashScreen.hideAsync()
-  }, [fontsLoaded])
+    if (fontsLoaded && ready) SplashScreen.hideAsync()
+  }, [fontsLoaded, ready])
 
   useEffect(() => {
     // Self-healing backstop for returning users (ProfileScreen/OnboardingFlow already reschedule
@@ -30,7 +36,7 @@ export default function RootLayout() {
     })
   }, [])
 
-  if (!fontsLoaded) return null
+  if (!fontsLoaded || !ready) return null
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -38,7 +44,7 @@ export default function RootLayout() {
         <AppChromeProvider>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="index" />
-            <Stack.Screen name="login" />
+            <Stack.Screen name="login" options={{ presentation: "modal" }} />
             <Stack.Screen name="onboarding" />
             {/* replace()'d into from onboarding/login, so there's nothing sensible below it in the
                 stack — without this, swiping back from Routine lands you on the marketing carousel. */}

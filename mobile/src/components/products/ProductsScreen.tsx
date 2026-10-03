@@ -6,9 +6,9 @@ import { Pressable, ScrollView, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import { stepKind, type GuestData, type GuestScan } from "@skinlens/shared"
+import { stepKind, type GuestScan } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { getGuestScans, loadGuestData } from "@/lib/guest-store"
+import { getScans, listSteps, type EditableStep } from "@/lib/data"
 import { BACK_ARROW } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, SectionLabel, StatusScrim } from "@/components/check/parts"
@@ -28,16 +28,16 @@ export function ProductsScreen() {
   const { t } = useTranslation()
   const insets = useSafeAreaInsets()
   const { T } = useTheme()
-  const [data, setData] = useState<GuestData | null>(null)
+  const [data, setData] = useState<{ steps: EditableStep[] } | null>(null)
   const [scans, setScans] = useState<GuestScan[]>([])
 
   // Re-read on focus: the step sheet edits on top of this screen.
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      Promise.all([loadGuestData(), getGuestScans()]).then(([d, s]) => {
+      Promise.all([listSteps(), getScans()]).then(([steps, s]) => {
         if (cancelled) return
-        setData(d)
+        setData({ steps })
         setScans(s)
       })
       return () => {

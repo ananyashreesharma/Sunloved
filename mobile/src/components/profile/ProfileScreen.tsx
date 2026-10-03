@@ -3,13 +3,14 @@
 // Everything here is on the device; signing in only adds syncing.
 
 import { useCallback, useState } from "react"
-import { Linking, Pressable, ScrollView, Text, View } from "react-native"
+import { Alert, Linking, Pressable, ScrollView, Text, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect, type Href } from "expo-router"
 import { countryByCode, type GuestData } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { loadGuestData } from "@/lib/guest-store"
+import { signOut, useAccount } from "@/lib/account"
 import { FORWARD_ARROW } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
 import { SectionLabel, StatusScrim } from "@/components/check/parts"
@@ -26,6 +27,14 @@ export function ProfileScreen() {
   const { T } = useTheme()
   const nameOf = useCountryName()
   const [data, setData] = useState<GuestData | null>(null)
+  const { signedIn, email } = useAccount()
+
+  function confirmSignOut() {
+    Alert.alert(t("acct.signOutTitle"), t("acct.signOutBody"), [
+      { text: t("acct.cancel"), style: "cancel" },
+      { text: t("acct.signOut"), style: "destructive", onPress: () => signOut() },
+    ])
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -106,13 +115,37 @@ export function ProfileScreen() {
           <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("me.openSettings")}</Text>
         </Pressable>
 
+        {/* Account: optional. Signed out, offer it for the moment it matters (a new phone). */}
+        <View style={{ marginTop: 28, marginBottom: 8 }}>
+          <SectionLabel>{signedIn ? t("acct.heading") : t("acct.title")}</SectionLabel>
+        </View>
+        {signedIn ? (
+          <>
+            <Text style={{ fontFamily: rubik.regular, fontSize: 17, lineHeight: 24, color: T.ink }}>
+              {email ? t("acct.signedIn", { email }) : t("acct.signedInSub")}
+            </Text>
+            {email && <Text style={{ marginTop: 2, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("acct.signedInSub")}</Text>}
+            <Pressable onPress={confirmSignOut} style={{ minHeight: 48, justifyContent: "center", alignSelf: "flex-start" }}>
+              <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("acct.signOut")}</Text>
+            </Pressable>
+          </>
+        ) : (
+          <>
+            <Text style={{ fontFamily: rubik.regular, fontSize: 17, lineHeight: 24, color: T.ink }}>{t("acct.guest")}</Text>
+            <Pressable
+              onPress={() => router.push({ pathname: "/login", params: { reason: "phone" } })}
+              accessibilityRole="button"
+              style={{ minHeight: 48, justifyContent: "center", alignSelf: "flex-start" }}
+            >
+              <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("acct.changingPhones")}</Text>
+            </Pressable>
+          </>
+        )}
+
         <View style={{ marginTop: 28, marginBottom: 8 }}>
           <SectionLabel>{t("me.plan")}</SectionLabel>
         </View>
         <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 27, color: T.ink }}>{t("me.freePlan")}</Text>
-        {/* No "Sign in to sync" yet: mobile doesn't use an account for anything (everything is on
-            this device), so offering it would promise syncing that doesn't happen. The email sign-in
-            screen (app/login.tsx) is ready for when syncing is built. */}
       </ScrollView>
       <StatusScrim />
     </View>

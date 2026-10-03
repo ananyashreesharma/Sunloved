@@ -8,7 +8,8 @@ import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
 import { MILESTONES, todayKey, type StreakSummary } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
-import { getGuestStreak, getGuestStreakHistory, type GuestStreakDay } from "@/lib/guest-store"
+import { getStreak, getStreakHistory } from "@/lib/data"
+import type { GuestStreakDay } from "@/lib/guest-store"
 import { BACK_ARROW, isRTL, localDigits } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
 import { SectionLabel, StatusScrim } from "@/components/check/parts"
@@ -33,8 +34,8 @@ export function StreakHistoryScreen() {
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      getGuestStreak().then((s) => !cancelled && setStreak(s))
-      getGuestStreakHistory(month).then((h) => !cancelled && setDays(h.days))
+      getStreak().then((s) => !cancelled && setStreak(s))
+      getStreakHistory(month).then((h) => !cancelled && setDays(h.days))
       return () => {
         cancelled = true
       }

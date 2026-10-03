@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Req, UseGuards } from '@nestjs/common';
 import { OumaService } from './ouma.service';
 import { UserAuthGuard } from '../../common/guards/user-auth.guard';
-import { GetRoutineDto, CreateRoutineStepDto, StreakHistoryQueryDto, UpdateRoutineStepDto } from './dto/routine.dto';
+import { GetRoutineDto, CreateRoutineStepDto, StreakHistoryQueryDto, UpdateRoutineStepDto, ImportHistoryDto } from './dto/routine.dto';
 import { UpdateNotificationPreferencesDto, SaveScanDto } from './dto/notification-preferences.dto';
 
 type AuthedRequest = { userId: string };
@@ -44,6 +44,13 @@ export class OumaController {
   @UseGuards(UserAuthGuard)
   getStreak(@Req() req: AuthedRequest) {
     return this.ouma.getStreak(req.userId);
+  }
+
+  /** Days completed on a phone before signing in, so the streak moves with the person. */
+  @Post('streak/import')
+  @UseGuards(UserAuthGuard)
+  importHistory(@Req() req: AuthedRequest, @Body() dto: ImportHistoryDto) {
+    return this.ouma.importHistory(req.userId, dto.days);
   }
 
   @Get('streak/history')

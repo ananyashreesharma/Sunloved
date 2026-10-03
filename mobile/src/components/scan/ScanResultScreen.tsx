@@ -12,7 +12,10 @@ import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated"
 import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnnotatedLabel, type LabelItem, type Zone } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api-client"
-import { loadGuestData, saveGuestScan } from "@/lib/guest-store"
+import { loadGuestData } from "@/lib/guest-store"
+import { getScans, saveScan } from "@/lib/data"
+import { useAccount } from "@/lib/account"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { BACK_ARROW, localDigits } from "@/lib/i18n"
 import { useReduceMotion, useTheme } from "@/lib/theme"
 import { Highlight } from "@/components/shared/Highlight"
@@ -26,6 +29,8 @@ const VERDICT_KEYS: Record<Zone, { pre: string; key: string; post: string; mark:
   YELLOW: { pre: "vCautionPre", key: "vCautionKey", post: "vCautionPost", mark: "hiCaution" },
   RED: { pre: "vAvoidPre", key: "vAvoidKey", post: "vAvoidPost", mark: "hiAvoid" },
 }
+const PROMPTED_CHECKS = "skinlens_prompted_save_checks"
+
 /** Labels longer than this open on the flagged ingredients, with the full label one tap away. */
 const LONG_LABEL = 15
 
@@ -48,6 +53,8 @@ export function ScanResultScreen() {
   const [saved, setSaved] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const skipRef = useRef(false)
+  const { signedIn } = useAccount()
+  const [askToSave, setAskToSave] = useState(false)
 
   // Fetch, then annotate for this person's skin.
   useEffect(() => {
@@ -120,7 +127,7 @@ export function ScanResultScreen() {
 
   async function save() {
     if (!label || saved) return
-    await saveGuestScan({
+    await saveScan({
       title,
       brand: "",
       flagCount: label.flagged.length,
@@ -131,6 +138,11 @@ export function ScanResultScreen() {
     })
     setSaved(true)
     setToast(t("check.toastSaved"))
+    // Third saved check, not signed in: offer an account once, so they're never lost.
+    if (!signedIn && (await getScans()).length >= 3 && !(await AsyncStorage.getItem(PROMPTED_CHECKS).catch(() => "1"))) {
+      AsyncStorage.setItem(PROMPTED_CHECKS, "1").catch(() => {})
+      setAskToSave(true)
+    }
   }
 
   function share() {
@@ -358,6 +370,28 @@ export function ScanResultScreen() {
       <StatusScrim />
       <IngredientSheet item={sheet} onClose={() => setSheet(null)} />
       <Toast text={toast} bottom={insets.bottom + 16} />
+      {askToSave && (
+        <Animated.View
+          entering={reduce ? FadeIn.duration(160) : FadeInUp.duration(300)}
+          style={{ position: "absolute", left: 16, right: 16, bottom: insets.bottom + 16, padding: 18, borderRadius: 20, backgroundColor: T.surface, borderWidth: 1, borderColor: T.line }}
+        >
+          <Text style={{ fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t("acct.reasonChecks")}</Text>
+          <View style={{ marginTop: 12, flexDirection: "row", gap: 8, alignItems: "center" }}>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label={t("acct.saveCta")}
+                onPress={() => {
+                  setAskToSave(false)
+                  router.push({ pathname: "/login", params: { reason: "checks" } })
+                }}
+              />
+            </View>
+            <Pressable onPress={() => setAskToSave(false)} style={{ minHeight: 48, paddingHorizontal: 12, justifyContent: "center" }}>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("acct.notNow")}</Text>
+            </Pressable>
+          </View>
+        </Animated.View>
+      )}
     </View>
   )
 }
