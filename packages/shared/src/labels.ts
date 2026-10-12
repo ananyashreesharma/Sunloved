@@ -12,6 +12,8 @@ const HEADINGS =
 
 export function splitLabel(raw: string): string[] {
   let text = raw
+    // Invisible characters copied from websites (zero-width spaces, BOM) split names wrongly.
+    .replace(/[\u200B-\u200D\u2060\uFEFF]/g, "")
     .replace(/\r/g, "\n")
     // "[+/- CI 77891]" and "+/-:" introduce colourants that may be present: keep them as ingredients.
     .replace(/\[\s*\+\/-\s*:?/g, ",")

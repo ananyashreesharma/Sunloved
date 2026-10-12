@@ -192,7 +192,8 @@ async function lookup(name: string): Promise<CosingHit | null> {
 
 /** Candidate spellings for a messy catalogue name: "' Niacinamide", "(Aloe Vera Leaf Extract", "Parfum/Fragrance". */
 function candidates(raw: string): string[] {
-  const base = raw.replace(/[​'"`*]/g, ' ').replace(/\s+/g, ' ').trim();
+  // Invisible characters copied from websites are removed outright ("Caprylic/<ZWSP>Capric").
+  const base = raw.replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/['"`*]/g, ' ').replace(/\\/g, '/').replace(/\s+/g, ' ').trim();
   const out = new Set<string>();
   const add = (s: string) => {
     const t = s.replace(/^[^A-Za-z0-9]+|[^A-Za-z0-9)]+$/g, '').trim();
@@ -200,7 +201,8 @@ function candidates(raw: string): string[] {
   };
   add(base);
   add(base.replace(/\([^)]*\)?/g, ' ').replace(/\s+/g, ' '));
-  for (const part of base.split('/')) add(part);
+  // In polymer names the slash is part of one chemical name, not a list of alternatives.
+  if (!/polymer|glyceride|\d\/\d/i.test(base)) for (const part of base.split('/')) add(part);
   // "1,3 Butylene glycol" → "Butylene glycol", "2-Phenoxyethanol" → "Phenoxyethanol" (tried last,
   // so a real locant name like "1,2-Hexanediol" still matches first).
   add(base.replace(/^\d+(,\d+)*[- ]+/, ''));
@@ -306,7 +308,11 @@ async function main() {
   }
 
   const rows = await prisma.ingredient.findMany({
-    where: { OR: [{ source: null }, { source: { not: IngredientSource.manual } }] },
+    where: {
+      OR: [{ source: null }, { source: { not: IngredientSource.manual } }],
+      // --unrated-only: just the rows still without a rating (e.g. after fixing name cleanup).
+      ...(process.argv.includes('--unrated-only') ? { zone: null } : {}),
+    },
     select: { id: true, inciName: true, zone: true, function: true },
     orderBy: { inciName: 'asc' },
     take: limit,

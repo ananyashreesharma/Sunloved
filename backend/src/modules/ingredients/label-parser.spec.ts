@@ -27,6 +27,13 @@ describe('candidateNames', () => {
     expect(candidateNames('Fragancia')).toContain('Parfum');
     expect(candidateNames('عطر')).toContain('Parfum');
   });
+  it('does not split polymer names at slashes', () => {
+    expect(candidateNames('Castor Oil/IPDI Copolymer')).not.toContain('Castor Oil');
+    expect(candidateNames('Caprylic/\u200BCapric Triglyceride')).toContain('Caprylic/Capric Triglyceride');
+  });
+  it('maps US colour names', () => {
+    expect(candidateNames('FD&C Red No. 40')).toContain('CI 16035');
+  });
 });
 
 describe('shared copy', () => {
