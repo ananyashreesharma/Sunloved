@@ -98,3 +98,6 @@ prisma/migrations/*.sql
 .cache
 .next
 out/
+
+# Downloaded EU CosIng inventory (re-fetched by prisma/import-cosing-inventory.ts)
+prisma/data/cosing-inventory.json

@@ -83,14 +83,18 @@ export class IngredientsService {
     const rows = all.length
       ? await this.prisma.$queryRaw<Ingredient[]>`
           SELECT * FROM ingredients
-          WHERE lower("inciName") = ANY(${all}) OR lower("displayName") = ANY(${all})`
+          WHERE lower("inciName") = ANY(${all}) OR lower("displayName") = ANY(${all}) OR aliases && ${all}::text[]`
       : [];
     const byName = new Map<string, Ingredient[]>();
-    for (const r of rows) {
-      for (const key of [r.inciName, r.displayName]) {
-        if (!key) continue;
-        const k = key.toLowerCase();
-        byName.set(k, [...(byName.get(k) ?? []), r]);
+    // Real names first, then aliases (stored lower case: the EU's US, common and pharmacopoeia
+    // names), so a name that is one row's own wins over another row's alias.
+    for (const pass of ['names', 'aliases'] as const) {
+      for (const r of rows) {
+        for (const key of pass === 'names' ? [r.inciName, r.displayName] : (r.aliases ?? [])) {
+          if (!key) continue;
+          const k = key.toLowerCase();
+          byName.set(k, [...(byName.get(k) ?? []), r]);
+        }
       }
     }
     const out = new Map<string, Ingredient>();
