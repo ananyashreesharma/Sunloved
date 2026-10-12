@@ -67,6 +67,11 @@ const KOJIC =
 const DEOXYARBUTIN =
   'Lab-made relative of arbutin, used to fade dark spots. Less studied than arbutin; it can break down into hydroquinone in some formulas.';
 
+const AZELAIC =
+  'Azelaic acid. Calms redness and spots and fades dark marks; give it about 4 weeks, longer for marks. A tingle at first is normal. Sold as a medicine in some countries and banned in cosmetics in Southeast Asia (ASEAN).';
+const PROSTAGLANDIN =
+  'Prostaglandin drug, used in some eyelash serums to grow lashes. It is a prescription glaucoma medicine: around the eyes it can darken the eyelid and, rarely, change eye colour for good. Banned in cosmetics in Canada and Southeast Asia.';
+
 const FRAGRANCE =
   'Fragrance: a blend of scent chemicals that brands don\'t have to list individually. Fine for many people, but a common cause of irritation and allergy, especially on sensitive skin.';
 
@@ -129,6 +134,13 @@ const ENTRIES: Entry[] = [
   { names: ['Sodium Lauryl Sulfate'], zone: 'yellow', safetyRating: 'caution', shortDescription: SLS },
   { names: ['Niacinamide'], zone: 'green', safetyRating: 'safe', shortDescription: NIACINAMIDE },
   { names: ['Ascorbic Acid', '3-O-Ethyl Ascorbic Acid', 'Ethyl Ascorbic Acid', 'Sodium Ascorbyl Phosphate', 'Magnesium Ascorbyl Phosphate'], zone: 'green', safetyRating: 'safe', shortDescription: VITAMIN_C },
+  { names: ['Azelaic Acid'], zone: 'yellow', safetyRating: 'caution', shortDescription: AZELAIC },
+  {
+    names: ['Bimatoprost', 'Latanoprost', 'Travoprost', 'Tafluprost', 'Isopropyl Cloprostenate', 'Dechloro Ethylcloprostenolamide', 'Dehydrolatanoprost', 'Ethyl Travoprostamide', 'Trifluoromethyl Dechloro Ethylprostenolamide', 'Methylamido Dihydro Noralfaprostal'],
+    zone: 'red',
+    safetyRating: 'avoid',
+    shortDescription: PROSTAGLANDIN,
+  },
   {
     names: ['Fragrance', 'Parfum', 'Parfum/Fragrance', 'Fragrance/Parfum', 'Fragrance (Parfum)', 'Parfum (Fragrance)'],
     zone: 'yellow',

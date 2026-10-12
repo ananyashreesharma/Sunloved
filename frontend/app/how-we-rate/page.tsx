@@ -58,6 +58,11 @@ export default function HowWeRate() {
         <p style={p}>
           An automated rating can say &ldquo;caution&rdquo;, but it never says &ldquo;avoid&rdquo; on its own. That verdict is only ever set by hand.
         </p>
+        <p style={p}>
+          <strong>Checked against other regulators.</strong> Every rating is cross-checked with Health Canada&apos;s Cosmetic Ingredient Hotlist, the ASEAN
+          Cosmetic Directive&apos;s banned list (Southeast Asia), the US FDA&apos;s prohibited ingredients and the EU&apos;s list of fragrance allergens that must be
+          named on labels. If an ingredient is banned in any of them, we say where, and it is never rated &ldquo;fine&rdquo;.
+        </p>
         <p style={{ ...p, fontSize: 15, color: "var(--ink2)" }}>
           EU ingredient data: CosIng, &copy; European Union, reused under Commission Decision 2011/833/EU. Plain-language descriptions are our own.
         </p>
