@@ -50,6 +50,7 @@ export function SiteFooter() {
     >
       <span>No ads. No affiliate links. No sponsored verdicts.</span>
       <span>If we can rate less than 70% of a label, we don&apos;t give a verdict.</span>
+      <Link href="/ingredients">Ingredients A–Z</Link>
       <Link href="/legal/privacy">Privacy</Link>
       <Link href="/legal/terms">Terms</Link>
     </footer>

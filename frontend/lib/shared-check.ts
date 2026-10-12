@@ -10,6 +10,9 @@ export const SITE = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://skinlens.in").
 export type CheckParams = { p?: string; i?: string; n?: string }
 export type SharedLabel = { name: string; inci: string }
 
+// Our server calls on behalf of many visitors: identify it so the backend doesn't rate-limit it.
+export const serverHeaders: Record<string, string> = process.env.INTERNAL_API_KEY ? { "x-internal-api-key": process.env.INTERNAL_API_KEY } : {}
+
 async function unwrap<T>(res: Response): Promise<T> {
   const body = await res.json()
   return (body?.data ?? body) as T
@@ -23,7 +26,7 @@ export function checkUrl(label: { productId?: string | null; inci: string; name:
 /** Resolve link parameters to a label (server side). */
 export async function resolveLabel(params: CheckParams): Promise<SharedLabel | null> {
   if (params.p) {
-    const res = await fetch(`${API}/products/${encodeURIComponent(params.p)}/label`, { next: { revalidate: 3600 } })
+    const res = await fetch(`${API}/products/${encodeURIComponent(params.p)}/label`, { headers: serverHeaders, next: { revalidate: 3600 } })
     if (!res.ok) return null
     const l = await unwrap<{ name: string; brand: string; inci: string }>(res)
     const name = l.name.toLowerCase().startsWith(l.brand.toLowerCase()) ? l.name : `${l.brand} ${l.name}`
@@ -37,7 +40,7 @@ export async function resolveLabel(params: CheckParams): Promise<SharedLabel | n
 export async function readLabel(inci: string): Promise<AnnotatedLabel | null> {
   const res = await fetch(`${API}/ingredients/analyze`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...serverHeaders },
     body: JSON.stringify({ ingredients: inci }),
     next: { revalidate: 3600 },
   })

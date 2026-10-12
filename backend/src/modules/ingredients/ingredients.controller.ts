@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, NotFoundException } from '@nestjs/common';
 import { Throttle, seconds } from '@nestjs/throttler';
 import { IngredientsService } from './ingredients.service';
 import { AnalyzeIngredientsDto } from './dto/analyze-ingredients.dto';
@@ -23,6 +23,20 @@ export class IngredientsController {
   @Throttle({ default: { limit: 20, ttl: seconds(60) } })
   async analyze(@Body() dto: AnalyzeIngredientsDto) {
     return await this.ingredientsService.analyze(dto.ingredients);
+  }
+
+  /** GET /api/ingredients/index: rated ingredients found in products (sitemap, ingredient pages). */
+  @Get('index')
+  index() {
+    return this.ingredientsService.index();
+  }
+
+  /** GET /api/ingredients/page/:slug: one ingredient's public page data. */
+  @Get('page/:slug')
+  async page(@Param('slug') slug: string) {
+    const page = await this.ingredientsService.page(slug.slice(0, 120));
+    if (!page) throw new NotFoundException('Ingredient not found');
+    return page;
   }
 
   /**

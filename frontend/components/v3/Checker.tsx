@@ -501,6 +501,7 @@ function Result({
           )}
         </>
       )}
+      {active.source && <p style={{ margin: "10px 0 0", fontSize: 13, color: "var(--ink2)" }}>{active.source}</p>}
     </div>
   ) : null
 

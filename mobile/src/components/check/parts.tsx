@@ -222,6 +222,7 @@ export function IngredientSheet({ item, onClose }: { item: LabelItem | null; onC
               ) : null}
             </>
           )}
+          {item.source ? <Text style={{ marginTop: 16, fontFamily: rubik.regular, fontSize: 13, lineHeight: 19, color: T.ink2 }}>{item.source}</Text> : null}
           <Pressable
             onPress={onClose}
             style={{ marginTop: 24, minHeight: 52, borderRadius: 14, borderWidth: 1.5, borderColor: T.line, alignItems: "center", justifyContent: "center" }}

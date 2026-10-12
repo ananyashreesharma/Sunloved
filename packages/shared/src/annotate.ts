@@ -15,6 +15,8 @@ export type LabelItem = {
   line: string
   /** One-line explanation in general, when it differs from `line` (e.g. "not for you" items). */
   general?: string
+  /** Where the rating comes from ("EU cosmetics rules (CosIng): …", "Checked by hand…"). */
+  source?: string
   /** Footnote number for flagged and no-information items, in the order the notes list them. */
   num?: number
 }
@@ -60,12 +62,13 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     const general = f.shortDescription || f.function || NOTE_IN_REFERENCE
     const zone = zoneOf(f)
     if (zone === "NONE") return { name: f.name, state: "none", line: NO_DATA_LINE, num: 0 }
-    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0 }
+    const source = f.source
+    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0, source }
     // Match on the printed name and the standard one ("Fragancia" is Parfum).
     const personal = personalFlag(`${f.name} ${f.scientificName ?? ""}`, profile)
-    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0 }
-    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0 }
-    return { name: f.name, state: "fine", line: general }
+    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0, source }
+    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0, source }
+    return { name: f.name, state: "fine", line: general, source }
   })
 
   // Same scoring as everywhere else; "not for you" weighs like caution.

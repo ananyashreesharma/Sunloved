@@ -6,6 +6,8 @@ export type FoundIngredient = {
   name: string
   /** The standard (INCI) entry it matched, e.g. "Butyl Methoxydibenzoylmethane". */
   scientificName?: string
+  /** Where the rating comes from, in plain words. */
+  source?: string
   function?: string
   zone?: string
   safetyRating?: string

@@ -37,6 +37,12 @@ import { ContributionsModule } from './modules/contributions/contributions.modul
     // no way for a client to catch it separately, since it's a plain HttpException like any other.
     ThrottlerModule.forRoot({
       throttlers: [{ ttl: 60_000, limit: 120 }],
+      // Our own web server (shared-check pages, link previews, ingredient pages) calls on behalf of
+      // many visitors from one address; it proves itself with the internal key and isn't limited.
+      skipIf: (ctx) => {
+        const key = ctx.switchToHttp().getRequest().headers?.['x-internal-api-key'];
+        return !!process.env.INTERNAL_API_KEY && key === process.env.INTERNAL_API_KEY;
+      },
       errorMessage: 'Too many requests. Please wait a moment and try again.',
     }),
 

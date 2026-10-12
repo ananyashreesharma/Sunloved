@@ -18,6 +18,8 @@ export interface AnalyzedIngredient {
   isParaben?: boolean;
   isFragrance?: boolean;
   isSulfate?: boolean;
+  /** Where the rating comes from, in plain words (shown under each ingredient). */
+  source?: string;
 }
 
 export interface IngredientAnalysis {
@@ -30,6 +32,24 @@ export interface IngredientAnalysis {
   tags: string[];
   /** foundIngredients.length / parsed.length — below 0.7 the UI shows a "can't judge yet" refusal instead of a verdict */
   coverage: number;
+}
+
+/** Plain-words source of a rating: hand-checked, EU cosmetics rules, or neither (yet). */
+export function ratingSource(i: Pick<Ingredient, 'source' | 'regulatoryNotes' | 'zone'>): string | undefined {
+  if (i.source === 'manual' || i.source === 'dermatologist_verified') return 'Checked by hand by SkinLens.';
+  const eu = i.regulatoryNotes?.match(/^EU CosIng: (.*)$/)?.[1];
+  if (eu) {
+    const annex: Record<string, string> = {
+      'Annex II': 'banned in cosmetics',
+      'Annex III': 'allowed with limits',
+      'Annex IV': 'an approved colour',
+      'Annex V': 'an approved preservative',
+      'Annex VI': 'an approved UV filter',
+    };
+    const what = Object.entries(annex).find(([k]) => eu.includes(k))?.[1] ?? 'listed, no restrictions';
+    return `EU cosmetics rules (CosIng): ${what}.`;
+  }
+  return i.zone ? 'SkinLens rating, not yet checked against EU rules.' : undefined;
 }
 
 @Injectable()
@@ -128,6 +148,7 @@ export class IngredientsService {
           isParaben: dbIngredient.isParaben,
           isFragrance: dbIngredient.isFragrance,
           isSulfate: dbIngredient.isSulfate,
+          source: ratingSource(dbIngredient),
         });
       } else {
         unknownIngredients.push(ingredientName);
@@ -187,5 +208,53 @@ export class IngredientsService {
       },
     });
     return { ok: true };
+  }
+
+  /**
+   * Every rated ingredient that appears in a product we know, one per page address: catalog
+   * imports left near-duplicates ("1,2-Hexanediol" / "1,2 Hexanediol", "Phenoxyethanol."), so
+   * rows sharing an address are one page, named after the most-used rated row.
+   */
+  async index() {
+    return this.prisma.$queryRaw<{ slug: string; name: string }[]>`
+      SELECT DISTINCT ON (slug) slug, name FROM (
+        SELECT trim(both '-' from regexp_replace(lower(i."inciName"), '[^a-z0-9]+', '-', 'g')) AS slug,
+               i."inciName" AS name,
+               (SELECT count(*) FROM product_ingredients pi WHERE pi."ingredientId" = i.id) AS uses
+        FROM ingredients i
+        WHERE i.zone IS NOT NULL AND EXISTS (SELECT 1 FROM product_ingredients pi WHERE pi."ingredientId" = i.id)
+      ) t
+      WHERE slug <> ''
+      ORDER BY slug, uses DESC`;
+  }
+
+  /** One ingredient's public page: rating, explanation, source and products that contain it. */
+  async page(slug: string) {
+    const rows = await this.prisma.$queryRaw<(Ingredient & { uses: number })[]>`
+      SELECT i.*, (SELECT count(*)::int FROM product_ingredients pi WHERE pi."ingredientId" = i.id) AS uses
+      FROM ingredients i
+      WHERE trim(both '-' from regexp_replace(lower(i."inciName"), '[^a-z0-9]+', '-', 'g')) = ${slug.toLowerCase()}
+      ORDER BY (i.zone IS NULL), uses DESC, (i.source = 'manual') DESC`;
+    const i = rows[0];
+    if (!i) return null;
+    const ids = rows.map((r) => r.id);
+    const products = await this.prisma.$queryRaw<{ id: string; name: string; brand: string; position: number }[]>`
+      SELECT DISTINCT ON (p.id) p.id, p.name, b.name AS brand, pi.position
+      FROM product_ingredients pi JOIN products p ON p.id = pi."productId" JOIN brands b ON b.id = p."brandId"
+      WHERE pi."ingredientId" = ANY(${ids}) AND p."deletedAt" IS NULL
+      ORDER BY p.id, pi.position
+      LIMIT 200`;
+    products.sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
+    const count = await this.prisma.productIngredient.count({ where: { ingredientId: { in: ids } } });
+    return {
+      name: i.inciName.replace(/[.\s]+$/, ''),
+      displayName: i.displayName,
+      zone: i.zone,
+      description: i.shortDescription,
+      function: i.function,
+      source: ratingSource(i),
+      productCount: count,
+      products: products.slice(0, 24),
+    };
   }
 }

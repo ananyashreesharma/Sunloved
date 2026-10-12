@@ -466,4 +466,12 @@ export class ProductsService {
       inci: product.ingredients.map((i) => i.ingredient.inciName).join(', '),
     };
   }
+
+  /** Products with a known label, for the sitemap. */
+  async index() {
+    return this.prisma.$queryRaw<{ id: string; updatedAt: Date }[]>`
+      SELECT p.id, p."updatedAt" FROM products p
+      WHERE p."deletedAt" IS NULL AND EXISTS (SELECT 1 FROM product_ingredients pi WHERE pi."productId" = p.id)
+      ORDER BY p.id`;
+  }
 }

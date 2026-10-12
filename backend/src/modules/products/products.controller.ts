@@ -28,6 +28,12 @@ export class ProductsController {
     return this.productsService.search(queryParams);
   }
 
+  /** GET /api/products/index: products with a known label (sitemap). */
+  @Get('index')
+  index() {
+    return this.productsService.index();
+  }
+
   /** Type-ahead: GET /api/products/find?q=himalaya%20neem&country=IN */
   @Get('find')
   find(@Query('q') q = '', @Query('country') country?: string) {
