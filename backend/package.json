@@ -50,7 +50,8 @@
     "check:world-labels": "ts-node --transpile-only prisma/check-world-labels.ts",
     "sync:shared": "node scripts/sync-shared.js",
     "prebuild": "node scripts/sync-shared.js",
-    "prisma:link-aliases": "ts-node --transpile-only prisma/link-ingredient-aliases.ts"
+    "prisma:link-aliases": "ts-node --transpile-only prisma/link-ingredient-aliases.ts",
+    "prisma:rate-by-hand": "ts-node --transpile-only prisma/rate-ingredients-by-hand.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

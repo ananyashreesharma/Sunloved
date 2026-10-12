@@ -40,13 +40,16 @@ export function ratingSource(i: Pick<Ingredient, 'source' | 'regulatoryNotes' | 
   const eu = i.regulatoryNotes?.match(/^EU CosIng: (.*)$/)?.[1];
   if (eu) {
     const annex: Record<string, string> = {
-      'Annex II': 'banned in cosmetics',
-      'Annex III': 'allowed with limits',
-      'Annex IV': 'an approved colour',
-      'Annex V': 'an approved preservative',
-      'Annex VI': 'an approved UV filter',
+      // A ban entry on an ingredient we don't rate "avoid" covers only some forms of it (unrefined
+      // mineral oil, citrus oils high in furocoumarins), not the forms cosmetics use.
+      II: i.zone === 'red' ? 'banned in cosmetics' : 'some forms are banned; the forms used in cosmetics are allowed',
+      III: 'allowed with limits',
+      IV: 'an approved colour',
+      V: 'an approved preservative',
+      VI: 'an approved UV filter',
     };
-    const what = Object.entries(annex).find(([k]) => eu.includes(k))?.[1] ?? 'listed, no restrictions';
+    // Whole annex numbers only: "Annex III" must not read as "Annex II".
+    const what = annex[eu.match(/\bAnnex (II|III|IV|V|VI)\b/)?.[1] ?? ''] ?? 'listed, no restrictions';
     return `EU cosmetics rules (CosIng): ${what}.`;
   }
   return i.zone ? 'SkinLens rating, not yet checked against EU rules.' : undefined;
