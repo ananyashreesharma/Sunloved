@@ -14,8 +14,9 @@ import { completeSignIn } from "@/lib/account"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, StatusScrim } from "@/components/check/parts"
 
-const TERMS_URL = "https://ananyashreesharma.github.io/skinlens-terms/"
-const PRIVACY_URL = "https://ananyashreesharma.github.io/skinlens-privacy-policy/"
+const SITE = (process.env.EXPO_PUBLIC_SITE_URL ?? "https://skinlens.in").replace(/\/+$/, "")
+const TERMS_URL = `${SITE}/legal/terms`
+const PRIVACY_URL = `${SITE}/legal/privacy`
 const REASONS = { streak: "reasonStreak", checks: "reasonChecks", phone: "reasonPhone" } as const
 
 export function LoginScreen() {

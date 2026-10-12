@@ -53,6 +53,7 @@ export function SiteFooter() {
       <Link href="/ingredients">Ingredients A–Z</Link>
       <Link href="/legal/privacy">Privacy</Link>
       <Link href="/legal/terms">Terms</Link>
+      <Link href="/legal/disclaimer">Not medical advice</Link>
     </footer>
   )
 }

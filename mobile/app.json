@@ -11,13 +11,17 @@
       "bundleIdentifier": "in.knowbetter.app",
       "infoPlist": {
         "NSCameraUsageDescription": "SkinLens uses your camera to read ingredient labels.",
-        "CFBundleLocalizations": ["en", "es", "ar"]
+        "CFBundleLocalizations": [
+          "en",
+          "es",
+          "ar"
+        ]
       }
     },
     "android": {
       "package": "in.knowbetter.app",
       "adaptiveIcon": {
-        "backgroundColor": "#17211A",
+        "backgroundColor": "#F2ECE1",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
@@ -33,9 +37,9 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#F3F5EF",
+          "backgroundColor": "#F2ECE1",
           "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "imageWidth": 120
         }
       ],
       "expo-secure-store"

@@ -86,6 +86,12 @@ export default function HowWeRate() {
           Rules and formulas differ between countries. Today every rating uses the EU rules, wherever you live; country-specific rules are on the way, which is why we
           ask where you live. Some ingredients have no rating yet; they show as &ldquo;no information&rdquo; until they do.
         </p>
+        <h2 style={h2}>Think we&apos;re wrong?</h2>
+        <p style={p}>
+          Formulas change and our data has gaps. If a label or rating looks wrong, whether you use the product or make it, email{" "}
+          <a href="mailto:anannyashree2514@gmail.com">anannyashree2514@gmail.com</a> with the product and what&apos;s wrong. We check every report and fix errors. Nobody can pay
+          for a verdict.
+        </p>
         <p style={{ ...p, color: "var(--ink2)", fontSize: 16 }}>
           SkinLens explains labels; it isn&apos;t medical advice. If you have a skin condition, are pregnant, or a product causes a reaction, talk to a doctor or pharmacist.
         </p>

@@ -305,3 +305,16 @@
   color: var(--ink);
   text-decoration: underline;
 }
+
+.v3-legal h2 {
+  margin: 36px 0 8px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.v3-legal ul {
+  padding-inline-start: 22px;
+}
+.v3-legal li {
+  margin: 6px 0;
+}

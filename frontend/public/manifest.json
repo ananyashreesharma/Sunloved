@@ -1,20 +1,19 @@
 {
-  "name": "SkinLens — Skincare Intelligence",
+  "name": "SkinLens",
   "short_name": "SkinLens",
-  "description": "India's first skincare ingredient intelligence app. Scan ingredients, flag hidden toxins, find safer Indian alternatives.",
+  "description": "Check any skincare label, free. Plain words for your skin, and a routine you'll stick to.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#F3F5EF",
-  "theme_color": "#1E4D3A",
-  "categories": ["health", "lifestyle", "beauty"],
-  "lang": "en-IN",
+  "background_color": "#F2ECE1",
+  "theme_color": "#F2ECE1",
+  "categories": [
+    "health",
+    "lifestyle",
+    "beauty"
+  ],
+  "lang": "en",
   "icons": [
-    {
-      "src": "/icons/favicon-16.png",
-      "sizes": "16x16",
-      "type": "image/png"
-    },
     {
       "src": "/icons/favicon-32.png",
       "sizes": "32x32",
@@ -24,34 +23,18 @@
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Scan Ingredients",
-      "short_name": "Scan",
-      "description": "Scan a product's ingredient list",
-      "url": "/scan",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Discover Products",
-      "short_name": "Discover",
-      "description": "Browse safe Indian skincare products",
-      "url": "/discover",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

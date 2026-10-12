@@ -1,16 +1,25 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+import { LegalPage } from "@/components/v3/LegalPage"
 
-export default function DisclaimerPage() {
+export const metadata: Metadata = { title: "Medical disclaimer | SkinLens" }
+
+export default function Disclaimer() {
   return (
-    <main className="ouma-container max-w-2xl py-12">
-      <Link href="/" className="text-sm font-medium text-[#1D5C3B] no-underline">
-        ← Home
-      </Link>
-      <h1 className="ouma-display mt-6 text-3xl font-medium text-[#17211A]">Disclaimer</h1>
-      <p className="mt-6 text-sm leading-relaxed text-[#5A6259]">
-        Information from Ouma is for general wellness education only. Always patch-test new products and consult a
-        dermatologist for medical concerns.
+    <LegalPage title="Not medical advice" updated="12 October 2026">
+      <p>
+        SkinLens explains what&apos;s on an ingredient label and helps you keep a routine. It doesn&apos;t diagnose or treat anything, and it doesn&apos;t replace a doctor,
+        dermatologist or pharmacist.
       </p>
-    </main>
+      <p>
+        If you&apos;ve been using a product that SkinLens says to avoid, especially a lightening or &ldquo;fairness&rdquo; cream that contains a steroid, mercury or
+        hydroquinone, stop using it and talk to a doctor if your skin is thin, burning, or has patches or stretch marks that don&apos;t fade. Stopping a steroid cream after
+        long use can cause a short flare; a doctor can help with that.
+      </p>
+      <p>
+        Pregnant or breastfeeding, have a skin condition, or react to a product? Ask a professional before starting or stopping anything. See{" "}
+        <Link href="/how-we-rate">how we rate</Link> for where our information comes from.
+      </p>
+    </LegalPage>
   )
 }

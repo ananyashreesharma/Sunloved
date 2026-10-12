@@ -145,7 +145,7 @@ export function LoginPage() {
         )}
 
         <p style={{ margin: "28px 0 0", fontSize: 13, lineHeight: 1.5, color: "var(--ink2)" }}>
-          By signing in you agree to the <Link href="/legal/terms">Terms</Link> and <Link href="/legal/privacy">Privacy policy</Link>.
+          By signing in you confirm you&apos;re 16 or older and agree to the <Link href="/legal/terms">Terms</Link> and <Link href="/legal/privacy">Privacy policy</Link>.
         </p>
         <Link href="/app/routine" style={{ display: "inline-flex", minHeight: 44, alignItems: "center", marginTop: 8, fontSize: 15 }}>
           Continue without an account
