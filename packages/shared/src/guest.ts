@@ -6,6 +6,7 @@ import type { StepFrequency, StreakDayStatus, StreakSummary, RoutineKind } from 
 import { daysBetween, streakFromDates, todayKey } from "./streak"
 import { isDueOn } from "./schedule"
 import { stepKind, type StepKind } from "./kinds"
+import type { IngredientOverride } from "./personal"
 
 export type GuestStep = {
   id: string
@@ -39,10 +40,17 @@ export type GuestData = {
   nightAnchor: NightAnchor | null
   /** Set once the "keep reminders?" question has been asked (after 14 nights done). */
   reminderCheckDone: boolean
+  /** "Fine for me" / "I react to this", keyed by the ingredient's standard name in lower case. */
+  ingredientOverrides: Record<string, IngredientOverride>
+  /** How skin felt after the night routine, by day (YYYY-MM-DD). */
+  skinLog: Record<string, SkinFeel>
   doneToday: Record<string, boolean>
   doneDate: string
   history: Record<string, "both" | "one">
 }
+
+export type SkinFeel = "calm" | "same" | "irritated"
+export const SKIN_FEELS: SkinFeel[] = ["calm", "same", "irritated"]
 
 export const NIGHT_ANCHORS = ["teeth", "shower", "dinner", "bed"] as const
 export type NightAnchor = (typeof NIGHT_ANCHORS)[number]
@@ -86,6 +94,8 @@ export function defaultGuestData(): GuestData {
     milestonesSeen: [],
     nightAnchor: null,
     reminderCheckDone: false,
+    ingredientOverrides: {},
+    skinLog: {},
     doneToday: {},
     doneDate: todayKey(),
     history: {},

@@ -16,6 +16,23 @@ import i18n from "@/lib/i18n"
 
 const MORNING_ID = "skinlens-reminder-morning"
 const NIGHT_ID = "skinlens-reminder-night"
+const FRESH_ID = "skinlens-fresh-start"
+
+/** Days without opening the app before the one fresh-start message may go out. */
+const FRESH_AFTER_DAYS = 7
+
+/**
+ * The first Monday or 1st of the month at least FRESH_AFTER_DAYS from today. People restart goals
+ * after "fresh start" landmarks like these (Dai, Milkman & Riis 2014).
+ */
+export function freshStartDate(from: Date = new Date()): { date: Date; month: boolean } {
+  for (let i = FRESH_AFTER_DAYS; i < FRESH_AFTER_DAYS + 31; i++) {
+    const d = new Date(from.getFullYear(), from.getMonth(), from.getDate() + i)
+    if (d.getDate() === 1) return { date: d, month: true }
+    if (d.getDay() === 1) return { date: d, month: false }
+  }
+  return { date: new Date(from.getFullYear(), from.getMonth(), from.getDate() + FRESH_AFTER_DAYS), month: false }
+}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -96,6 +113,7 @@ export async function syncReminders(
 ): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(MORNING_ID).catch(() => {})
   await Notifications.cancelScheduledNotificationAsync(NIGHT_ID).catch(() => {})
+  await Notifications.cancelScheduledNotificationAsync(FRESH_ID).catch(() => {})
 
   if (data.muted || data.reminderTone === "off" || data.channel !== "push") return
   if (!data.remindMorning && !data.remindNight) return
@@ -118,6 +136,20 @@ export async function syncReminders(
       identifier: MORNING_ID,
       content: { ...copyFor(data, "morning"), sound: true },
       trigger: { type: Notifications.SchedulableTriggerInputTypes.DAILY, hour: morning.hour, minute: morning.minute },
+    })
+  }
+  // One "new week" message if the app isn't opened for a week. Every sync (app start, any settings
+  // change) pushes it forward again, so it only ever fires for someone who has stopped coming back,
+  // and only once: nothing reschedules it until they open the app.
+  if (night) {
+    const { date, month } = freshStartDate()
+    date.setHours(night.hour, night.minute, 0, 0)
+    const n = data.steps.filter((s) => s.when !== "morning").length
+    const body = n > 0 ? i18n.t(month ? "reminders.freshMonth" : "reminders.freshWeek", { count: n }) : i18n.t("reminders.freshEmpty")
+    await Notifications.scheduleNotificationAsync({
+      identifier: FRESH_ID,
+      content: { title: "SkinLens", body, sound: true },
+      trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date },
     })
   }
   if (night && data.remindNight) {

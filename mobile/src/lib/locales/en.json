@@ -105,7 +105,17 @@
     "keepRemindersQ": "{{count}} nights done. Keep the reminders?",
     "keepRemindersSub": "Some people don't need them by now. You can change this any time in Me → Reminders.",
     "keepThem": "Keep them",
-    "turnOff": "Turn them off"
+    "turnOff": "Turn them off",
+    "feelQ": "How does your skin feel tonight?",
+    "feel": {
+      "calm": "Calm",
+      "same": "Same as usual",
+      "irritated": "A bit irritated"
+    },
+    "feelThanks": "Noted. Thanks.",
+    "feelIrritated": "Sorry it's irritated. Skip the strongest step for a night or two and keep the moisturiser. If it burns or swells, rinse it off and see a pharmacist.",
+    "easeStep": "Move {{name}} to every other night",
+    "eased": "{{name}} is now every other night."
   },
   "history": {
     "title": "Streak",
@@ -232,7 +242,12 @@
     "searchNone": "Not in our list yet. Paste its ingredients below instead.",
     "searchCount_one": "{{count}} ingredient",
     "searchCount_other": "{{count}} ingredients",
-    "orPaste": "Or paste the ingredient list"
+    "orPaste": "Or paste the ingredient list",
+    "whatToDo": "What to do",
+    "yourSkin": "Your skin",
+    "fineForMe": "Fine for me",
+    "iReact": "I react to this",
+    "markHint": "Every label is read with this from now on. Tap again to undo."
   },
   "reminders": {
     "gentleMorning": "Your morning routine is ready when you are.",
@@ -249,7 +264,12 @@
     },
     "gentleNightAfter": "{{cue}}, your night routine is ready.",
     "factsNightAfter_one": "{{cue}}: night routine, {{count}} step.",
-    "factsNightAfter_other": "{{cue}}: night routine, {{count}} steps."
+    "factsNightAfter_other": "{{cue}}: night routine, {{count}} steps.",
+    "freshWeek_one": "A new week. Your night routine is {{count}} step, whenever you're ready.",
+    "freshWeek_other": "A new week. Your night routine is {{count}} steps, whenever you're ready.",
+    "freshMonth_one": "A new month. Your night routine is {{count}} step, whenever you're ready.",
+    "freshMonth_other": "A new month. Your night routine is {{count}} steps, whenever you're ready.",
+    "freshEmpty": "A fresh start. Your routine is here whenever you're ready."
   },
   "ob": {
     "brand": "SkinLens",
@@ -337,7 +357,22 @@
     "removeConfirmBody": "It comes off your routine. Your streak stays as it is.",
     "cancel": "Cancel",
     "duplicate": "{{name}} is already in your routine.",
-    "close": "Close"
+    "close": "Close",
+    "expect": {
+      "retinoid": "Give it 8–12 weeks before judging. Dryness or stinging in the first few weeks is common. Not recommended in pregnancy.",
+      "acid": "Skin often feels smoother in 2–4 weeks. It can sting at first and makes skin more sun-sensitive, so wear sunscreen.",
+      "benzoyl": "Spots usually start to calm in 2–4 weeks, with the full effect around 8–12. It can dry skin and bleach towels and pillowcases.",
+      "azelaic": "Expect about 4 weeks for redness and spots, and around 12 for dark marks. A tingle at first is normal.",
+      "vitaminC": "Give it 8–12 weeks for brightness and marks. It keeps best cool and dark, and turns brown as it goes off.",
+      "niacinamide": "Give it 4–8 weeks for redness, oil and marks. Gentle for most skin.",
+      "sunscreen": "Protects from the first day. Dark marks only fade with sunscreen every day, so this is what makes your other steps work.",
+      "moisture": "Works the same day: skin feels softer and less tight."
+    },
+    "stings": "It stings?",
+    "stingsBody": "A mild tingle for a minute can be normal. Burning, swelling or redness that lasts isn't: rinse it off, stop using it, and see a pharmacist or doctor if it keeps happening.",
+    "stingsEase": "Most skin gets used to it in a few weeks. Using it every other night, with moisturiser first, often helps.",
+    "useAlternate": "Use it every other night",
+    "alternateDone": "Now every other night."
   },
   "me": {
     "title": "Me",

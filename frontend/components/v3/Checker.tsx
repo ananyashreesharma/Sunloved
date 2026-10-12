@@ -445,6 +445,7 @@ function Result({
         <>
           {active.general && <div className="v3-label" style={{ marginTop: 10, fontSize: 11, color: "var(--ink2)" }}>{COPY.forYou}</div>}
           <p style={{ margin: "4px 0 0", fontSize: 15, lineHeight: 1.5 }}>{active.line}</p>
+          {active.next && <p style={{ margin: "6px 0 0", fontSize: 15, lineHeight: 1.5 }}>{active.next}</p>}
           {active.general && active.general !== active.line && (
             <>
               <div className="v3-label" style={{ marginTop: 10, fontSize: 11, color: "var(--ink2)" }}>{COPY.inGeneral}</div>
@@ -476,6 +477,7 @@ function Result({
               <Tag state={it.state} />
             </span>
             <span style={{ display: "block", fontSize: 15, lineHeight: 1.5, color: "var(--ink2)", marginTop: 4 }}>{it.line}</span>
+            {it.next && <span style={{ display: "block", fontSize: 15, lineHeight: 1.5, marginTop: 4 }}>{it.next}</span>}
           </span>
         </button>
       ))}

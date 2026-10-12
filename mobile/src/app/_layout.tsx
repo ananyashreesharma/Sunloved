@@ -3,7 +3,7 @@ import "@/lib/i18n"
 
 import { useEffect } from "react"
 import { Stack } from "expo-router"
-import { Pressable, Text, View } from "react-native"
+import { AppState, Pressable, Text, View } from "react-native"
 import * as SplashScreen from "expo-splash-screen"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { SafeAreaProvider } from "react-native-safe-area-context"
@@ -34,9 +34,15 @@ export default function RootLayout() {
     // Self-healing backstop for returning users (ProfileScreen/OnboardingFlow already reschedule
     // on every change) — only for guests who've actually built a routine, so a fresh install never
     // prompts for notification permission before onboarding even starts.
-    loadGuestData().then((data) => {
-      if (data.steps.length > 0) syncReminders(data).catch(() => {})
-    })
+    // Also on every return to the foreground: that keeps the one-time "new week" message (see
+    // notifications.ts) a week away for anyone still opening the app.
+    const sync = () =>
+      loadGuestData().then((data) => {
+        if (data.steps.length > 0) syncReminders(data).catch(() => {})
+      })
+    sync()
+    const sub = AppState.addEventListener("change", (s) => s === "active" && sync())
+    return () => sub.remove()
   }, [])
 
   if (!fontsLoaded || !ready) return null

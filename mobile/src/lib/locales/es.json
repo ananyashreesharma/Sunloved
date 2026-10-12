@@ -105,7 +105,17 @@
     "keepRemindersQ": "Llevas {{count}} noches. ¿Mantienes los recordatorios?",
     "keepRemindersSub": "A estas alturas a algunas personas ya no les hacen falta. Puedes cambiarlo cuando quieras en Yo → Recordatorios.",
     "keepThem": "Mantenerlos",
-    "turnOff": "Desactivarlos"
+    "turnOff": "Desactivarlos",
+    "feelQ": "¿Cómo notas la piel esta noche?",
+    "feel": {
+      "calm": "Tranquila",
+      "same": "Como siempre",
+      "irritated": "Algo irritada"
+    },
+    "feelThanks": "Anotado. Gracias.",
+    "feelIrritated": "Siento que esté irritada. Sáltate el paso más fuerte una o dos noches y mantén la hidratante. Si arde o se hincha, acláralo y consulta a un farmacéutico.",
+    "easeStep": "Pasar {{name}} a noche sí, noche no",
+    "eased": "{{name}} ahora es noche sí, noche no."
   },
   "history": {
     "title": "Racha",
@@ -232,7 +242,12 @@
     "searchNone": "Aún no está en nuestra lista. Pega sus ingredientes abajo.",
     "searchCount_one": "{{count}} ingrediente",
     "searchCount_other": "{{count}} ingredientes",
-    "orPaste": "O pega la lista de ingredientes"
+    "orPaste": "O pega la lista de ingredientes",
+    "whatToDo": "Qué hacer",
+    "yourSkin": "Tu piel",
+    "fineForMe": "Me va bien",
+    "iReact": "Me da reacción",
+    "markHint": "A partir de ahora leemos cada etiqueta con esto. Toca de nuevo para deshacerlo."
   },
   "reminders": {
     "gentleMorning": "Tu rutina de mañana te espera cuando quieras.",
@@ -249,7 +264,12 @@
     },
     "gentleNightAfter": "{{cue}}, tu rutina de noche te espera.",
     "factsNightAfter_one": "{{cue}}: rutina de noche, {{count}} paso.",
-    "factsNightAfter_other": "{{cue}}: rutina de noche, {{count}} pasos."
+    "factsNightAfter_other": "{{cue}}: rutina de noche, {{count}} pasos.",
+    "freshWeek_one": "Una semana nueva. Tu rutina de noche es {{count}} paso, cuando quieras.",
+    "freshWeek_other": "Una semana nueva. Tu rutina de noche son {{count}} pasos, cuando quieras.",
+    "freshMonth_one": "Un mes nuevo. Tu rutina de noche es {{count}} paso, cuando quieras.",
+    "freshMonth_other": "Un mes nuevo. Tu rutina de noche son {{count}} pasos, cuando quieras.",
+    "freshEmpty": "Un nuevo comienzo. Tu rutina te espera cuando quieras."
   },
   "ob": {
     "brand": "SkinLens",
@@ -337,7 +357,22 @@
     "removeConfirmBody": "Sale de tu rutina. Tu racha no cambia.",
     "cancel": "Cancelar",
     "duplicate": "{{name}} ya está en tu rutina.",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "expect": {
+      "retinoid": "Dale de 8 a 12 semanas antes de juzgar. Es normal algo de sequedad o picor las primeras semanas. No se recomienda en el embarazo.",
+      "acid": "La piel suele notarse más lisa en 2 a 4 semanas. Puede picar al principio y te hace más sensible al sol, así que usa protector solar.",
+      "benzoyl": "Los granos suelen calmarse en 2 a 4 semanas, con el efecto completo hacia las 8 a 12. Puede resecar y decolorar toallas y fundas.",
+      "azelaic": "Cuenta unas 4 semanas para rojeces y granos, y unas 12 para manchas. Un hormigueo al principio es normal.",
+      "vitaminC": "Dale de 8 a 12 semanas para luminosidad y manchas. Se conserva mejor en un sitio fresco y oscuro, y se pone marrón al estropearse.",
+      "niacinamide": "Dale de 4 a 8 semanas para rojeces, brillo y marcas. Suave para la mayoría de las pieles.",
+      "sunscreen": "Protege desde el primer día. Las manchas solo se aclaran con protector solar a diario, así que esto hace que tus otros pasos funcionen.",
+      "moisture": "Funciona el mismo día: la piel se nota más suave y menos tirante."
+    },
+    "stings": "¿Pica?",
+    "stingsBody": "Un leve hormigueo durante un minuto puede ser normal. Ardor, hinchazón o rojez que dura no lo es: acláralo, deja de usarlo y consulta a un farmacéutico o médico si se repite.",
+    "stingsEase": "La mayoría de las pieles se acostumbran en unas semanas. Usarlo noche sí, noche no, con la crema hidratante antes, suele ayudar.",
+    "useAlternate": "Usarlo noche sí, noche no",
+    "alternateDone": "Ahora noche sí, noche no."
   },
   "me": {
     "title": "Yo",

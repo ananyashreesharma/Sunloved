@@ -4,7 +4,8 @@
 
 import type { AnalyzeIngredientsResponse } from "./types"
 import { breakdownFromRows, NOTE_IN_REFERENCE, verdictFor, zoneOf, type IngredientRow, type Zone } from "./scoring"
-import { personalFlag, type SkinProfile } from "./personal"
+import { personalFlag, type IngredientOverride, type SkinProfile } from "./personal"
+import { cautionNextStep } from "./care"
 
 export type ItemState = "fine" | "caution" | "avoid" | "nfy" | "none"
 
@@ -19,6 +20,12 @@ export type LabelItem = {
   source?: string
   /** Footnote number for flagged and no-information items, in the order the notes list them. */
   num?: number
+  /** For a caution or "not for you" item: one concrete thing to do about it. */
+  next?: string
+  /** The standard name, lower case: what a person's "fine for me" / "I react to this" is stored under. */
+  key?: string
+  /** What this person told us about this ingredient, when they did. */
+  mine?: IngredientOverride
 }
 
 export type AnnotatedLabel = {
@@ -45,6 +52,8 @@ export type AnnotatedLabel = {
 const LIGHTENING_HAZARD = /hydroquinone|monobenz|merc(ur|ury)|calomel|\blead\b|clobetasol|betamethasone|mometasone|fluocinolone|hydrocortisone|dexamethasone|triamcinolone|beclomethasone|halobetasol|fluticasone|tretinoin/i
 
 const NO_DATA_LINE = "We have no data on this one, so we're not calling it fine."
+const MINE_REACT = "You told us your skin reacts to this."
+const MINE_FINE = "You marked this as fine for you."
 const SEVERITY: Record<ItemState, number> = { avoid: 0, nfy: 1, caution: 2, none: 3, fine: 4 }
 
 function norm(s: string) {
@@ -63,12 +72,19 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     const zone = zoneOf(f)
     if (zone === "NONE") return { name: f.name, state: "none", line: NO_DATA_LINE, num: 0 }
     const source = f.source
-    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0, source }
+    const both = `${f.name} ${f.scientificName ?? ""}`
+    const key = norm(f.scientificName || f.name)
+    const mine = profile?.overrides?.[key] ?? profile?.overrides?.[norm(f.name)]
+    // Avoid stays avoid whatever anyone marks: these are bans and drugs, not preferences.
+    if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0, source, key }
+    // What the person told us about their own skin comes first: people trust a reading they can correct.
+    if (mine === "react") return { name: f.name, state: "nfy", line: MINE_REACT, general, num: 0, source, key, mine, next: "Leave out products that list it." }
+    if (mine === "fine") return { name: f.name, state: "fine", line: MINE_FINE, general, source, key, mine }
     // Match on the printed name and the standard one ("Fragancia" is Parfum).
-    const personal = personalFlag(`${f.name} ${f.scientificName ?? ""}`, profile)
-    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0, source }
-    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0, source }
-    return { name: f.name, state: "fine", line: general, source }
+    const personal = personalFlag(both, profile)
+    if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0, source, key, next: cautionNextStep(both, f.isFragrance) }
+    if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0, source, key, next: cautionNextStep(both, f.isFragrance) }
+    return { name: f.name, state: "fine", line: general, source, key }
   })
 
   // Same scoring as everywhere else; "not for you" weighs like caution.

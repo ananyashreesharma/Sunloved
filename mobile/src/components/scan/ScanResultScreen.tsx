@@ -9,10 +9,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
 import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated"
-import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnnotatedLabel, type LabelItem, type Zone } from "@skinlens/shared"
+import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnalyzeIngredientsResponse, type AnnotatedLabel, type IngredientOverride, type LabelItem, type Zone } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api-client"
-import { loadGuestData } from "@/lib/guest-store"
+import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { getScans, saveScan } from "@/lib/data"
 import { useAccount } from "@/lib/account"
 import { track } from "@/lib/analytics"
@@ -23,7 +23,7 @@ import { Highlight } from "@/components/shared/Highlight"
 import { BlockStrip, IngredientSheet, LabelWords, NumBadge, OutlineButton, PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
 
 type Phase = "reading" | "result" | "offline" | "error"
-type Profile = { skinType: string | null; concerns: string[]; country: string | null }
+type Profile = { skinType: string | null; concerns: string[]; country: string | null; overrides: Record<string, IngredientOverride> }
 
 const VERDICT_KEYS: Record<Zone, { pre: string; key: string; post: string; mark: "hiFine" | "hiCaution" | "hiAvoid" }> = {
   GREEN: { pre: "vFinePre", key: "vFineKey", post: "vFinePost", mark: "hiFine" },
@@ -54,6 +54,8 @@ export function ScanResultScreen() {
   const [saved, setSaved] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const skipRef = useRef(false)
+  // The server's reading, kept so a "fine for me" / "I react to this" re-reads it without refetching.
+  const apiRef = useRef<AnalyzeIngredientsResponse | null>(null)
   const { signedIn } = useAccount()
   const [askToSave, setAskToSave] = useState(false)
 
@@ -65,11 +67,12 @@ export function ScanResultScreen() {
     setReadIdx(0)
     ;(async () => {
       const g = await loadGuestData()
-      const p = { skinType: g.skinType ?? null, concerns: g.concerns ?? [], country: g.country ?? null }
+      const p = { skinType: g.skinType ?? null, concerns: g.concerns ?? [], country: g.country ?? null, overrides: g.ingredientOverrides }
       if (!cancelled) setProfile(p)
       try {
         const api = await analyzeIngredients(inci)
         if (cancelled) return
+        apiRef.current = api
         const read = annotateLabel(api, p)
         setLabel(read)
         track("label_checked", read.verdict ?? "NONE", p.country)
@@ -81,6 +84,21 @@ export function ScanResultScreen() {
       cancelled = true
     }
   }, [inci, attempt])
+
+  /** "Fine for me" / "I react to this" (or null to undo): saved on the phone, and this label re-read with it. */
+  async function mark(item: LabelItem, value: IngredientOverride | null) {
+    if (!item.key || !apiRef.current || !profile) return
+    const g = await loadGuestData()
+    const overrides = { ...g.ingredientOverrides }
+    if (value) overrides[item.key] = value
+    else delete overrides[item.key]
+    await updateGuestData({ ingredientOverrides: overrides })
+    const p = { ...profile, overrides }
+    setProfile(p)
+    const read = annotateLabel(apiRef.current, p)
+    setLabel(read)
+    setSheet(read.items.find((i) => i.key === item.key) ?? null)
+  }
 
   // Read the label one ingredient at a time (at most 1.6 s in all), then show the result.
   useEffect(() => {
@@ -273,7 +291,7 @@ export function ScanResultScreen() {
           </View>
         </ScrollView>
         <StatusScrim />
-        <IngredientSheet item={sheet} onClose={() => setSheet(null)} />
+        <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} />
         <Toast text={toast} bottom={insets.bottom + 16} />
       </View>
     )
@@ -341,6 +359,7 @@ export function ScanResultScreen() {
                   <StateTag state={it.state} />
                 </View>
                 <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink2 }}>{it.line}</Text>
+                {it.next ? <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink }}>{it.next}</Text> : null}
               </View>
             </Pressable>
           </Animated.View>
@@ -381,7 +400,7 @@ export function ScanResultScreen() {
         </View>
       </ScrollView>
       <StatusScrim />
-      <IngredientSheet item={sheet} onClose={() => setSheet(null)} />
+      <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} />
       <Toast text={toast} bottom={insets.bottom + 16} />
       {askToSave && (
         <Animated.View

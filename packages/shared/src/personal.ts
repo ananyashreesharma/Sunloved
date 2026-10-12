@@ -31,7 +31,15 @@ const RULES: Rule[] = [
   },
 ]
 
-export type SkinProfile = { skinType?: string | null; concerns?: string[] }
+/** What a person told us about one ingredient: it suits them, or their skin reacts to it. */
+export type IngredientOverride = "fine" | "react"
+
+export type SkinProfile = {
+  skinType?: string | null
+  concerns?: string[]
+  /** Keyed by the ingredient's standard name, lower case (see LabelItem.key). */
+  overrides?: Record<string, IngredientOverride>
+}
 
 /** A personal flag for this ingredient, or null when nothing about the user's skin makes it matter. */
 export function personalFlag(ingredient: string, profile: SkinProfile | null | undefined): PersonalFlag | null {

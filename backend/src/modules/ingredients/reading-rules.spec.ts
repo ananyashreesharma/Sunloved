@@ -37,4 +37,22 @@ describe('reading rules', () => {
     const r = annotateLabel(label([['Glycolic Acid', 'yellow'], ['Aqua', 'green'], ['Glycerin', 'green'], ['Squalane', 'green'], ['Panthenol', 'green'], ['Allantoin', 'green']]));
     expect(r.verdict).toBe('YELLOW');
   });
+
+  it('every caution says what to do next', () => {
+    const r = annotateLabel(label([['Glycolic Acid', 'yellow'], ['Aqua', 'green'], ['Parfum', 'yellow']]));
+    expect(r.items[0].next).toMatch(/sunscreen/);
+    expect(r.items[2].next).toMatch(/fragrance-free|patch-test/i);
+  });
+
+  it("a person's own marks change the reading, but never an avoid", () => {
+    const rows: Row[] = [['Aqua', 'green'], ['Glycerin', 'green'], ['Parfum', 'yellow'], ['Squalane', 'green'], ['Panthenol', 'green'], ['Allantoin', 'green']];
+    const fine = annotateLabel(label(rows), { overrides: { parfum: 'fine' } });
+    expect(fine.items[2].state).toBe('fine');
+    expect(fine.verdict).toBe('GREEN');
+    const react = annotateLabel(label(rows), { overrides: { glycerin: 'react' } });
+    expect(react.items[1].state).toBe('nfy');
+    expect(react.verdict).toBe('YELLOW');
+    const banned = annotateLabel(label([['Hydroquinone', 'red'], ['Aqua', 'green']]), { overrides: { hydroquinone: 'fine' } });
+    expect(banned.items[0].state).toBe('avoid');
+  });
 });

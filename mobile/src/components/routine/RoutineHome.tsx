@@ -18,7 +18,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated"
-import { findRoutineClash, MILESTONES, motion, newMilestone, palettes, REMINDER_CHECK_NIGHTS, todayKey, type GuestData, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
+import { findRoutineClash, likelyIrritant, MILESTONES, SKIN_FEELS, motion, newMilestone, palettes, REMINDER_CHECK_NIGHTS, todayKey, type GuestData, type GuestRoutineStepView, type SkinFeel, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { FORWARD_ARROW, localDigits } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
@@ -146,6 +146,20 @@ export function RoutineHome() {
   // routine is new, and some people stop needing them.
   const remindersOn = !!guest && !guest.muted && guest.reminderTone !== "off" && (guest.remindMorning || guest.remindNight)
   const askReminders = remindersOn && !guest?.reminderCheckDone && total >= REMINDER_CHECK_NIGHTS
+
+  // "How does your skin feel?" after the night routine: an immediate, low-effort check-in that
+  // becomes a record over time, and catches a step that irritates before the person gives up.
+  const feltToday = guest?.skinLog?.[todayKey()] ?? null
+  const [easedName, setEasedName] = useState<string | null>(null)
+  async function answerFeel(feel: SkinFeel) {
+    const g = await loadGuestData()
+    setGuest(await updateGuestData({ skinLog: { ...g.skinLog, [todayKey()]: feel } }))
+  }
+  async function easeIrritant(step: { id: string; name: string }) {
+    await setStepFrequency(step.id, "alternate")
+    setEasedName(step.name)
+    load(period)
+  }
 
   async function answerReminders(keep: boolean) {
     const next = await updateGuestData(keep ? { reminderCheckDone: true } : { reminderCheckDone: true, remindMorning: false, remindNight: false })
@@ -340,6 +354,45 @@ export function RoutineHome() {
               <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 16, color: T.ink2 }}>
                 {night ? t("routine.doneNightSub") : t("routine.doneMorningSub")}
               </Text>
+              {night && (
+                <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: T.line }}>
+                  {!feltToday ? (
+                    <>
+                      <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 26, color: T.ink }}>{t("routine.feelQ")}</Text>
+                      <View style={{ flexDirection: "row", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                        {SKIN_FEELS.map((f) => (
+                          <Pressable
+                            key={f}
+                            onPress={() => answerFeel(f)}
+                            accessibilityRole="button"
+                            style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: T.line, justifyContent: "center" }}
+                          >
+                            <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>{t(`routine.feel.${f}`)}</Text>
+                          </Pressable>
+                        ))}
+                      </View>
+                    </>
+                  ) : feltToday === "irritated" ? (
+                    (() => {
+                      const suspect = likelyIrritant(due.map((st) => ({ id: st.id, name: st.name, kind: st.kind ?? undefined, frequency: st.frequency })))
+                      return (
+                        <>
+                          <Text style={{ fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t("routine.feelIrritated")}</Text>
+                          {easedName ? (
+                            <Text style={{ marginTop: 10, fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("routine.eased", { name: easedName })}</Text>
+                          ) : suspect ? (
+                            <Pressable onPress={() => easeIrritant(suspect)} accessibilityRole="button" style={{ marginTop: 12, alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 18, borderRadius: 12, backgroundColor: T.btn, justifyContent: "center" }}>
+                              <Text style={{ fontFamily: rubik.semibold, fontSize: 15, color: T.btnInk }}>{t("routine.easeStep", { name: suspect.name })}</Text>
+                            </Pressable>
+                          ) : null}
+                        </>
+                      )
+                    })()
+                  ) : (
+                    <Text style={{ fontFamily: rubik.regular, fontSize: 16, color: T.ink2 }}>{t("routine.feelThanks")}</Text>
+                  )}
+                </View>
+              )}
               {askReminders && (
                 <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: T.line }}>
                   <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 26, color: T.ink }}>

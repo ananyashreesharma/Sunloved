@@ -6,7 +6,7 @@ import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, Tex
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
-import { STEP_KINDS, stepKind, stepNeighbours, type GuestData, type StepFrequency, type StepKind } from "@skinlens/shared"
+import { canEase, STEP_KINDS, stepCare, stepKind, stepNeighbours, type GuestData, type StepFrequency, type StepKind } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { addStep, listSteps, removeStep, stepsAsGuestData, updateStep, type EditableStep } from "@/lib/data"
 import { useTheme } from "@/lib/theme"
@@ -41,6 +41,8 @@ export function AddStepScreen() {
   const [when, setWhen] = useState<When>(params.type === "morning" ? "morning" : "night")
   const [frequency, setFrequency] = useState<StepFrequency>("daily")
   const [error, setError] = useState<string | null>(null)
+  const [stingsOpen, setStingsOpen] = useState(false)
+  const [eased, setEased] = useState(false)
 
   useEffect(() => {
     Promise.all([stepsAsGuestData(), listSteps()]).then(([d, all]) => {
@@ -60,16 +62,29 @@ export function AddStepScreen() {
   }, [params.id])
 
   const effectiveKind = kindPicked ? kind : stepKind(name)
+  // How long this step takes to show results, and what's normal on the way: people give up on
+  // actives that seem slow or sting, so they hear it before they start.
+  const care = stepCare(name, effectiveKind)
+
+  /** "It stings?" → every other night, saved straight away. */
+  async function easeOff() {
+    if (!editingStep) return
+    await updateStep(editingStep, { frequency: "alternate" })
+    setFrequency("alternate")
+    setEased(true)
+  }
 
   const goes = useMemo(() => {
     if (!data || !name.trim()) return ""
+    // Already in the routine: say so now, not "goes after <itself>".
+    if (data.steps.some((s) => s.id !== editingStep?.id && s.name.toLowerCase() === name.trim().toLowerCase())) return t("step.duplicate", { name: name.trim() })
     const period = when === "morning" ? "morning" : "night"
     const n = stepNeighbours(data, period, { name: name.trim(), kind: effectiveKind ?? undefined }, editingStep?.id)
     if (n.after && n.before) return t("step.goesBetween", { a: n.after, b: n.before })
     if (n.after) return t("step.goesAfter", { a: n.after })
     if (n.before) return t("step.goesBefore", { b: n.before })
     return t("step.goesOnly")
-  }, [data, name, when, effectiveKind, params.id, t])
+  }, [data, name, when, effectiveKind, editingStep, t])
 
   async function save() {
     const trimmed = name.trim()
@@ -168,6 +183,28 @@ export function AddStepScreen() {
         />
 
         {goes ? <Text style={{ marginTop: 20, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink2 }}>{goes}</Text> : null}
+        {care && name.trim() ? <Text style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t(`step.expect.${care}`)}</Text> : null}
+
+        {editing && (
+          <View style={{ marginTop: 20, paddingTop: 12, borderTopWidth: 1, borderTopColor: T.line }}>
+            <Pressable onPress={() => setStingsOpen((o) => !o)} accessibilityRole="button" accessibilityState={{ expanded: stingsOpen }} style={{ minHeight: 44, justifyContent: "center" }}>
+              <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink, textDecorationLine: "underline" }}>{t("step.stings")}</Text>
+            </Pressable>
+            {stingsOpen && (
+              <>
+                <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t("step.stingsBody")}</Text>
+                {canEase(care) && <Text style={{ marginTop: 8, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t("step.stingsEase")}</Text>}
+                {eased ? (
+                  <Text style={{ marginTop: 12, fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("step.alternateDone")}</Text>
+                ) : frequency === "daily" ? (
+                  <Pressable onPress={easeOff} accessibilityRole="button" style={{ marginTop: 12, alignSelf: "flex-start", minHeight: 44, paddingHorizontal: 18, borderRadius: 12, backgroundColor: T.btn, justifyContent: "center" }}>
+                    <Text style={{ fontFamily: rubik.semibold, fontSize: 15, color: T.btnInk }}>{t("step.useAlternate")}</Text>
+                  </Pressable>
+                ) : null}
+              </>
+            )}
+          </View>
+        )}
       </ScrollView>
 
       <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 12, paddingTop: 8 }}>

@@ -7,7 +7,7 @@ import { Modal, Platform, Pressable, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { COVERAGE_THRESHOLD, labelDirection, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
+import { COVERAGE_THRESHOLD, labelDirection, type IngredientOverride, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { Highlight } from "@/components/shared/Highlight"
 import { SoftPressable } from "@/components/shared/SoftPressable"
@@ -184,7 +184,7 @@ export function LabelWords({
 }
 
 /** Tapping an ingredient: what it means for you, and in general when that differs. */
-export function IngredientSheet({ item, onClose }: { item: LabelItem | null; onClose: () => void }) {
+export function IngredientSheet({ item, onClose, onMark }: { item: LabelItem | null; onClose: () => void; onMark?: (item: LabelItem, value: IngredientOverride | null) => void }) {
   const { t } = useTranslation()
   const { T } = useTheme()
   const insets = useSafeAreaInsets()
@@ -222,7 +222,41 @@ export function IngredientSheet({ item, onClose }: { item: LabelItem | null; onC
               ) : null}
             </>
           )}
+          {item.next ? (
+            <>
+              <Text style={{ marginTop: 16, fontFamily: rubik.semibold, fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: T.ink2 }}>{t("check.whatToDo")}</Text>
+              <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink }}>{item.next}</Text>
+            </>
+          ) : null}
           {item.source ? <Text style={{ marginTop: 16, fontFamily: rubik.regular, fontSize: 13, lineHeight: 19, color: T.ink2 }}>{item.source}</Text> : null}
+          {/* The person's own experience of this ingredient. Not offered for avoid (bans and drugs aren't preferences) or no-data items. */}
+          {onMark && item.key && item.state !== "avoid" && item.state !== "none" ? (
+            <View style={{ marginTop: 20 }}>
+              <Text style={{ fontFamily: rubik.semibold, fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: T.ink2 }}>{t("check.yourSkin")}</Text>
+              <View style={{ marginTop: 8, flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
+                {(
+                  [
+                    ["fine", t("check.fineForMe")],
+                    ["react", t("check.iReact")],
+                  ] as const
+                ).map(([v, label]) => {
+                  const on = item.mine === v
+                  return (
+                    <Pressable
+                      key={v}
+                      onPress={() => onMark(item, on ? null : v)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected: on }}
+                      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: on ? T.ink : T.line, backgroundColor: on ? T.ink : "transparent", justifyContent: "center" }}
+                    >
+                      <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: on ? T.bg : T.ink }}>{label}</Text>
+                    </Pressable>
+                  )
+                })}
+              </View>
+              <Text style={{ marginTop: 8, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>{t("check.markHint")}</Text>
+            </View>
+          ) : null}
           <Pressable
             onPress={onClose}
             style={{ marginTop: 24, minHeight: 52, borderRadius: 14, borderWidth: 1.5, borderColor: T.line, alignItems: "center", justifyContent: "center" }}
