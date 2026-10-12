@@ -22,6 +22,7 @@ import {
 import { analyzeIngredients, completeOnboarding, getMe } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
 import { initAnalytics, track } from "@/lib/analytics"
+import { checkUrl } from "@/lib/shared-check"
 import { loadGuestData, saveGuestScan, updateGuestData } from "@/lib/guest-store"
 import { SiteFooter, SiteHeader } from "./SiteChrome"
 import { countryLabel, ProfileEditor, ProfileSentence, type Profile } from "./Profile"
@@ -86,11 +87,14 @@ const VERDICT_MARK: Record<Zone, string> = { GREEN: "var(--hi-fine)", YELLOW: "v
 type State = { kind: "idle" } | { kind: "reading" } | { kind: "error" } | { kind: "done"; label: AnnotatedLabel; name: string; inci: string; run: number }
 
 
-export function Checker() {
+/** `initial`: a label opened from a shared link (/c?…), read for this visitor's own skin. */
+export function Checker({ initial }: { initial?: { name: string; inci: string } } = {}) {
   const [text, setText] = useState("")
   const [sampleKey, setSampleKey] = useState<string | null>(null)
   // Set when the list came from a searched product, so the result carries its name.
   const [productName, setProductName] = useState<string | null>(null)
+  const [productId, setProductId] = useState<string | null>(null)
+  const [shared, setShared] = useState(false)
   const [profile, setProfile] = useState<Profile>({ country: null, skinType: null, concerns: [] })
   const [editing, setEditing] = useState(false)
   const [state, setState] = useState<State>({ kind: "idle" })
@@ -122,6 +126,13 @@ export function Checker() {
     const g = loadGuestData()
     const p = { country: g.country ?? guessCountry(navigator.language), skinType: g.skinType, concerns: g.concerns }
     setProfile(p)
+    if (initial) {
+      // Opened from a shared link: read that label for this visitor.
+      setText(initial.inci)
+      setProductName(initial.name)
+      run(initial.inci, initial.name, p, false)
+      return
+    }
     // The fairness cream: shows a first-time visitor exactly what SkinLens catches.
     const first = SAMPLE_LABELS[0]
     setText(first.inci)
@@ -168,6 +179,23 @@ export function Checker() {
     if (state.kind === "done") run(state.inci, state.name, profile)
   }
 
+  /** Share a link to this check. Whoever opens it gets the reading for their own skin. */
+  async function share() {
+    if (state.kind !== "done") return
+    const url = checkUrl({ productId, inci: state.inci, name: state.name })
+    const text = `${state.name}, checked with SkinLens. Check it for your own skin:`
+    try {
+      if (navigator.share) await navigator.share({ title: "SkinLens", text, url })
+      else {
+        await navigator.clipboard.writeText(`${text} ${url}`)
+        setShared(true)
+        setTimeout(() => setShared(false), 2500)
+      }
+    } catch {
+      /* cancelled */
+    }
+  }
+
   function save() {
     if (state.kind !== "done") return
     saveGuestScan({
@@ -192,10 +220,11 @@ export function Checker() {
           <p style={{ margin: 0, fontSize: 18, lineHeight: 1.55, color: "var(--ink2)", maxWidth: 480 }}>{COPY.sub}</p>
           <ProductSearch
             country={profile.country}
-            onPick={(title, inci) => {
+            onPick={(title, inci, id) => {
               setText(inci)
               setSampleKey(null)
               setProductName(title)
+              setProductId(id)
               run(inci, title)
             }}
           />
@@ -206,6 +235,7 @@ export function Checker() {
               setText(e.target.value)
               setSampleKey(null)
               setProductName(null)
+              setProductId(null)
             }}
             dir="auto"
             aria-label="Ingredient list"
@@ -236,6 +266,7 @@ export function Checker() {
                   setText(s.inci)
                   setSampleKey(s.key)
                   setProductName(null)
+                  setProductId(null)
                   run(s.inci, COPY.samples[s.key])
                 }}
               >
@@ -265,7 +296,7 @@ export function Checker() {
           {state.kind === "reading" &&
             (last ? (
               <div style={{ opacity: 0.35, transition: "opacity 160ms", pointerEvents: "none" }} aria-busy>
-                <Result key={last.run} label={last.label} name={last.name} profile={profile} active={null} onPick={() => {}} saved={false} onSave={() => {}} />
+                <Result key={last.run} label={last.label} name={last.name} profile={profile} active={null} onPick={() => {}} saved={false} onSave={() => {}} onShare={() => {}} shared={false} />
               </div>
             ) : (
               <p style={{ fontSize: 20, fontWeight: 300, color: "var(--ink2)" }}>{COPY.reading}</p>
@@ -280,7 +311,7 @@ export function Checker() {
             </div>
           )}
           {state.kind === "done" && (
-            <Result key={state.run} label={state.label} name={state.name} profile={profile} active={active} onPick={setActive} saved={saved} onSave={save} />
+            <Result key={state.run} label={state.label} name={state.name} profile={profile} active={active} onPick={setActive} saved={saved} onSave={save} onShare={share} shared={shared} />
           )}
         </section>
       </main>
@@ -348,6 +379,8 @@ function Result({
   onPick,
   saved,
   onSave,
+  onShare,
+  shared,
 }: {
   label: AnnotatedLabel
   name: string
@@ -356,6 +389,8 @@ function Result({
   onPick: (i: LabelItem | null) => void
   saved: boolean
   onSave: () => void
+  onShare: () => void
+  shared: boolean
 }) {
   const N = label.items.length
   const step = Math.min(50, 700 / Math.max(N, 1))
@@ -565,9 +600,14 @@ function Result({
             {COPY.annotated}
           </div>
           {words}
-          <button className="v3-chip" style={{ marginTop: 20 }} onClick={onSave} disabled={saved}>
-            {saved ? COPY.saved : COPY.save}
-          </button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
+            <button className="v3-chip" onClick={onSave} disabled={saved}>
+              {saved ? COPY.saved : COPY.save}
+            </button>
+            <button className="v3-chip" onClick={onShare}>
+              {shared ? "Link copied" : "Share this check"}
+            </button>
+          </div>
         </div>
         {margin}
       </div>

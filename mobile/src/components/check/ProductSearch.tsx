@@ -44,7 +44,7 @@ export function ProductSearch({ country }: { country: string | null }) {
     if (!label?.inci) return
     setQ("")
     setResults([])
-    router.push({ pathname: "/scan-result", params: { inci: label.inci, name: title(p) } })
+    router.push({ pathname: "/scan-result", params: { inci: label.inci, name: title(p), pid: p.id } })
   }
 
   return (

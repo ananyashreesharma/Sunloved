@@ -204,7 +204,7 @@
     "inGeneral": "En general",
     "noDataLong": "No tenemos datos de este ingrediente. Eso no lo hace seguro ni inseguro. Simplemente no podemos decirlo.",
     "close": "Cerrar",
-    "shareText": "{{verdict}} {{name}}, revisado con SkinLens. Este veredicto es personal; revísalo para tu propia piel.",
+    "shareText": "{{verdict}} {{name}}, revisado con SkinLens. Revísalo para tu propia piel:",
     "toastSaved": "Guardado en tus revisiones.",
     "hazardT": "Si lo has estado usando",
     "hazard1": "Deja de usarlo. No lo compartas.",

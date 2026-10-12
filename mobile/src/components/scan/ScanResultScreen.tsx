@@ -40,7 +40,7 @@ export function ScanResultScreen() {
   const insets = useSafeAreaInsets()
   const { T } = useTheme()
   const reduce = useReduceMotion()
-  const params = useLocalSearchParams<{ inci?: string; name?: string }>()
+  const params = useLocalSearchParams<{ inci?: string; name?: string; pid?: string }>()
   const inci = (params.inci ?? "").trim()
   const name = (params.name ?? "").trim()
 
@@ -152,7 +152,13 @@ export function ScanResultScreen() {
   function share() {
     if (!label) return
     const verdict = label.verdict ? verdictText(label.verdict) : t("check.noVerdict") + "."
-    Share.share({ message: t("check.shareText", { verdict, name: title }) }).catch(() => {})
+    // A link to the check: it previews with the verdict, and whoever opens it gets the reading for
+    // their own skin. Products link by id; pasted labels carry their ingredient list.
+    const site = (process.env.EXPO_PUBLIC_SITE_URL ?? "https://skinlens.in").replace(/\/+$/, "")
+    const url = params.pid
+      ? `${site}/c?p=${encodeURIComponent(params.pid)}`
+      : `${site}/c?i=${encodeURIComponent(inci.slice(0, 1500))}&n=${encodeURIComponent(title.slice(0, 80))}`
+    Share.share({ message: `${t("check.shareText", { verdict, name: title })} ${url}` }).catch(() => {})
   }
 
   async function reportMissing() {

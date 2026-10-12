@@ -21,7 +21,7 @@ export function productTitle(p: { name: string; brand: string }) {
   return p.name.toLowerCase().startsWith(p.brand.toLowerCase()) ? p.name : `${p.brand} ${p.name}`
 }
 
-export function ProductSearch({ country, onPick }: { country: string | null; onPick: (title: string, inci: string) => void }) {
+export function ProductSearch({ country, onPick }: { country: string | null; onPick: (title: string, inci: string, id: string) => void }) {
   const [q, setQ] = useState("")
   const [results, setResults] = useState<FoundProduct[]>([])
   const [open, setOpen] = useState(false)
@@ -52,7 +52,7 @@ export function ProductSearch({ country, onPick }: { country: string | null; onP
     setOpen(false)
     setQ(productTitle(p))
     const label = await api<{ inci: string }>(`/products/${encodeURIComponent(p.id)}/label`).catch(() => null)
-    if (label?.inci) onPick(productTitle(p), label.inci)
+    if (label?.inci) onPick(productTitle(p), label.inci, p.id)
   }
 
   return (
