@@ -88,10 +88,4 @@ export class OumaController {
   getRecentScans(@Req() req: AuthedRequest) {
     return this.ouma.getRecentScans(req.userId);
   }
-
-  /** Aggregate stats for insights / marketing. Not user-scoped — stays public like before. */
-  @Get('insights-summary')
-  insightsSummary() {
-    return this.ouma.getInsightsSummary();
-  }
 }

@@ -506,26 +506,4 @@ export class OumaService {
       };
     });
   }
-
-  async getInsightsSummary() {
-    const [productCount, ingredientCount, pricedCount] = await Promise.all([
-      this.prisma.product.count({ where: { deletedAt: null } }),
-      this.prisma.ingredient.count(),
-      this.prisma.product.count({
-        where: { deletedAt: null, prices: { some: {} } },
-      }),
-    ]);
-
-    const scoreAgg = await this.prisma.product.aggregate({
-      where: { deletedAt: null, overallScore: { not: null } },
-      _avg: { overallScore: true },
-    });
-
-    return {
-      catalogProducts: productCount,
-      catalogIngredients: ingredientCount,
-      productsWithPrices: pricedCount,
-      avgProductScore: scoreAgg._avg.overallScore != null ? Number(scoreAgg._avg.overallScore) : null,
-    };
-  }
 }
