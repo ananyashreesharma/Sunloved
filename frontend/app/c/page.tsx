@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { Checker } from "@/components/v3/Checker"
+import { CopyProvider } from "@/lib/copy-context"
+import { pageLang } from "@/lib/page-lang"
 import { readLabel, resolveLabel, SITE, VERDICT_TEXT, type CheckParams } from "@/lib/shared-check"
 
 // A shared check. The preview (title + image) shows the general verdict; the page itself reads
@@ -23,5 +25,9 @@ export async function generateMetadata({ searchParams }: { searchParams: CheckPa
 
 export default async function SharedCheck({ searchParams }: { searchParams: CheckParams }) {
   const label = await resolveLabel(searchParams)
-  return <Checker initial={label ?? undefined} />
+  return (
+    <CopyProvider lang={pageLang()}>
+      <Checker initial={label ?? undefined} />
+    </CopyProvider>
+  )
 }

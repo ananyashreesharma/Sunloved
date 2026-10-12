@@ -1,6 +1,8 @@
 import type { Metadata } from "next"
 import { notFound } from "next/navigation"
 import { Checker } from "@/components/v3/Checker"
+import { CopyProvider } from "@/lib/copy-context"
+import { pageLang } from "@/lib/page-lang"
 import { readLabel, resolveLabel, SITE, VERDICT_TEXT } from "@/lib/shared-check"
 
 export const revalidate = 86400
@@ -27,5 +29,9 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
 export default async function ProductPage({ params }: { params: { id: string } }) {
   const label = await resolveLabel({ p: params.id })
   if (!label) notFound()
-  return <Checker initial={label} />
+  return (
+    <CopyProvider lang={pageLang()}>
+      <Checker initial={label} />
+    </CopyProvider>
+  )
 }

@@ -1,14 +1,20 @@
-// Header and footer for the public V3 pages: the checker, How we rate.
+"use client"
+
+// Header and footer for the public V3 pages: the checker, ingredient and product pages, How we
+// rate, legal pages. Words follow the page's language (lib/copy-context), English by default.
 
 import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { LANGS } from "@/lib/checker-copy"
+import { useCopy, useLang } from "@/lib/copy-context"
 
-const NAV = [
-  { key: "check", href: "/", label: "Check a label" },
-  { key: "how", href: "/how-we-rate", label: "How we rate" },
-  { key: "routine", href: "/app/routine", label: "Your routine" },
-] as const
-
-export function SiteHeader({ current }: { current: (typeof NAV)[number]["key"] }) {
+export function SiteHeader({ current }: { current: "check" | "how" | "routine" }) {
+  const C = useCopy()
+  const nav = [
+    { key: "check", href: "/", label: C.nav.check },
+    { key: "how", href: "/how-we-rate", label: C.nav.how },
+    { key: "routine", href: "/app/routine", label: C.nav.routine },
+  ] as const
   return (
     <header className="v3-header">
       <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 18, fontWeight: 600, letterSpacing: "-0.01em", textDecoration: "none" }}>
@@ -16,7 +22,7 @@ export function SiteHeader({ current }: { current: (typeof NAV)[number]["key"] }
         SkinLens
       </Link>
       <nav aria-label="Main" className="v3-nav">
-        {NAV.map((n) => (
+        {nav.map((n) => (
           <Link
             key={n.key}
             href={n.href}
@@ -36,6 +42,9 @@ export function SiteHeader({ current }: { current: (typeof NAV)[number]["key"] }
 }
 
 export function SiteFooter() {
+  const C = useCopy()
+  const lang = useLang()
+  const path = usePathname() ?? "/"
   return (
     <footer
       style={{
@@ -44,16 +53,29 @@ export function SiteFooter() {
         fontSize: 13,
         color: "var(--ink2)",
         display: "flex",
-        gap: 24,
+        gap: "12px 24px",
         flexWrap: "wrap",
       }}
     >
-      <span>No ads. No affiliate links. No sponsored verdicts.</span>
-      <span>If we can rate less than 70% of a label, we don&apos;t give a verdict.</span>
-      <Link href="/ingredients">Ingredients A–Z</Link>
-      <Link href="/legal/privacy">Privacy</Link>
-      <Link href="/legal/terms">Terms</Link>
-      <Link href="/legal/disclaimer">Not medical advice</Link>
+      <span>{C.footer.noAds}</span>
+      <span>{C.footer.rule}</span>
+      <Link href="/ingredients">{C.footer.ingredients}</Link>
+      <Link href="/legal/privacy">{C.footer.privacy}</Link>
+      <Link href="/legal/terms">{C.footer.terms}</Link>
+      <Link href="/legal/disclaimer">{C.footer.medical}</Link>
+      <span style={{ display: "flex", gap: 12 }} aria-label="Language">
+        {LANGS.map((l) => (
+          <a
+            key={l.code}
+            href={`/api/lang?l=${l.code}&next=${encodeURIComponent(path)}`}
+            lang={l.code}
+            aria-current={l.code === lang ? "true" : undefined}
+            style={{ fontWeight: l.code === lang ? 600 : 400, color: l.code === lang ? "var(--ink)" : "var(--ink2)" }}
+          >
+            {l.name}
+          </a>
+        ))}
+      </span>
     </footer>
   )
 }

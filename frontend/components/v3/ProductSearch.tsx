@@ -6,6 +6,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { getPublicApiBase } from "@/lib/api"
+import { useCopy } from "@/lib/copy-context"
 
 export type FoundProduct = { id: string; name: string; brand: string; country: string | null; ingredientCount: number }
 
@@ -22,6 +23,7 @@ export function productTitle(p: { name: string; brand: string }) {
 }
 
 export function ProductSearch({ country, onPick }: { country: string | null; onPick: (title: string, inci: string, id: string) => void }) {
+  const C = useCopy()
   const [q, setQ] = useState("")
   const [results, setResults] = useState<FoundProduct[]>([])
   const [open, setOpen] = useState(false)
@@ -68,8 +70,8 @@ export function ProductSearch({ country, onPick }: { country: string | null; onP
           if (e.key === "ArrowUp") (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)))
           if (e.key === "Enter") (e.preventDefault(), pick(results[active]))
         }}
-        placeholder="Search a product, e.g. Himalaya neem face wash"
-        aria-label="Search a product"
+        placeholder={C.searchPlaceholder}
+        aria-label={C.search}
         role="combobox"
         aria-expanded={open}
         aria-controls="product-results"
@@ -93,7 +95,7 @@ export function ProductSearch({ country, onPick }: { country: string | null; onP
           role="listbox"
           style={{ position: "absolute", zIndex: 20, left: 0, right: 0, top: "calc(100% + 6px)", margin: 0, padding: 6, listStyle: "none", borderRadius: 14, background: "var(--surface)", boxShadow: "0 12px 32px rgba(0,0,0,.14)", border: "1px solid var(--line)" }}
         >
-          {results.length === 0 && <li style={{ padding: "12px 10px", fontSize: 15, color: "var(--ink2)" }}>Not in our list yet. Paste its ingredients below instead.</li>}
+          {results.length === 0 && <li style={{ padding: "12px 10px", fontSize: 15, color: "var(--ink2)" }}>{C.searchNone}</li>}
           {results.map((p, i) => (
             <li
               key={p.id}
@@ -105,7 +107,8 @@ export function ProductSearch({ country, onPick }: { country: string | null; onP
             >
               <div style={{ fontSize: 16 }}>{productTitle(p)}</div>
               <div style={{ fontSize: 13, color: "var(--ink2)" }}>
-                {p.ingredientCount} ingredients{p.country ? ` · ${p.country} formula` : ""}
+                {C.searchCount(p.ingredientCount)}
+                {p.country ? ` · ${C.formula(p.country)}` : ""}
               </div>
             </li>
           ))}

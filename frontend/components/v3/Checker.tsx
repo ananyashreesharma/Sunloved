@@ -8,12 +8,10 @@
 import { useEffect, useRef, useState } from "react"
 import {
   annotateLabel,
-  CONCERNS,
   COVERAGE_THRESHOLD,
   guessCountry,
   labelDirection,
   SAMPLE_LABELS,
-  SKIN_TYPES,
   type AnnotatedLabel,
   type ItemState,
   type LabelItem,
@@ -27,59 +25,9 @@ import { loadGuestData, saveGuestScan, updateGuestData } from "@/lib/guest-store
 import { SiteFooter, SiteHeader } from "./SiteChrome"
 import { countryLabel, ProfileEditor, ProfileSentence, type Profile } from "./Profile"
 import { ProductSearch } from "./ProductSearch"
+import { useCopy, useLang } from "@/lib/copy-context"
+import type { CheckerCopy } from "@/lib/checker-copy"
 
-const COPY = {
-  title: "Check any skincare label, free.",
-  sub: "Search a product or paste its ingredients. Get a plain-language reading for your skin, and find hidden steroids, mercury and hydroquinone that some creams don't advertise.",
-  orPaste: "Or paste the ingredient list",
-  placeholder: "Aqua, Glycerin, Niacinamide…",
-  samples: { sampleFairness: "Fairness cream", sampleNiacinamide: "Niacinamide serum", sampleSunscreen: "Sunscreen", sampleCream: "Night cream" },
-  yourSkin: "Your skin",
-  skinNote: "Verdicts are personal: change these and the same label can read differently. Saved in this browser only.",
-  skinNoteAccount: "Verdicts are personal: change these and the same label can read differently. Saved to your account.",
-  read: "Read ingredients",
-  reading: "Reading the label…",
-  yourLabel: "Your label",
-  basedOn: "Based on: ",
-  verdict: {
-    GREEN: ["Looks ", "fine", "."],
-    YELLOW: ["Use with ", "caution", "."],
-    RED: ["", "Avoid", " this one."],
-  } as Record<Zone, [string, string, string]>,
-  rated: (a: number, b: number, none: number) => `${a} of ${b} rated` + (none ? ` · ${none} with no information` : ""),
-  needed: "70% needed for a verdict",
-  annotated: "The label, annotated",
-  margin: "In the margin",
-  nothingFlagged: "Nothing flagged for you.",
-  hint: "Click any ingredient for its one-line explanation.",
-  forYou: "For you",
-  inGeneral: "In general",
-  noDataLong: "We have no data on this ingredient. That doesn't make it safe or unsafe. We just can't say.",
-  tags: { caution: "Caution", nfy: "Not for you", avoid: "Avoid", fine: "Fine", none: "No information" } as Record<ItemState, string>,
-  noVerdict: "No verdict",
-  cantT: "We can't judge this one yet.",
-  cantBody: (a: number, b: number, c: number) => `We could rate ${a} of ${b} ingredients. We need ${c} before we give a verdict, so we're not giving one.`,
-  errT: "We couldn't check this.",
-  errBody: "The check needs a connection to our ingredient data. Nothing was judged. Try again in a moment.",
-  tryAgain: "Try again",
-  save: "Save this check",
-  saved: "Saved in this browser",
-  appCard: "Keep a routine that knows what's in it. Try it on the web now; the iPhone and Android apps are on their way.",
-  appCta: "Start a routine",
-  done: "Done",
-  country: "Where you live",
-  skinType: "Skin type",
-  concerns: "Up to two concerns",
-  hazardT: "If you've been using this",
-  hazard: [
-    "Stop using it. Don't share it with anyone.",
-    "If you've used it for weeks, stopping can cause a short flare of redness or spots. That settles; a doctor or pharmacist can help with it.",
-    "See a doctor if your skin is thin, burning, or has stretch marks or patches that won't fade.",
-    "For dark spots, gentler options include niacinamide, azelaic acid and sunscreen every day.",
-  ],
-  hazardNote: "This is general information, not medical advice.",
-  empty: "Paste a label, or try one of the samples, and the reading appears here.",
-}
 
 const MARK: Partial<Record<ItemState, string>> = { caution: "var(--hi-caution)", nfy: "var(--hi-nfy)", avoid: "var(--hi-avoid)" }
 const VERDICT_MARK: Record<Zone, string> = { GREEN: "var(--hi-fine)", YELLOW: "var(--hi-caution)", RED: "var(--hi-avoid)" }
@@ -89,6 +37,7 @@ type State = { kind: "idle" } | { kind: "reading" } | { kind: "error" } | { kind
 
 /** `initial`: a label opened from a shared link (/c?…), read for this visitor's own skin. */
 export function Checker({ initial }: { initial?: { name: string; inci: string } } = {}) {
+  const COPY = useCopy()
   const [text, setText] = useState("")
   const [sampleKey, setSampleKey] = useState<string | null>(null)
   // Set when the list came from a searched product, so the result carries its name.
@@ -183,7 +132,7 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
   async function share() {
     if (state.kind !== "done") return
     const url = checkUrl({ productId, inci: state.inci, name: state.name })
-    const text = `${state.name}, checked with SkinLens. Check it for your own skin:`
+    const text = COPY.shareText(state.name)
     try {
       if (navigator.share) await navigator.share({ title: "SkinLens", text, url })
       else {
@@ -211,7 +160,7 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
   }
 
   return (
-    <div className="v3" style={{ display: "flex", flexDirection: "column" }}>
+    <div className="v3" dir={COPY.dir} style={{ display: "flex", flexDirection: "column" }}>
       <SiteHeader current="check" />
       <main className="v3-checker">
         {/* ── Input ── */}
@@ -238,7 +187,7 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
               setProductId(null)
             }}
             dir="auto"
-            aria-label="Ingredient list"
+            aria-label={COPY.pasteLabel}
             placeholder={COPY.placeholder}
             style={{
               minHeight: 180,
@@ -320,17 +269,18 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
   )
 }
 
-function profileLine(p: Profile): string {
-  const type = SKIN_TYPES.find((s) => s.code === p.skinType)
+function profileLine(p: Profile, COPY: CheckerCopy, lang: string): string {
+  const type = p.skinType ? COPY.skinTypes[p.skinType] : null
   const parts = [
-    countryLabel(p.country)?.replace(/^the /, ""),
-    type && p.skinType !== "unsure" ? `${type.label.toLowerCase()} skin` : null,
-    p.concerns.map((c) => CONCERNS.find((x) => x.code === c)?.label.toLowerCase() ?? c).join(", ") || null,
+    countryLabel(p.country, lang)?.replace(/^the /, ""),
+    type && p.skinType !== "unsure" ? COPY.skinOf(type).toLocaleLowerCase(lang) : null,
+    p.concerns.map((c) => (COPY.concernNames[c] ?? c).toLocaleLowerCase(lang)).join(", ") || null,
   ].filter(Boolean)
   return parts.length ? COPY.basedOn + parts.join(" · ") : ""
 }
 
 function Tag({ state }: { state: ItemState }) {
+  const COPY = useCopy()
   const bg = state === "fine" ? "var(--hi-fine)" : MARK[state]
   return (
     <span
@@ -392,6 +342,8 @@ function Result({
   onShare: () => void
   shared: boolean
 }) {
+  const COPY = useCopy()
+  const lang = useLang()
   const N = label.items.length
   const step = Math.min(50, 700 / Math.max(N, 1))
   // The label reads in its own script's direction (an Arabic label right to left).
@@ -534,7 +486,7 @@ function Result({
   const head = (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, flexWrap: "wrap", fontSize: 14, color: "var(--ink2)" }}>
       <span>{name}</span>
-      <span>{profileLine(profile)}</span>
+      <span>{profileLine(profile, COPY, lang)}</span>
     </div>
   )
 
@@ -606,7 +558,7 @@ function Result({
               {saved ? COPY.saved : COPY.save}
             </button>
             <button className="v3-chip" onClick={onShare}>
-              {shared ? "Link copied" : "Share this check"}
+              {shared ? COPY.copied : COPY.share}
             </button>
           </div>
         </div>
