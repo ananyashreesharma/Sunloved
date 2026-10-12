@@ -89,7 +89,7 @@ export default function HowWeRate() {
         <h2 style={h2}>Think we&apos;re wrong?</h2>
         <p style={p}>
           Formulas change and our data has gaps. If a label or rating looks wrong, whether you use the product or make it, email{" "}
-          <a href="mailto:anannyashree2514@gmail.com">anannyashree2514@gmail.com</a> with the product and what&apos;s wrong. We check every report and fix errors. Nobody can pay
+          <a href="mailto:anannyashree1425@gmail.com">anannyashree1425@gmail.com</a> with the product and what&apos;s wrong. We check every report and fix errors. Nobody can pay
           for a verdict.
         </p>
         <p style={{ ...p, color: "var(--ink2)", fontSize: 16 }}>

@@ -4,7 +4,7 @@ import { LegalPage } from "@/components/v3/LegalPage"
 
 export const metadata: Metadata = { title: "Terms of use | SkinLens" }
 
-const CONTACT = "anannyashree2514@gmail.com"
+const CONTACT = "anannyashree1425@gmail.com"
 
 export default function Terms() {
   return (
