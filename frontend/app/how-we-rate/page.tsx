@@ -58,6 +58,9 @@ export default function HowWeRate() {
         <p style={p}>
           An automated rating can say &ldquo;caution&rdquo;, but it never says &ldquo;avoid&rdquo; on its own. That verdict is only ever set by hand.
         </p>
+        <p style={{ ...p, fontSize: 15, color: "var(--ink2)" }}>
+          EU ingredient data: CosIng, &copy; European Union, reused under Commission Decision 2011/833/EU. Plain-language descriptions are our own.
+        </p>
 
         <h2 style={h2}>What the marks mean</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>

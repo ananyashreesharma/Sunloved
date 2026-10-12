@@ -16,7 +16,7 @@ export const FUNCTION_PHRASES: Record<string, string> = {
   ANTIDANDRUFF: 'helps control dandruff',
   ANTIFOAMING: 'stops unwanted foaming',
   ANTIMICROBIAL: 'slows the growth of microbes',
-  ANTIOXIDANT: 'protects the formula from going off',
+  ANTIOXIDANT: 'protects skin and the formula from oxidising',
   ANTIPERSPIRANT: 'reduces sweating',
   ANTISEBORRHOEIC: 'helps control oiliness',
   ANTISTATIC: 'reduces static, especially in hair',
