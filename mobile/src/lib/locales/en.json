@@ -387,6 +387,11 @@
     "cancel": "Cancel",
     "guest": "Everything is on this phone only.",
     "changingPhones": "Changing phones? Save your routine to an account first.",
-    "heading": "Account"
+    "heading": "Account",
+    "delete": "Delete my account",
+    "deleteTitle": "Delete your account?",
+    "deleteBody": "This permanently deletes your routine, streak, skin profile and saved checks from SkinLens, and clears them from this phone. It can't be undone.",
+    "deleteConfirm": "Delete",
+    "deleteFailed": "That didn't work. Check your connection and try again."
   }
 }

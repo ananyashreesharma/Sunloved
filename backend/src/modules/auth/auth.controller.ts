@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, Post, Req, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Req, HttpCode, HttpStatus, UseGuards, Delete } from '@nestjs/common';
 import { Throttle, seconds } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import {
@@ -22,6 +22,13 @@ export class AuthController {
   @UseGuards(UserAuthGuard)
   me(@Req() req: { userId: string }) {
     return this.authService.findUserById(req.userId);
+  }
+
+  /** Permanently delete the signed-in account and its data. */
+  @Delete('me')
+  @UseGuards(UserAuthGuard)
+  deleteAccount(@Req() req: { userId: string }) {
+    return this.authService.deleteAccount(req.userId);
   }
 
   /** One-shot submit at the end of the onboarding wizard. */

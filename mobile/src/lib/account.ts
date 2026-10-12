@@ -12,7 +12,7 @@ import type { GuestStep, MeResponse, RoutineResponse } from "@skinlens/shared"
 import { api } from "./api-client"
 import { clearTokens, getRefreshToken, setTokens } from "./auth-tokens"
 import { track } from "./analytics"
-import { getGuestScans, loadGuestData, updateGuestData } from "./guest-store"
+import { clearGuestData, clearGuestScans, getGuestScans, loadGuestData, updateGuestData } from "./guest-store"
 
 type State = { signedIn: boolean; email: string | null; ready: boolean }
 
@@ -114,5 +114,13 @@ export async function signOut(): Promise<void> {
   const refreshToken = await getRefreshToken().catch(() => null)
   if (refreshToken) await api.post("/auth/logout", { refreshToken }).catch(() => {})
   await clearTokens()
+  set({ signedIn: false, email: null })
+}
+
+/** Permanently delete the account, then clear this phone too. Throws if the server can't be reached. */
+export async function deleteAccount(): Promise<void> {
+  await api.del("/auth/me")
+  await clearTokens()
+  await Promise.all([clearGuestData(), clearGuestScans(), AsyncStorage.removeItem(SYNCED_SCANS_KEY)])
   set({ signedIn: false, email: null })
 }

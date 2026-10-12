@@ -47,7 +47,9 @@
     "db:setup": "npm run prisma:migrate && npm run prisma:seed",
     "db:supabase": "npm run prisma:reset",
     "prisma:reset": "prisma migrate reset --force",
-    "check:world-labels": "ts-node --transpile-only prisma/check-world-labels.ts"
+    "check:world-labels": "ts-node --transpile-only prisma/check-world-labels.ts",
+    "sync:shared": "node scripts/sync-shared.js",
+    "prebuild": "node scripts/sync-shared.js"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

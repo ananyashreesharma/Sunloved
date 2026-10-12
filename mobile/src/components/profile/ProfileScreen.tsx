@@ -10,7 +10,7 @@ import { router, useFocusEffect, type Href } from "expo-router"
 import { countryByCode, type GuestData } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { loadGuestData } from "@/lib/guest-store"
-import { signOut, useAccount } from "@/lib/account"
+import { deleteAccount, signOut, useAccount } from "@/lib/account"
 import { FORWARD_ARROW } from "@/lib/i18n"
 import { useTheme } from "@/lib/theme"
 import { SectionLabel, StatusScrim } from "@/components/check/parts"
@@ -28,6 +28,20 @@ export function ProfileScreen() {
   const nameOf = useCountryName()
   const [data, setData] = useState<GuestData | null>(null)
   const { signedIn, email } = useAccount()
+
+  function confirmDelete() {
+    Alert.alert(t("acct.deleteTitle"), t("acct.deleteBody"), [
+      { text: t("acct.cancel"), style: "cancel" },
+      {
+        text: t("acct.deleteConfirm"),
+        style: "destructive",
+        onPress: () =>
+          deleteAccount()
+            .then(() => router.replace("/"))
+            .catch(() => Alert.alert(t("acct.deleteFailed"))),
+      },
+    ])
+  }
 
   function confirmSignOut() {
     Alert.alert(t("acct.signOutTitle"), t("acct.signOutBody"), [
@@ -127,6 +141,9 @@ export function ProfileScreen() {
             {email && <Text style={{ marginTop: 2, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("acct.signedInSub")}</Text>}
             <Pressable onPress={confirmSignOut} style={{ minHeight: 48, justifyContent: "center", alignSelf: "flex-start" }}>
               <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink, textDecorationLine: "underline" }}>{t("acct.signOut")}</Text>
+            </Pressable>
+            <Pressable onPress={confirmDelete} accessibilityRole="button" style={{ minHeight: 44, justifyContent: "center", alignSelf: "flex-start" }}>
+              <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.tAvoid }}>{t("acct.delete")}</Text>
             </Pressable>
           </>
         ) : (

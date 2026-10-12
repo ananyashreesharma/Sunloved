@@ -10,3 +10,14 @@ export async function GET() {
     return NextResponse.json({ error: (err as Error).message }, { status: 502 })
   }
 }
+
+/** Permanently delete the signed-in account. */
+export async function DELETE() {
+  try {
+    const data = await backendFetch("/auth/me", { method: "DELETE" })
+    return NextResponse.json(data)
+  } catch (err) {
+    if (err instanceof UnauthenticatedError) return NextResponse.json({ error: "unauthenticated" }, { status: 401 })
+    return NextResponse.json({ error: (err as Error).message }, { status: 502 })
+  }
+}

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import type { Ingredient } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { candidateNames, splitLabel } from './label-parser';
 
@@ -45,30 +46,37 @@ export class IngredientsService {
    * preferring the most specific name. Case-insensitive against inciName and displayName.
    */
   async findIngredientByName(name: string) {
-    const names = candidateNames(name);
-    const rows = await this.prisma.ingredient.findMany({
-      where: {
-        OR: names.flatMap((n) => [
-          { inciName: { equals: n, mode: 'insensitive' as const } },
-          { displayName: { equals: n, mode: 'insensitive' as const } },
-        ]),
-      },
-    });
-    const matches = (n: string) => {
-      const lower = n.toLowerCase();
-      return rows.find((r) => r.inciName.toLowerCase() === lower || r.displayName?.toLowerCase() === lower);
-    };
-    // A rated entry under any of its names beats an unrated one under the exact printed name
-    // (catalog imports left unrated rows like "Avobenzone" next to the rated INCI entry).
-    for (const n of names) {
-      const hit = matches(n);
-      if (hit?.zone) return hit;
+    return (await this.findIngredientsByNames([name])).get(name) ?? null;
+  }
+
+  /**
+   * Look up a whole label in one query: every candidate name for every entry, then pick per entry.
+   * A rated row under any of its names beats an unrated one under the exact printed name (catalog
+   * imports left unrated rows like "Avobenzone" next to the rated INCI entry).
+   */
+  async findIngredientsByNames(entries: string[]): Promise<Map<string, Ingredient>> {
+    const candidates = new Map(entries.map((e) => [e, candidateNames(e)]));
+    const all = Array.from(new Set([...candidates.values()].flat().map((n) => n.toLowerCase())));
+    const rows = all.length
+      ? await this.prisma.$queryRaw<Ingredient[]>`
+          SELECT * FROM ingredients
+          WHERE lower("inciName") = ANY(${all}) OR lower("displayName") = ANY(${all})`
+      : [];
+    const byName = new Map<string, Ingredient[]>();
+    for (const r of rows) {
+      for (const key of [r.inciName, r.displayName]) {
+        if (!key) continue;
+        const k = key.toLowerCase();
+        byName.set(k, [...(byName.get(k) ?? []), r]);
+      }
     }
-    for (const n of names) {
-      const hit = matches(n);
-      if (hit) return hit;
+    const out = new Map<string, Ingredient>();
+    for (const [entry, names] of candidates) {
+      const hits = names.map((n) => byName.get(n.toLowerCase()) ?? []);
+      const pick = hits.flat().find((r) => r.zone) ?? hits.flat()[0];
+      if (pick) out.set(entry, pick);
     }
-    return null;
+    return out;
   }
 
   /**
@@ -76,7 +84,9 @@ export class IngredientsService {
    * Returns data from DB when available
    */
   async analyze(raw: string): Promise<IngredientAnalysis> {
-    const parsed = this.parseIngredientNames(raw);
+    // A real label is a few hundred characters; this keeps a pasted document from tying up the server.
+    if (raw.length > 20_000) throw new BadRequestException('That is too long to be an ingredient list. Paste just the ingredients.');
+    const parsed = this.parseIngredientNames(raw).slice(0, 200);
 
     if (parsed.length === 0) {
       return {
@@ -95,9 +105,10 @@ export class IngredientsService {
     const foundIngredients: AnalyzedIngredient[] = [];
     const unknownIngredients: string[] = [];
 
+    const found = await this.findIngredientsByNames(parsed);
     for (let i = 0; i < parsed.length; i++) {
       const ingredientName = parsed[i];
-      const dbIngredient = await this.findIngredientByName(ingredientName);
+      const dbIngredient = found.get(ingredientName);
 
       if (dbIngredient) {
         const irritant =

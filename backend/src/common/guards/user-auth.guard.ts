@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { verifyAccessToken } from '../../modules/auth/token.util';
+import { PrismaService } from '../../prisma/prisma.service';
 
 /**
  * User Auth Guard
@@ -28,7 +29,18 @@ import { verifyAccessToken } from '../../modules/auth/token.util';
  */
 @Injectable()
 export class UserAuthGuard implements CanActivate {
-  canActivate(context: ExecutionContext): boolean {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    if (!this.check(context)) return false;
+    // A token issued before the account was deleted is no longer valid.
+    const request = context.switchToHttp().getRequest();
+    const exists = await this.prisma.user.findUnique({ where: { id: request.userId }, select: { id: true } });
+    if (!exists) throw new UnauthorizedException('Account not found');
+    return true;
+  }
+
+  private check(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
 
     const authHeader = request.headers['authorization'] as string | undefined;

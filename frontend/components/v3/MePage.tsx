@@ -8,7 +8,7 @@ import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import { completeOnboarding, getMe, updateCountry } from "@/lib/api"
-import { loadGuestData, updateGuestData } from "@/lib/guest-store"
+import { clearGuestData, clearGuestScans, loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { useIsGuest } from "@/lib/use-guest"
 import { ProfileEditor, ProfileSentence, type Profile } from "./Profile"
 
@@ -18,6 +18,17 @@ export function MePage() {
   const [profile, setProfile] = useState<Profile>({ country: null, skinType: null, concerns: [] })
   const [editing, setEditing] = useState(false)
   const [saveError, setSaveError] = useState(false)
+  const [deleteError, setDeleteError] = useState(false)
+
+  async function deleteAccount() {
+    if (!window.confirm("Delete your account? This permanently deletes your routine, streak, skin profile and saved checks from SkinLens. It can't be undone.")) return
+    setDeleteError(false)
+    const res = await fetch("/api/me", { method: "DELETE" }).catch(() => null)
+    if (!res?.ok) return setDeleteError(true)
+    clearGuestData()
+    clearGuestScans()
+    signOut({ callbackUrl: "/" })
+  }
 
   useEffect(() => {
     if (isGuest) {
@@ -103,6 +114,13 @@ export function MePage() {
           >
             Sign out
           </button>
+          <button
+            onClick={deleteAccount}
+            style={{ display: "block", minHeight: 44, padding: 0, border: "none", background: "none", color: "var(--t-avoid)", font: "inherit", fontSize: 15, cursor: "pointer" }}
+          >
+            Delete my account
+          </button>
+          {deleteError && <p style={{ margin: "4px 0 0", fontSize: 14, color: "var(--t-avoid)" }}>That didn&apos;t work. Check your connection and try again.</p>}
         </>
       )}
 

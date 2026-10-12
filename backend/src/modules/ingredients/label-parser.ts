@@ -1,41 +1,8 @@
-// Mirror of packages/shared/src/labels.ts (the apps split labels with the same rules before
-// sending them): keep the two in step. Plus the server-only part: other names an ingredient goes
-// by on real labels, so "Avobenzone", "Agua" or "Aqua/Water/Eau" find their INCI entry.
+// Splitting labels uses the apps' own code (shared-labels.ts, copied from packages/shared at build).
+// The server-only part lives here: other names an ingredient goes by on real labels, so
+// "Avobenzone", "Agua" or "Aqua/Water/Eau" find their INCI entry.
 
-const HEADINGS =
-  /\b(active ingredients?|inactive ingredients?|other ingredients?|ingredients?|ingr[eé]dients?|ingredientes|inhaltsstoffe|composition|inci|contains|may contain|peut contenir|puede contener|pode conter)\s*:/gi
-
-export function splitLabel(raw: string): string[] {
-  let text = raw
-    .replace(/\r/g, "\n")
-    // "[+/- CI 77891]" and "+/-:" introduce colourants that may be present: keep them as ingredients.
-    .replace(/\[\s*\+\/-\s*:?/g, ",")
-    .replace(/\+\/-\s*:?/g, ",")
-    .replace(/[\[\]]/g, ",")
-    .replace(HEADINGS, ",")
-  // Full stop between ingredients ("Salicylic Acid 2%. Water"), but not inside numbers ("0.5%").
-  text = text.replace(/\.(?=\s+[^\d\s])/g, ",")
-  return (
-    text
-      // Separators; a comma between two digits belongs to a chemical name (1,2-Hexanediol).
-      .split(/(?<!\d),|,(?!\d)|[;\n•·|،؛]/)
-      // A piece starting with a footnote mark is the legend ("*organic"), not an ingredient.
-      .filter((s) => !/^\s*[*°†‡¹²³]/.test(s))
-      .map((s) =>
-        s
-          // Concentrations: "3%", "(3%)", "2.0 %", "0,5%", "w/w".
-          .replace(/\(?\s*\d+(?:[.,]\d+)?\s*%\s*(?:w\/w|w\/v)?\s*\)?/gi, " ")
-          // Footnote marks: "Aloe*", "Rosehip Oil**", "Shea Butter°".
-          .replace(/[*°†‡¹²³]+/g, " ")
-          .replace(/\s+/g, " ")
-          .trim()
-          .replace(/^[.\-–—:]+|[.\-–—:]+$/g, "")
-          .trim(),
-      )
-      .filter((s) => s.length > 0 && /[\p{L}\d]/u.test(s))
-  )
-}
-
+export { splitLabel } from './shared-labels';
 
 // Other names for INCI entries: US drug-facts names, and common translations on labels in
 // Spanish, Portuguese, French and Arabic. Keys are lowercase without accents.

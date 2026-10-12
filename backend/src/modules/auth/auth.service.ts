@@ -368,6 +368,21 @@ export class AuthService {
 
   // ─── Lookup by ID (used by NextAuth JWT callback) ─────────────────────────
 
+  /**
+   * Permanently deletes the account and everything in it: profile, routines, history, streak,
+   * saved checks, sign-in tokens and codes. Anonymous usage events stay, unlinked from the account.
+   * Required by the App Store and Google Play, and by data-protection law.
+   */
+  async deleteAccount(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+    if (!user) return { deleted: true };
+    await this.prisma.$transaction([
+      ...(user.email ? [this.prisma.emailOtp.deleteMany({ where: { email: user.email } })] : []),
+      this.prisma.user.delete({ where: { id: userId } }),
+    ]);
+    return { deleted: true };
+  }
+
   async findUserById(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },

@@ -387,6 +387,11 @@
     "cancel": "Cancelar",
     "guest": "Todo está solo en este teléfono.",
     "changingPhones": "¿Vas a cambiar de teléfono? Guarda primero tu rutina en una cuenta.",
-    "heading": "Cuenta"
+    "heading": "Cuenta",
+    "delete": "Eliminar mi cuenta",
+    "deleteTitle": "¿Eliminar tu cuenta?",
+    "deleteBody": "Esto elimina para siempre tu rutina, tu racha, tu perfil de piel y tus revisiones de SkinLens, y los borra de este teléfono. No se puede deshacer.",
+    "deleteConfirm": "Eliminar",
+    "deleteFailed": "No funcionó. Revisa tu conexión e inténtalo de nuevo."
   }
 }
