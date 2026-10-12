@@ -130,7 +130,7 @@
   },
   "check": {
     "title": "Check a label.",
-    "sub": "Paste the ingredient list from the pack or a website.",
+    "sub": "Search a product or paste its ingredients, and find hidden steroids, mercury and hydroquinone too.",
     "placeholder": "Aqua, Glycerin, Niacinamide…",
     "nameLabel": "What is it?",
     "namePlaceholder": "Product name (optional)",
@@ -212,7 +212,13 @@
     "hazard3": "See a doctor if your skin is thin, burning, or has stretch marks or patches that won't fade.",
     "hazard4": "For dark spots, gentler options include niacinamide, azelaic acid and sunscreen every day.",
     "hazardNote": "This is general information, not medical advice.",
-    "sampleFairness": "Fairness cream"
+    "sampleFairness": "Fairness cream",
+    "search": "Search a product",
+    "searchPlaceholder": "Search a product, e.g. Himalaya neem",
+    "searchNone": "Not in our list yet. Paste its ingredients below instead.",
+    "searchCount_one": "{{count}} ingredient",
+    "searchCount_other": "{{count}} ingredients",
+    "orPaste": "Or paste the ingredient list"
   },
   "reminders": {
     "gentleMorning": "Your morning routine is ready when you are.",

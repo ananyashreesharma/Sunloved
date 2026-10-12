@@ -276,7 +276,8 @@ export function ScanResultScreen() {
   // ── Verdict ──
   const vk = VERDICT_KEYS[label.verdict]
   const notes = [...label.flagged, ...label.noData]
-  const long = label.total > LONG_LABEL
+  // The flagged-only view is for long labels with something to point at; otherwise show the whole label.
+  const long = label.total > LONG_LABEL && notes.length > 0
   const flaggedView = long && view === "flagged"
   const shown = flaggedView ? label.items.filter((i) => i.num) : label.items
   const pre = t(`check.${vk.pre}`).trim()

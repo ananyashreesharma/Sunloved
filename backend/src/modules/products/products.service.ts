@@ -1,4 +1,5 @@
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ComparisonsService } from '../comparisons/comparisons.service';
 import { SearchProductsDto } from './dto/search-products.dto';
@@ -415,6 +416,54 @@ export class ProductsService {
       prices: pricesDetail,
       overallScore: product.overallScore != null ? Number(product.overallScore) : null,
       ingredientRows,
+    };
+  }
+
+  /**
+   * Type-ahead search for the checker: every word must match the product or brand name
+   * ("himalaya neem"), only products with an ingredient list, the user's country's formulation
+   * first. One query, a handful of results.
+   */
+  async find(q: string, country?: string) {
+    const tokens = q.toLowerCase().split(/\s+/).map((t) => t.replace(/[%_\\]/g, '')).filter((t) => t.length > 0).slice(0, 6);
+    if (!tokens.length || q.trim().length < 2) return [];
+    const conditions = tokens.map((t) => Prisma.sql`(lower(p.name) LIKE ${'%' + t + '%'} OR lower(b.name) LIKE ${'%' + t + '%'})`);
+    const rows = await this.prisma.$queryRaw<{ id: string; name: string; brand: string; country: string | null; n: number }[]>`
+      SELECT p.id, p.name, b.name AS brand, p.country,
+             (SELECT count(*)::int FROM product_ingredients pi WHERE pi."productId" = p.id) AS n
+      FROM products p JOIN brands b ON b.id = p."brandId"
+      WHERE p."deletedAt" IS NULL AND ${Prisma.join(conditions, ' AND ')}
+        AND EXISTS (SELECT 1 FROM product_ingredients pi WHERE pi."productId" = p.id)
+      ORDER BY (p.country = ${country ?? ''}) DESC,
+               (lower(p.name) LIKE ${tokens[0] + '%'} OR lower(b.name) LIKE ${tokens[0] + '%'}) DESC,
+               length(p.name)
+      LIMIT 8`;
+    return rows.map((r) => ({ id: r.id, name: r.name, brand: r.brand, country: r.country, ingredientCount: r.n }));
+  }
+
+  /** A product's ingredient list in label order, as text the checker reads like a pasted label. */
+  async label(id: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { id, deletedAt: null },
+      select: {
+        id: true,
+        name: true,
+        country: true,
+        brand: { select: { name: true } },
+        ingredients: {
+          where: { moderationStatus: 'approved' },
+          orderBy: { position: 'asc' },
+          select: { ingredient: { select: { inciName: true } } },
+        },
+      },
+    });
+    if (!product) return null;
+    return {
+      id: product.id,
+      name: product.name,
+      brand: product.brand.name,
+      country: product.country,
+      inci: product.ingredients.map((i) => i.ingredient.inciName).join(', '),
     };
   }
 }

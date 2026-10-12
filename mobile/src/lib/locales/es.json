@@ -130,7 +130,7 @@
   },
   "check": {
     "title": "Revisa una etiqueta.",
-    "sub": "Pega la lista de ingredientes del envase o de una web.",
+    "sub": "Busca un producto o pega sus ingredientes, y detecta corticoides, mercurio e hidroquinona ocultos.",
     "placeholder": "Aqua, Glycerin, Niacinamide…",
     "nameLabel": "¿Qué es?",
     "namePlaceholder": "Nombre del producto (opcional)",
@@ -212,7 +212,13 @@
     "hazard3": "Consulta a un médico si tu piel está fina, arde o tiene estrías o manchas que no desaparecen.",
     "hazard4": "Para las manchas, hay opciones más suaves: niacinamida, ácido azelaico y protector solar a diario.",
     "hazardNote": "Información general, no consejo médico.",
-    "sampleFairness": "Crema aclarante"
+    "sampleFairness": "Crema aclarante",
+    "search": "Buscar un producto",
+    "searchPlaceholder": "Busca un producto, p. ej. CeraVe",
+    "searchNone": "Aún no está en nuestra lista. Pega sus ingredientes abajo.",
+    "searchCount_one": "{{count}} ingrediente",
+    "searchCount_other": "{{count}} ingredientes",
+    "orPaste": "O pega la lista de ingredientes"
   },
   "reminders": {
     "gentleMorning": "Tu rutina de mañana te espera cuando quieras.",

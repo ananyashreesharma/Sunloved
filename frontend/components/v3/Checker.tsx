@@ -25,10 +25,12 @@ import { initAnalytics, track } from "@/lib/analytics"
 import { loadGuestData, saveGuestScan, updateGuestData } from "@/lib/guest-store"
 import { SiteFooter, SiteHeader } from "./SiteChrome"
 import { countryLabel, ProfileEditor, ProfileSentence, type Profile } from "./Profile"
+import { ProductSearch } from "./ProductSearch"
 
 const COPY = {
   title: "Check any skincare label, free.",
-  sub: "Paste an ingredient list and get a plain-language reading for your skin. No account, no ads, no sponsored verdicts.",
+  sub: "Search a product or paste its ingredients. Get a plain-language reading for your skin, and find hidden steroids, mercury and hydroquinone that some creams don't advertise.",
+  orPaste: "Or paste the ingredient list",
   placeholder: "Aqua, Glycerin, Niacinamide…",
   samples: { sampleFairness: "Fairness cream", sampleNiacinamide: "Niacinamide serum", sampleSunscreen: "Sunscreen", sampleCream: "Night cream" },
   yourSkin: "Your skin",
@@ -87,6 +89,8 @@ type State = { kind: "idle" } | { kind: "reading" } | { kind: "error" } | { kind
 export function Checker() {
   const [text, setText] = useState("")
   const [sampleKey, setSampleKey] = useState<string | null>(null)
+  // Set when the list came from a searched product, so the result carries its name.
+  const [productName, setProductName] = useState<string | null>(null)
   const [profile, setProfile] = useState<Profile>({ country: null, skinType: null, concerns: [] })
   const [editing, setEditing] = useState(false)
   const [state, setState] = useState<State>({ kind: "idle" })
@@ -126,7 +130,7 @@ export function Checker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function run(inci = text, name = sampleKey ? COPY.samples[sampleKey as keyof typeof COPY.samples] : COPY.yourLabel, p = profile, reveal = true) {
+  async function run(inci = text, name = sampleKey ? COPY.samples[sampleKey as keyof typeof COPY.samples] : (productName ?? COPY.yourLabel), p = profile, reveal = true) {
     if (!inci.trim()) return
     const id = ++runs.current
     setState({ kind: "reading" })
@@ -186,11 +190,22 @@ export function Checker() {
         <section style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: "clamp(40px, 4.6vw, 68px)", fontWeight: 600, letterSpacing: "-0.045em", lineHeight: 0.98 }}>{COPY.title}</h1>
           <p style={{ margin: 0, fontSize: 18, lineHeight: 1.55, color: "var(--ink2)", maxWidth: 480 }}>{COPY.sub}</p>
+          <ProductSearch
+            country={profile.country}
+            onPick={(title, inci) => {
+              setText(inci)
+              setSampleKey(null)
+              setProductName(title)
+              run(inci, title)
+            }}
+          />
+          <div style={{ fontSize: 14, color: "var(--ink2)", marginBottom: -8 }}>{COPY.orPaste}</div>
           <textarea
             value={text}
             onChange={(e) => {
               setText(e.target.value)
               setSampleKey(null)
+              setProductName(null)
             }}
             dir="auto"
             aria-label="Ingredient list"
@@ -220,6 +235,7 @@ export function Checker() {
                 onClick={() => {
                   setText(s.inci)
                   setSampleKey(s.key)
+                  setProductName(null)
                   run(s.inci, COPY.samples[s.key])
                 }}
               >

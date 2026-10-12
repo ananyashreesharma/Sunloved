@@ -9,6 +9,8 @@ import { router, useFocusEffect } from "expo-router"
 import { SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { getScans } from "@/lib/data"
+import { loadGuestData } from "@/lib/guest-store"
+import { ProductSearch } from "@/components/check/ProductSearch"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
 
@@ -27,10 +29,12 @@ export function ScanCaptureScreen() {
   const [inci, setInci] = useState("")
   const [name, setName] = useState("")
   const [saved, setSaved] = useState<GuestScan[]>([])
+  const [country, setCountry] = useState<string | null>(null)
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
+      loadGuestData().then((g) => !cancelled && setCountry(g.country))
       getScans().then((scans) => !cancelled && setSaved(scans))
       return () => {
         cancelled = true
@@ -86,6 +90,11 @@ export function ScanCaptureScreen() {
           {t("check.sub")}
         </Text>
 
+        <View style={{ marginTop: 20 }}>
+          <ProductSearch country={country} />
+        </View>
+        <Text style={{ marginTop: 18, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("check.orPaste")}</Text>
+
         <TextInput
           value={inci}
           onChangeText={setInci}
@@ -97,7 +106,7 @@ export function ScanCaptureScreen() {
           autoCapitalize="none"
           accessibilityLabel={t("check.sub")}
           style={{
-            marginTop: 20,
+            marginTop: 8,
             minHeight: 150,
             padding: 16,
             paddingTop: 16,
