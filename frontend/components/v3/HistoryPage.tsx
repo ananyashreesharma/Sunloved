@@ -11,7 +11,7 @@ import { getGuestStreak, getGuestStreakHistory } from "@/lib/guest-store"
 import { useIsGuest } from "@/lib/use-guest"
 
 type Day = { date: string; status: StreakDayStatus }
-const MS_NAME: Record<number, string> = { 7: "A full week", 30: "A whole moon", 100: "One hundred nights" }
+const MS_NAME: Record<number, string> = { 7: "A full week", 30: "A whole moon", 66: "Sixty-six nights", 100: "One hundred nights" }
 
 function shiftMonth(month: string, delta: number) {
   const [y, m] = month.split("-").map(Number)
@@ -43,6 +43,8 @@ export function HistoryPage() {
   const lead = (new Date(Date.UTC(y, m - 1, 1)).getUTCDay() + 6) % 7
   const current = streak?.currentStreak ?? 0
   const longest = streak?.longestStreak ?? 0
+  const total = streak?.totalDaysCompleted ?? 0
+  const nights = (n: number) => `${n} ${n === 1 ? "night" : "nights"}`
   const isCurrentMonth = month === today.slice(0, 7)
 
   function dot(d: Day) {
@@ -68,9 +70,11 @@ export function HistoryPage() {
       <Link href="/app/routine" style={{ fontSize: 15, color: "var(--ink2)", textDecoration: "none" }}>
         ← Routine
       </Link>
-      <h1 style={{ margin: "12px 0 0", fontSize: "clamp(56px, 9vw, 72px)", fontWeight: 300, letterSpacing: "-0.05em", lineHeight: 1.05 }}>
-        {current} {current === 1 ? "night" : "nights"}
+      {/* Never a big 0: after a break, every night done so far, and the next one starts a new run. */}
+      <h1 style={{ margin: "12px 0 0", fontSize: current > 0 || total > 0 ? "clamp(56px, 9vw, 72px)" : "clamp(36px, 6vw, 48px)", fontWeight: 300, letterSpacing: "-0.05em", lineHeight: 1.05 }}>
+        {current > 0 ? nights(current) : total > 0 ? nights(total) : "Night one is tonight."}
       </h1>
+      {current === 0 && total > 0 && <p style={{ margin: "4px 0 0", fontSize: 17, lineHeight: 1.5 }}>In total. Your next night starts a new run.</p>}
       <p style={{ margin: "10px 0 0", fontSize: 17, lineHeight: 1.5, color: "var(--ink2)" }}>Miss a day and your streak pauses. Miss two in a row and it starts again.</p>
       {longest > current && <p style={{ margin: "6px 0 0", fontSize: 15, color: "var(--ink2)" }}>Longest: {longest}</p>}
 

@@ -96,7 +96,16 @@
     "amTab": "AM",
     "pmTab": "PM",
     "hintDone": "Marcado como hecho. Doble toque para deshacer.",
-    "hintNotDone": "Doble toque para marcar como hecho."
+    "hintNotDone": "Doble toque para marcar como hecho.",
+    "welcomePausedNight": "Hola de nuevo. Tu racha está en pausa, no perdida. Esta noche la mantiene.",
+    "welcomePausedMorning": "Hola de nuevo. Tu racha está en pausa, no perdida. Hoy la mantiene.",
+    "welcomeBack": "Hola de nuevo. Las noches que faltaron no deshacen nada.",
+    "totalNights_one": "{{count}} noche en total",
+    "totalNights_other": "{{count}} noches en total",
+    "keepRemindersQ": "Llevas {{count}} noches. ¿Mantienes los recordatorios?",
+    "keepRemindersSub": "A estas alturas a algunas personas ya no les hacen falta. Puedes cambiarlo cuando quieras en Yo → Recordatorios.",
+    "keepThem": "Mantenerlos",
+    "turnOff": "Desactivarlos"
   },
   "history": {
     "title": "Racha",
@@ -121,12 +130,17 @@
     "ms100Title": "Cien noches.",
     "ms7Sub": "Siete noches cuidando tu piel.",
     "ms30Sub": "Treinta noches. Un ciclo lunar completo de noches.",
-    "ms100Sub": "Ya es un hábito. Gracias por seguir.",
+    "ms100Sub": "Cien noches cuidando tu piel. Gracias por seguir.",
     "goodNight": "Buenas noches",
     "dayDone": "{{date}}: hecho",
     "dayPart": "{{date}}: una rutina hecha",
     "dayPaused": "{{date}}: en pausa",
-    "dayFuture": "{{date}}"
+    "dayFuture": "{{date}}",
+    "newRun": "En total. Tu próxima noche empieza una nueva racha.",
+    "firstNight": "Tu primera noche es hoy.",
+    "ms66": "Sesenta y seis noches",
+    "ms66Title": "Sesenta y seis noches.",
+    "ms66Sub": "Más o menos cuando un hábito se asienta. Ya es parte de tus noches."
   },
   "check": {
     "title": "Revisa una etiqueta.",
@@ -226,7 +240,16 @@
     "factsMorning_one": "Rutina de mañana: {{count}} paso.",
     "factsMorning_other": "Rutina de mañana: {{count}} pasos.",
     "factsNight_one": "Rutina de noche: {{count}} paso.",
-    "factsNight_other": "Rutina de noche: {{count}} pasos."
+    "factsNight_other": "Rutina de noche: {{count}} pasos.",
+    "cue": {
+      "teeth": "Después de lavarte los dientes",
+      "shower": "Después de la ducha",
+      "dinner": "Después de cenar",
+      "bed": "Al ponerte el pijama"
+    },
+    "gentleNightAfter": "{{cue}}, tu rutina de noche te espera.",
+    "factsNightAfter_one": "{{cue}}: rutina de noche, {{count}} paso.",
+    "factsNightAfter_other": "{{cue}}: rutina de noche, {{count}} pasos."
   },
   "ob": {
     "brand": "SkinLens",
@@ -279,7 +302,15 @@
     "noSignup": "No hace falta registrarse.",
     "startTonight": "Empezar la rutina de esta noche",
     "goRoutine": "Ir a mi rutina",
-    "checkFirst": "Revisar un producto primero"
+    "checkFirst": "Revisar un producto primero",
+    "anchorQ": "Tu rutina de noche va justo después de…",
+    "anchorSub": "Unirla a algo que ya haces cada noche ayuda a que se quede.",
+    "anchor": {
+      "teeth": "Lavarme los dientes",
+      "shower": "Ducharme",
+      "dinner": "Cenar",
+      "bed": "Ponerme el pijama"
+    }
   },
   "step": {
     "addTitle": "Añadir un paso",

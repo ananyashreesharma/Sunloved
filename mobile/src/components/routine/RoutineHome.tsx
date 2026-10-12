@@ -18,7 +18,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated"
-import { findRoutineClash, MILESTONES, motion, newMilestone, palettes, todayKey, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
+import { findRoutineClash, MILESTONES, motion, newMilestone, palettes, REMINDER_CHECK_NIGHTS, todayKey, type GuestData, type GuestRoutineStepView, type GuestRoutineView, type StreakDayStatus } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { FORWARD_ARROW, localDigits } from "@/lib/i18n"
 import { useAppChrome } from "@/lib/app-chrome-context"
@@ -27,6 +27,7 @@ import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { getRoutine, getStreak, getStreakHistory, setStepFrequency, toggleStep } from "@/lib/data"
 import { useAccount } from "@/lib/account"
 import { track } from "@/lib/analytics"
+import { syncReminders } from "@/lib/notifications"
 import { MilestoneOverlay } from "./Milestone"
 import { Highlight } from "@/components/shared/Highlight"
 import { Moon, Sunrise } from "./Moon"
@@ -72,6 +73,8 @@ export function RoutineHome() {
   )
   const [data, setData] = useState<GuestRoutineView | null>(null)
   const [streak, setStreak] = useState(0)
+  const [total, setTotal] = useState(0)
+  const [guest, setGuest] = useState<GuestData | null>(null)
   const [week, setWeek] = useState<StreakDayStatus[]>([])
   const [clashDismissed, setClashDismissed] = useState(false)
   const [milestone, setMilestone] = useState<number | null>(null)
@@ -93,7 +96,10 @@ export function RoutineHome() {
   const load = useCallback(async (p: Period) => {
     const routine = await getRoutine(p)
     setData(routine)
-    setStreak((await getStreak()).currentStreak)
+    const s = await getStreak()
+    setStreak(s.currentStreak)
+    setTotal(s.totalDaysCompleted)
+    setGuest(await loadGuestData())
     // Last seven days for the tally next to the streak.
     const today = todayKey()
     const months = Array.from(new Set([shiftDay(today, -6).slice(0, 7), today.slice(0, 7)]))
@@ -136,6 +142,17 @@ export function RoutineHome() {
     setTimeout(() => setMilestone(m), reduce ? 400 : 1600)
   }
 
+  // "Keep the reminders?" once, after REMINDER_CHECK_NIGHTS nights done: reminders help most while a
+  // routine is new, and some people stop needing them.
+  const remindersOn = !!guest && !guest.muted && guest.reminderTone !== "off" && (guest.remindMorning || guest.remindNight)
+  const askReminders = remindersOn && !guest?.reminderCheckDone && total >= REMINDER_CHECK_NIGHTS
+
+  async function answerReminders(keep: boolean) {
+    const next = await updateGuestData(keep ? { reminderCheckDone: true } : { reminderCheckDone: true, remindMorning: false, remindNight: false })
+    setGuest(next)
+    if (!keep) syncReminders(next).catch(() => {})
+  }
+
   const clash = useMemo(() => (data ? findRoutineClash(data.steps) : null), [data])
 
   async function alternateClash() {
@@ -149,6 +166,19 @@ export function RoutineHome() {
   const complete = due.length > 0 && doneN === due.length
   const progress = due.length ? doneN / due.length : 0
   const countText = t("routine.ofDone", { a: localDigits(String(doneN), i18n.language), b: localDigits(String(due.length), i18n.language) })
+  // After a missed night: welcome back, never "you broke your streak". People who see a broken
+  // streak tend to quit; a streak that can still be saved, and a kind word, bring them back.
+  const didOn = (st: StreakDayStatus | undefined) => st === "both" || st === "one"
+  const welcome =
+    total > 0 && doneN === 0 && week.length === 7 && !didOn(week.at(6)) && !didOn(week.at(5))
+      ? streak > 0
+        ? night
+          ? t("routine.welcomePausedNight")
+          : t("routine.welcomePausedMorning")
+        : t("routine.welcomeBack")
+      : null
+  // The streak readout never shows 0: after a break it shows every night done so far.
+  const streakText = streak > 0 ? t("routine.nights", { count: streak }) : total > 0 ? t("routine.totalNights", { count: total }) : t("history.title")
   const dateLabel = new Intl.DateTimeFormat(i18n.language, { weekday: "long", day: "numeric", month: "long" }).format(new Date())
 
   return (
@@ -178,7 +208,7 @@ export function RoutineHome() {
             <Pressable
               onPress={() => router.push("/history")}
               accessibilityRole="button"
-              accessibilityLabel={t("routine.streakA11y", { count: streak })}
+              accessibilityLabel={`${localDigits(streakText, i18n.language)}. ${t("history.title")}`}
               style={{ minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8 }}
             >
               <View style={{ flexDirection: "row", gap: 3, alignItems: "center", direction: "ltr" }}>
@@ -203,7 +233,7 @@ export function RoutineHome() {
                 })}
               </View>
               <Text style={{ fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>
-                {t("routine.nights", { count: streak })} {FORWARD_ARROW}
+                {localDigits(streakText, i18n.language)} {FORWARD_ARROW}
               </Text>
             </Pressable>
           </View>
@@ -234,6 +264,10 @@ export function RoutineHome() {
             </View>
             {night ? <Moon progress={progress} label={countText} /> : <Sunrise progress={progress} label={countText} />}
           </View>
+
+          {welcome && (
+            <Text style={{ marginTop: 18, fontFamily: rubik.regular, fontSize: 17, lineHeight: 24, color: T.ink }}>{welcome}</Text>
+          )}
 
           {/* Clash note: stays still, never bounces */}
           {clash && !clashDismissed && (
@@ -306,6 +340,22 @@ export function RoutineHome() {
               <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 16, color: T.ink2 }}>
                 {night ? t("routine.doneNightSub") : t("routine.doneMorningSub")}
               </Text>
+              {askReminders && (
+                <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: T.line }}>
+                  <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 26, color: T.ink }}>
+                    {localDigits(t("routine.keepRemindersQ", { count: total }), i18n.language)}
+                  </Text>
+                  <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, lineHeight: 21, color: T.ink2 }}>{t("routine.keepRemindersSub")}</Text>
+                  <View style={{ flexDirection: "row", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                    <Pressable onPress={() => answerReminders(true)} accessibilityRole="button" style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 12, backgroundColor: T.btn, justifyContent: "center" }}>
+                      <Text style={{ fontFamily: rubik.semibold, fontSize: 15, color: T.btnInk }}>{t("routine.keepThem")}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => answerReminders(false)} accessibilityRole="button" style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: "center" }}>
+                      <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>{t("routine.turnOff")}</Text>
+                    </Pressable>
+                  </View>
+                </View>
+              )}
             </Animated.View>
           )}
         </Animated.View>

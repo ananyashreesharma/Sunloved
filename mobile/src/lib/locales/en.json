@@ -96,7 +96,16 @@
     "amTab": "AM",
     "pmTab": "PM",
     "hintDone": "Marked done. Double tap to undo.",
-    "hintNotDone": "Double tap to mark done."
+    "hintNotDone": "Double tap to mark done.",
+    "welcomePausedNight": "Welcome back. Your streak is paused, not lost. Tonight keeps it going.",
+    "welcomePausedMorning": "Welcome back. Your streak is paused, not lost. Today keeps it going.",
+    "welcomeBack": "Welcome back. Missed nights don't undo anything.",
+    "totalNights_one": "{{count}} night in total",
+    "totalNights_other": "{{count}} nights in total",
+    "keepRemindersQ": "{{count}} nights done. Keep the reminders?",
+    "keepRemindersSub": "Some people don't need them by now. You can change this any time in Me → Reminders.",
+    "keepThem": "Keep them",
+    "turnOff": "Turn them off"
   },
   "history": {
     "title": "Streak",
@@ -121,12 +130,17 @@
     "ms100Title": "One hundred nights.",
     "ms7Sub": "Seven nights of looking after your skin.",
     "ms30Sub": "Thirty nights. A full lunar cycle of evenings.",
-    "ms100Sub": "That's a habit now. Thank you for sticking with it.",
+    "ms100Sub": "A hundred evenings of looking after your skin. Thank you for sticking with it.",
     "goodNight": "Good night",
     "dayDone": "{{date}}: done",
     "dayPart": "{{date}}: one routine done",
     "dayPaused": "{{date}}: paused",
-    "dayFuture": "{{date}}"
+    "dayFuture": "{{date}}",
+    "newRun": "In total. Your next night starts a new run.",
+    "firstNight": "Night one is tonight.",
+    "ms66": "Sixty-six nights",
+    "ms66Title": "Sixty-six nights.",
+    "ms66Sub": "About where habits settle. This is part of your evenings now."
   },
   "check": {
     "title": "Check a label.",
@@ -226,7 +240,16 @@
     "factsMorning_one": "Morning routine: {{count}} step.",
     "factsMorning_other": "Morning routine: {{count}} steps.",
     "factsNight_one": "Night routine: {{count}} step.",
-    "factsNight_other": "Night routine: {{count}} steps."
+    "factsNight_other": "Night routine: {{count}} steps.",
+    "cue": {
+      "teeth": "After you brush your teeth",
+      "shower": "After your shower",
+      "dinner": "After dinner",
+      "bed": "When you change for bed"
+    },
+    "gentleNightAfter": "{{cue}}, your night routine is ready.",
+    "factsNightAfter_one": "{{cue}}: night routine, {{count}} step.",
+    "factsNightAfter_other": "{{cue}}: night routine, {{count}} steps."
   },
   "ob": {
     "brand": "SkinLens",
@@ -279,7 +302,15 @@
     "noSignup": "Nothing to sign up for.",
     "startTonight": "Start tonight's routine",
     "goRoutine": "Go to my routine",
-    "checkFirst": "Check a product first"
+    "checkFirst": "Check a product first",
+    "anchorQ": "Your night routine comes right after…",
+    "anchorSub": "Tying it to something you already do every night helps it stick.",
+    "anchor": {
+      "teeth": "Brushing my teeth",
+      "shower": "My shower",
+      "dinner": "Dinner",
+      "bed": "Changing for bed"
+    }
   },
   "step": {
     "addTitle": "Add a step",

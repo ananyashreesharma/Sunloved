@@ -42,8 +42,9 @@ export function isStreakAlive(lastActiveDate: string | null | undefined, today: 
   return daysBetween(lastActiveDate, today) <= MAX_GAP
 }
 
-/** Streak lengths that get a celebration: a week, a lunar month, a hundred nights. */
-export const MILESTONES = [7, 30, 100] as const
+/** Streak lengths that get a celebration: a week, a lunar month, 66 nights (the median time for a
+ * habit to become automatic, Lally et al. 2010), a hundred nights. */
+export const MILESTONES = [7, 30, 66, 100] as const
 
 /** The milestone the streak has just reached and that hasn't been celebrated yet, if any. */
 export function newMilestone(current: number, seen: number[]): number | null {

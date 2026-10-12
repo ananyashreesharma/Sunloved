@@ -6,10 +6,10 @@ import { KeyboardAvoidingView, Linking, Platform, Pressable, ScrollView, Switch,
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import type { GuestData } from "@skinlens/shared"
+import { NIGHT_ANCHORS, type GuestData } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { loadGuestData, updateGuestData } from "@/lib/guest-store"
-import { getReminderStatus, syncReminders, type ReminderStatus } from "@/lib/notifications"
+import { getReminderStatus, reminderText, syncReminders, type ReminderStatus } from "@/lib/notifications"
 import { BACK_ARROW } from "@/lib/i18n"
 import { formatTimeForDisplay } from "@/lib/time-format"
 import { useTheme } from "@/lib/theme"
@@ -55,7 +55,20 @@ export function RemindersScreen() {
   const morningOn = !off && data.remindMorning
   const nightOn = !off && data.remindNight
   const nightCount = data.steps.filter((s) => s.when !== "morning").length
-  const preview = data.reminderTone === "plain" && nightCount > 0 ? t("reminders.factsNight", { count: nightCount }) : t("reminders.gentleNight")
+  const preview = reminderText(data.reminderTone, "night", nightCount, data.nightAnchor)
+
+  // The same chip as the tone choice below.
+  const chip = (key: string, on: boolean, label: string, onPress: () => void) => (
+    <Pressable
+      key={key}
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ selected: on }}
+      style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: on ? T.ink : T.line, backgroundColor: on ? T.ink : "transparent", justifyContent: "center" }}
+    >
+      <Text style={{ fontFamily: rubik.regular, fontSize: 16, color: on ? T.bg : T.ink }}>{label}</Text>
+    </Pressable>
+  )
 
   const row = (key: "morning" | "night", on: boolean, time: string) => (
     <View key={key} style={{ minHeight: 64, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: T.line }}>
@@ -109,27 +122,16 @@ export function RemindersScreen() {
           {row("night", nightOn, data.nightTime)}
         </View>
 
+        <Text style={{ marginTop: 26, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{t("ob.anchorQ")}</Text>
+        <Text style={{ marginTop: 2, marginBottom: 10, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>{t("ob.anchorSub")}</Text>
+        <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
+          {NIGHT_ANCHORS.map((a) => chip(a, data.nightAnchor === a, t(`ob.anchor.${a}`), () => patch({ nightAnchor: data.nightAnchor === a ? null : a })))}
+        </View>
+
         <Text style={{ marginTop: 26, marginBottom: 10, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{t("rem.tone")}</Text>
         <View style={{ flexDirection: "row", gap: 8, flexWrap: "wrap" }}>
-          {(
-            [
-              ["coach", t("rem.gentle")],
-              ["plain", t("rem.facts")],
-            ] as const
-          ).map(([v, label]) => {
-            const on = data.reminderTone === v
-            return (
-              <Pressable
-                key={v}
-                onPress={() => patch({ reminderTone: v })}
-                accessibilityRole="radio"
-                accessibilityState={{ selected: on }}
-                style={{ minHeight: 44, paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: on ? T.ink : T.line, backgroundColor: on ? T.ink : "transparent", justifyContent: "center" }}
-              >
-                <Text style={{ fontFamily: rubik.regular, fontSize: 16, color: on ? T.bg : T.ink }}>{label}</Text>
-              </Pressable>
-            )
-          })}
+          {chip("coach", data.reminderTone === "coach", t("rem.gentle"), () => patch({ reminderTone: "coach" }))}
+          {chip("plain", data.reminderTone === "plain", t("rem.facts"), () => patch({ reminderTone: "plain" }))}
         </View>
 
         <Text style={{ marginTop: 18, marginBottom: 8, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("rem.preview")}</Text>

@@ -1,5 +1,6 @@
-// Milestone celebration: a full-screen night sky when the streak reaches 7, 30 or 100. A week is
-// seven moons waxing, a month is a whole lunar cycle, a hundred nights is a hundred small moons.
+// Milestone celebration: a full-screen night sky when the streak reaches 7, 30, 66 or 100. A week is
+// seven moons waxing, a month is a whole lunar cycle, 66 nights (about when a habit settles) is 66
+// lights coming up from faint to full, a hundred nights is a hundred small moons.
 // Shown once per milestone (see milestonesSeen); also opened from Streak history.
 
 import { Modal, Pressable, Text, View } from "react-native"
@@ -42,7 +43,7 @@ export function MilestoneOverlay({ milestone, onClose, onSave }: { milestone: nu
   const insets = useSafeAreaInsets()
   const reduce = useReduceMotion()
   const n = milestone ?? 0
-  const textDelay = n === 100 ? 1500 : 1000
+  const textDelay = n === 100 || n === 66 ? 1500 : 1000
 
   let sky: React.ReactNode = null
   if (n === 7) {
@@ -53,6 +54,14 @@ export function MilestoneOverlay({ milestone, onClose, onSave }: { milestone: nu
       const c = i / 29
       return <SmallMoon key={i} id={`m30-${i}`} size={22} lit={c <= 0.5 ? c * 2 : (1 - c) * 2} delay={300 + i * 35} />
     })
+  } else if (n === 66) {
+    sky = Array.from({ length: 66 }, (_, i) => (
+      <Animated.View
+        key={i}
+        entering={reduce ? FadeIn.duration(160) : ZoomIn.duration(200).delay(300 + i * 16)}
+        style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: N.ink, opacity: 0.25 + 0.75 * (i / 65) }}
+      />
+    ))
   } else if (n === 100) {
     sky = Array.from({ length: 100 }, (_, i) => (
       <Animated.View
@@ -82,7 +91,7 @@ export function MilestoneOverlay({ milestone, onClose, onSave }: { milestone: nu
         <View
           importantForAccessibility="no-hide-descendants"
           accessibilityElementsHidden
-          style={{ direction: "ltr", flexDirection: "row", flexWrap: "wrap", gap: 10, justifyContent: "center", alignSelf: "center", maxWidth: n === 100 ? 14 * 10 + 10 * 9 : 320 }}
+          style={{ direction: "ltr", flexDirection: "row", flexWrap: "wrap", gap: 10, justifyContent: "center", alignSelf: "center", maxWidth: n === 100 || n === 66 ? 14 * 10 + 10 * 9 : 320 }}
         >
           {sky}
         </View>

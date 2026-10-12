@@ -43,6 +43,7 @@ export function RoutinePage() {
   const [steps, setSteps] = useState<Step[] | null>(null)
   const [error, setError] = useState(false)
   const [streak, setStreak] = useState(0)
+  const [total, setTotal] = useState(0)
   const [week, setWeek] = useState<StreakDayStatus[]>([])
   const [clashDismissed, setClashDismissed] = useState(false)
   const night = period === "night"
@@ -60,7 +61,9 @@ export function RoutinePage() {
         if (isGuest) {
           const r = getGuestRoutine(p)
           setSteps(r.steps.map((s) => ({ id: s.id, name: s.name, brand: s.brand, frequency: s.frequency, done: s.done, rest: s.rest, kind: s.kind })))
-          setStreak(getGuestStreak().currentStreak)
+          const g = getGuestStreak()
+          setStreak(g.currentStreak)
+          setTotal(g.totalDaysCompleted)
         } else {
           const r = await getRoutine(p)
           // Accounts store steps in the order they were added; show them in the order they go on.
@@ -75,7 +78,12 @@ export function RoutinePage() {
               kind: stepKind(s.name),
             })),
           )
-          getStreak().then((s) => setStreak(s.currentStreak)).catch(() => {})
+          getStreak()
+            .then((s) => {
+              setStreak(s.currentStreak)
+              setTotal(s.totalDaysCompleted)
+            })
+            .catch(() => {})
         }
         // Last seven days for the tally beside the streak.
         const months = Array.from(new Set([shiftDay(today, -6).slice(0, 7), today.slice(0, 7)]))
@@ -129,6 +137,9 @@ export function RoutinePage() {
   const dateLabel = new Intl.DateTimeFormat("en", { weekday: "long", day: "numeric", month: "long" }).format(new Date())
   let n = 0
 
+  // The streak readout never shows 0: after a break it shows every night done so far.
+  const streakText = streak > 0 ? `${streak} ${streak === 1 ? "night" : "nights"}` : total > 0 ? `${total} ${total === 1 ? "night" : "nights"} in total` : "Streak"
+
   return (
     <div>
       {/* Period switch + streak */}
@@ -162,7 +173,7 @@ export function RoutinePage() {
         </div>
         <Link
           href="/app/routine/history"
-          aria-label={`Streak: ${streak} ${streak === 1 ? "night" : "nights"}. Open history`}
+          aria-label={`${streakText}. Open streak history`}
           style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 8, textDecoration: "none", fontSize: 14, color: "var(--ink2)" }}
         >
           <span aria-hidden style={{ display: "flex", gap: 3 }}>
@@ -181,7 +192,7 @@ export function RoutinePage() {
               )
             })}
           </span>
-          {streak} {streak === 1 ? "night" : "nights"} →
+          {streakText} →
         </Link>
       </div>
 

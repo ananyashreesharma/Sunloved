@@ -32,12 +32,23 @@ export type GuestData = {
   remindMorning: boolean
   remindNight: boolean
   muted: boolean
-  /** Streak milestones (7, 30, 100) whose celebration has been shown, so each appears once. */
+  /** Streak milestones (see MILESTONES) whose celebration has been shown, so each appears once. */
   milestonesSeen: number[]
+  /** What the night routine comes right after, so reminders can name it: an existing habit is a
+   * stronger cue than a clock time. Null until the person picks one. */
+  nightAnchor: NightAnchor | null
+  /** Set once the "keep reminders?" question has been asked (after 14 nights done). */
+  reminderCheckDone: boolean
   doneToday: Record<string, boolean>
   doneDate: string
   history: Record<string, "both" | "one">
 }
+
+export const NIGHT_ANCHORS = ["teeth", "shower", "dinner", "bed"] as const
+export type NightAnchor = (typeof NIGHT_ANCHORS)[number]
+
+/** Nights done after which reminders are checked in on once. */
+export const REMINDER_CHECK_NIGHTS = 14
 
 export const GUEST_DATA_KEY = "skinlens_guest_data"
 export const GUEST_SCANS_KEY = "skinlens_guest_scans"
@@ -73,6 +84,8 @@ export function defaultGuestData(): GuestData {
     remindNight: true,
     muted: false,
     milestonesSeen: [],
+    nightAnchor: null,
+    reminderCheckDone: false,
     doneToday: {},
     doneDate: todayKey(),
     history: {},

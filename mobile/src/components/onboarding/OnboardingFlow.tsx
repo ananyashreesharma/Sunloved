@@ -21,11 +21,11 @@ import Animated, {
   withTiming,
   ZoomIn,
 } from "react-native-reanimated"
-import { CONCERNS, countryByCode, guessCountry, MAX_CONCERNS, SKIN_TYPES, type StepKind } from "@skinlens/shared"
+import { CONCERNS, countryByCode, guessCountry, MAX_CONCERNS, NIGHT_ANCHORS, SKIN_TYPES, type NightAnchor, type StepKind } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { addStep, saveProfile } from "@/lib/data"
-import { syncReminders } from "@/lib/notifications"
+import { reminderText, syncReminders } from "@/lib/notifications"
 import { BACK_ARROW, localDigits } from "@/lib/i18n"
 import { formatTimeForDisplay } from "@/lib/time-format"
 import { useReduceMotion, useTheme } from "@/lib/theme"
@@ -77,6 +77,7 @@ export function OnboardingFlow() {
   const [remindMorning, setRemindMorning] = useState(true)
   const [remindNight, setRemindNight] = useState(true)
   const [tone, setTone] = useState<Tone>("coach")
+  const [anchor, setAnchor] = useState<NightAnchor | null>(null)
   const [times, setTimes] = useState({ morning: "07:30", night: "21:30" })
 
   // Start from whatever this device already knows (a returning guest, or one who went back).
@@ -90,6 +91,7 @@ export function OnboardingFlow() {
       setRemindMorning(g.remindMorning && g.steps.some((st) => st.when !== "night"))
       setRemindNight(g.remindNight)
       if (g.reminderTone === "plain") setTone("plain")
+      setAnchor(g.nightAnchor)
     })
   }, [i18n.language])
 
@@ -113,6 +115,7 @@ export function OnboardingFlow() {
       remindMorning,
       remindNight,
       reminderTone: tone,
+      nightAnchor: anchor,
     })
     const existing = new Set(data.steps.map((s) => s.name.toLowerCase()))
     for (const p of sorted) {
@@ -355,6 +358,14 @@ export function OnboardingFlow() {
                   </View>
                 ))}
               </View>
+              {/* An existing habit is a stronger cue than a clock time; the reminder then names it. */}
+              <Text style={{ marginTop: 24, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{t("ob.anchorQ")}</Text>
+              <Text style={{ marginTop: 2, marginBottom: 10, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>{t("ob.anchorSub")}</Text>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {NIGHT_ANCHORS.map((a) => (
+                  <Chip key={a} on={anchor === a} label={t(`ob.anchor.${a}`)} onPress={() => setAnchor(anchor === a ? null : a)} radio />
+                ))}
+              </View>
               <Text style={{ marginTop: 24, marginBottom: 10, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{t("ob.toneQ")}</Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
                 <Chip on={tone === "coach"} label={t("ob.gentle")} onPress={() => setTone("coach")} radio />
@@ -368,7 +379,7 @@ export function OnboardingFlow() {
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <Text style={{ fontFamily: rubik.regular, fontSize: 12, color: T.ink2 }}>SkinLens · {formatTimeForDisplay(times.night)}</Text>
                   <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>
-                    {tone === "plain" && sorted.length ? t("reminders.factsNight", { count: sorted.length }) : t("reminders.gentleNight")}
+                    {reminderText(tone, "night", sorted.length, anchor)}
                   </Text>
                 </View>
               </View>

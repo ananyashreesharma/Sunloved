@@ -52,6 +52,7 @@ export function StreakHistoryScreen() {
   )
   const current = streak?.currentStreak ?? 0
   const longest = streak?.longestStreak ?? 0
+  const total = streak?.totalDaysCompleted ?? 0
   const isCurrentMonth = month === today.slice(0, 7)
 
   function dot(d: GuestStreakDay) {
@@ -85,9 +86,19 @@ export function StreakHistoryScreen() {
           <Text style={{ fontFamily: rubik.medium, fontSize: 16, color: T.ink }}>{t("history.title")}</Text>
         </View>
 
-        <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: 68, lineHeight: 72, letterSpacing: -3.4, color: T.ink }}>
-          {localDigits(t("history.nights", { count: current }), i18n.language)}
-        </Text>
+        {/* Never a big 0: after a break, every night done so far, and the next one starts a new run. */}
+        {current > 0 || total === 0 ? (
+          <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: current > 0 ? 68 : 44, lineHeight: current > 0 ? 72 : 50, letterSpacing: current > 0 ? -3.4 : -1.6, color: T.ink }}>
+            {current > 0 ? localDigits(t("history.nights", { count: current }), i18n.language) : t("history.firstNight")}
+          </Text>
+        ) : (
+          <>
+            <Text accessibilityRole="header" style={{ marginTop: 8, fontFamily: rubik.light, fontSize: 68, lineHeight: 72, letterSpacing: -3.4, color: T.ink }}>
+              {localDigits(t("history.nights", { count: total }), i18n.language)}
+            </Text>
+            <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink }}>{t("history.newRun")}</Text>
+          </>
+        )}
         <Text style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink2 }}>{t("history.note")}</Text>
         {longest > current && <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{localDigits(t("history.longest", { count: longest }), i18n.language)}</Text>}
 

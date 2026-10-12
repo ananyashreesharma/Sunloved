@@ -10,6 +10,7 @@
 
 import * as Notifications from "expo-notifications"
 import { Platform } from "react-native"
+import type { NightAnchor } from "@skinlens/shared"
 import type { GuestData } from "@/lib/guest-store"
 import i18n from "@/lib/i18n"
 
@@ -26,11 +27,26 @@ Notifications.setNotificationHandler({
 })
 
 // Calm, specific copy (no emoji, no pressure). "coach" is the Gentle tone, "plain" Just the facts.
-function copyFor(data: Pick<GuestData, "reminderTone" | "steps">, when: "morning" | "night"): { title: string; body: string } {
-  const n = data.steps.filter((s) => s.when === when || s.when === "both").length
+// The night reminder names the habit it follows ("After you brush your teeth, …") when the person
+// picked one: an existing habit is a stronger cue than a clock time.
+export function reminderText(
+  tone: GuestData["reminderTone"],
+  when: "morning" | "night",
+  count: number,
+  anchor?: NightAnchor | null,
+): string {
   const k = when === "morning" ? "Morning" : "Night"
-  const body = data.reminderTone === "plain" && n > 0 ? i18n.t(`reminders.facts${k}`, { count: n }) : i18n.t(`reminders.gentle${k}`)
-  return { title: "SkinLens", body }
+  const facts = tone === "plain" && count > 0
+  if (when === "night" && anchor) {
+    const cue = i18n.t(`reminders.cue.${anchor}`)
+    return facts ? i18n.t("reminders.factsNightAfter", { cue, count }) : i18n.t("reminders.gentleNightAfter", { cue })
+  }
+  return facts ? i18n.t(`reminders.facts${k}`, { count }) : i18n.t(`reminders.gentle${k}`)
+}
+
+function copyFor(data: Pick<GuestData, "reminderTone" | "steps" | "nightAnchor">, when: "morning" | "night"): { title: string; body: string } {
+  const n = data.steps.filter((s) => s.when === when || s.when === "both").length
+  return { title: "SkinLens", body: reminderText(data.reminderTone, when, n, data.nightAnchor) }
 }
 
 // `interactive` controls whether a missing permission may trigger iOS/Android's native system
@@ -75,7 +91,7 @@ export async function getReminderStatus(
  * call any time settings change, and once at app startup — always cancels+rebuilds both slots
  * rather than diffing, since there are only ever the two (morning/night). */
 export async function syncReminders(
-  data: Pick<GuestData, "morningTime" | "nightTime" | "reminderTone" | "muted" | "channel" | "remindMorning" | "remindNight" | "steps">,
+  data: Pick<GuestData, "morningTime" | "nightTime" | "reminderTone" | "muted" | "channel" | "remindMorning" | "remindNight" | "steps" | "nightAnchor">,
   options?: { interactive?: boolean },
 ): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(MORNING_ID).catch(() => {})
