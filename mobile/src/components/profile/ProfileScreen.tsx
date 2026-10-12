@@ -82,7 +82,8 @@ export function ProfileScreen() {
           {t("me.title")}
         </Text>
 
-        {/* The profile as a sentence; each underlined part opens the step that sets it. */}
+        {/* The profile as a sentence; each underlined part opens the step that sets it. Country is its
+            own sentence ("Shopping in …"): it is about where products come from, not the skin. */}
         <Text style={{ marginTop: 14, fontFamily: rubik.light, fontSize: 26, lineHeight: 37, letterSpacing: -0.3, color: T.ink }}>
           <Text onPress={editSkin} accessibilityRole="link" style={link}>
             {type ? t("me.sentenceSkin", { type: type.toLocaleLowerCase() }).replace(/^./, (c) => c.toLocaleUpperCase()) : t("me.unknown")}
