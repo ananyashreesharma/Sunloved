@@ -248,7 +248,8 @@ export class IngredientsService {
       ORDER BY p.id, pi.position
       LIMIT 200`;
     products.sort((a, b) => a.position - b.position || a.name.localeCompare(b.name));
-    const count = await this.prisma.productIngredient.count({ where: { ingredientId: { in: ids } } });
+    // Only products in the clean catalogue count (legacy imports are hidden, see prisma/hide-legacy-products.ts).
+    const count = await this.prisma.productIngredient.count({ where: { ingredientId: { in: ids }, product: { deletedAt: null } } });
     return {
       name: i.inciName.replace(/[.\s]+$/, ''),
       displayName: i.displayName,

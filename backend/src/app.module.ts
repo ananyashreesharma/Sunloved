@@ -10,7 +10,6 @@ import { AppController } from './app.controller';
 import { ComparisonsModule } from './modules/comparisons/comparisons.module';
 import { PricingModule } from './modules/pricing/pricing.module';
 import { AdminModule } from './modules/admin/admin.module';
-import { ScraperModule } from './modules/scraper/scraper.module';
 import { OumaModule } from './modules/ouma/ouma.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -55,7 +54,6 @@ import { ContributionsModule } from './modules/contributions/contributions.modul
     ComparisonsModule,
     PricingModule,
     AdminModule,
-    ScraperModule,
     OumaModule,
     AnalyticsModule,
     AuthModule,

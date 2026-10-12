@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!i) return { title: "Ingredient not found | SkinLens" }
   const r = i.zone ? RATING[i.zone] : null
   const title = `Is ${i.name} safe in skincare? ${r ? r.word : "No rating yet"} | SkinLens`
-  const description = `${i.description ?? `${i.name} in skincare.`} Found in ${i.productCount} products we know. Check any label for your skin, free.`
+  const description = `${i.description ?? `${i.name} in skincare.`} ${i.productCount > 0 ? `Found in ${i.productCount} products we know. ` : ""}Check any label for your skin, free.`
   return { title, description, alternates: { canonical: `/ingredients/${params.slug}` }, openGraph: { title, description } }
 }
 
