@@ -73,6 +73,7 @@ export function ProfileScreen() {
     [t("me.reminders"), "/reminders"],
     [t("me.myProducts"), "/products"],
     [t("me.history"), "/history"],
+    [t("me.progress"), "/progress"],
   ]
 
   return (

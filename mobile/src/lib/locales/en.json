@@ -115,7 +115,12 @@
     "feelThanks": "Noted. Thanks.",
     "feelIrritated": "Sorry it's irritated. Skip the strongest step for a night or two and keep the moisturiser. If it burns or swells, rinse it off and see a pharmacist.",
     "easeStep": "Move {{name}} to every other night",
-    "eased": "{{name}} is now every other night."
+    "eased": "{{name}} is now every other night.",
+    "photoStartQ": "Take a starting photo?",
+    "photoStartSub": "It stays on this phone. In 4 weeks you'll see the difference side by side.",
+    "photoDueQ_one": "{{count}} week in. Take a photo to compare?",
+    "photoDueQ_other": "{{count}} weeks in. Take a photo to compare?",
+    "photoDueSub": "Same place and light as last time. It stays on this phone."
   },
   "history": {
     "title": "Streak",
@@ -392,7 +397,8 @@
     "freePlan": "Free. Checking ingredients is always free.",
     "signIn": "Sign in to sync devices",
     "optional": "optional",
-    "save": "Save"
+    "save": "Save",
+    "progress": "Progress photos"
   },
   "rem": {
     "title": "Reminders",
@@ -465,5 +471,25 @@
     "deleteBody": "This permanently deletes your routine, streak, skin profile and saved checks from SkinLens, and clears them from this phone. It can't be undone.",
     "deleteConfirm": "Delete",
     "deleteFailed": "That didn't work. Check your connection and try again."
+  },
+  "progress": {
+    "title": "Progress photos",
+    "sub": "Skin changes slowly, so it's easy to miss. A photo every 4 weeks in the same light shows you. Photos stay on this phone and are never uploaded.",
+    "take": "Take a photo",
+    "pick": "Choose from library",
+    "start": "Start",
+    "week_one": "Week {{count}}",
+    "week_other": "Week {{count}}",
+    "nextIn": "Your next photo goes here in 4 weeks.",
+    "empty": "No photos yet. Take one tonight, in a spot and light you can use again.",
+    "tip": "Same place, same light, no makeup, face straight on.",
+    "feelT": "How your skin has felt",
+    "feelWindow_one": "From your last check-in after the night routine.",
+    "feelWindow_other": "From your last {{count}} check-ins after the night routine.",
+    "all": "All photos",
+    "delete": "Delete",
+    "deleteQ": "Delete this photo?",
+    "deleteBody": "It's removed from this phone. This can't be undone.",
+    "cancel": "Cancel"
   }
 }

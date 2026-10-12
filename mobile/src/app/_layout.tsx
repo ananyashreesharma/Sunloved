@@ -61,6 +61,7 @@ export default function RootLayout() {
             <Stack.Screen name="products" />
             <Stack.Screen name="add-step" options={{ presentation: "modal" }} />
             <Stack.Screen name="history" />
+            <Stack.Screen name="progress" />
             <Stack.Screen name="reminders" />
             <Stack.Screen name="scan-confirm" />
             <Stack.Screen name="scan-result" />

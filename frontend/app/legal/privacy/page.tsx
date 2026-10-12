@@ -26,8 +26,14 @@ export default function Privacy() {
         <li>Your routine: step names, when and how often you use them, and which days you completed it</li>
         <li>Reminder times, tone and on/off settings (reminders are scheduled on your phone)</li>
         <li>Checks you choose to save, and their results</li>
+        <li>How your skin felt after the night routine (calm, same as usual, or irritated), if you answer</li>
+        <li>Ingredients you mark &ldquo;Fine for me&rdquo; or &ldquo;I react to this&rdquo;</li>
+        <li>
+          Progress photos, if you take them. They are kept only in SkinLens&apos;s own folder on your phone, never uploaded, and never moved into an account. Your
+          phone&apos;s own backup (iCloud or Google) may include them, like other app data.
+        </li>
       </ul>
-      <p>Uninstalling the app or clearing the browser&apos;s site data deletes them. We have no copy.</p>
+      <p>Uninstalling the app or clearing the browser&apos;s site data deletes them. We have no copy. Progress photos can also be deleted one by one in Me → Progress photos.</p>
 
       <h2>With an account</h2>
       <p>Creating an account is optional. We collect:</p>

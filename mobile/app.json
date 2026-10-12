@@ -10,7 +10,7 @@
     "ios": {
       "bundleIdentifier": "in.knowbetter.app",
       "infoPlist": {
-        "NSCameraUsageDescription": "SkinLens uses your camera to read ingredient labels.",
+        "NSCameraUsageDescription": "SkinLens uses your camera to read ingredient labels and to take progress photos, which stay on your phone.",
         "CFBundleLocalizations": [
           "en",
           "es",
@@ -42,7 +42,14 @@
           "imageWidth": 120
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "SkinLens uses your camera to read ingredient labels and to take progress photos, which stay on your phone.",
+          "photosPermission": "SkinLens lets you pick a progress photo from your library. It stays on your phone."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

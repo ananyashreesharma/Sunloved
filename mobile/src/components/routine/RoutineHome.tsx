@@ -28,6 +28,7 @@ import { getRoutine, getStreak, getStreakHistory, setStepFrequency, toggleStep }
 import { useAccount } from "@/lib/account"
 import { track } from "@/lib/analytics"
 import { syncReminders } from "@/lib/notifications"
+import { addPhoto, listPhotos, photoDue } from "@/lib/progress-photos"
 import { MilestoneOverlay } from "./Milestone"
 import { Highlight } from "@/components/shared/Highlight"
 import { Moon, Sunrise } from "./Moon"
@@ -151,6 +152,13 @@ export function RoutineHome() {
   // becomes a record over time, and catches a step that irritates before the person gives up.
   const feltToday = guest?.skinLog?.[todayKey()] ?? null
   const [easedName, setEasedName] = useState<string | null>(null)
+  // Progress photo: a starting one, then every 4 weeks; offered after the skin check-in.
+  const [photoWeeks, setPhotoWeeks] = useState<number | null>(null)
+  const [photoDismissed, setPhotoDismissed] = useState(false)
+  useEffect(() => setPhotoWeeks(photoDue(listPhotos())), [feltToday])
+  async function takePhoto() {
+    if (await addPhoto("camera")) setPhotoWeeks(photoDue(listPhotos()))
+  }
   async function answerFeel(feel: SkinFeel) {
     const g = await loadGuestData()
     setGuest(await updateGuestData({ skinLog: { ...g.skinLog, [todayKey()]: feel } }))
@@ -391,6 +399,22 @@ export function RoutineHome() {
                   ) : (
                     <Text style={{ fontFamily: rubik.regular, fontSize: 16, color: T.ink2 }}>{t("routine.feelThanks")}</Text>
                   )}
+                </View>
+              )}
+              {night && feltToday && photoWeeks !== null && !photoDismissed && (
+                <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: T.line }}>
+                  <Text style={{ fontFamily: rubik.regular, fontSize: 19, lineHeight: 26, color: T.ink }}>
+                    {photoWeeks === 0 ? t("routine.photoStartQ") : localDigits(t("routine.photoDueQ", { count: photoWeeks }), i18n.language)}
+                  </Text>
+                  <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 15, lineHeight: 21, color: T.ink2 }}>{photoWeeks === 0 ? t("routine.photoStartSub") : t("routine.photoDueSub")}</Text>
+                  <View style={{ flexDirection: "row", gap: 8, marginTop: 12, flexWrap: "wrap" }}>
+                    <Pressable onPress={takePhoto} accessibilityRole="button" style={{ minHeight: 44, paddingHorizontal: 18, borderRadius: 12, backgroundColor: T.btn, justifyContent: "center" }}>
+                      <Text style={{ fontFamily: rubik.semibold, fontSize: 15, color: T.btnInk }}>{t("progress.take")}</Text>
+                    </Pressable>
+                    <Pressable onPress={() => setPhotoDismissed(true)} accessibilityRole="button" style={{ minHeight: 44, paddingHorizontal: 12, justifyContent: "center" }}>
+                      <Text style={{ fontFamily: rubik.regular, fontSize: 15, color: T.ink }}>{t("routine.notNow")}</Text>
+                    </Pressable>
+                  </View>
                 </View>
               )}
               {askReminders && (

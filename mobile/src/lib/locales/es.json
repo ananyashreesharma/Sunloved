@@ -115,7 +115,12 @@
     "feelThanks": "Anotado. Gracias.",
     "feelIrritated": "Siento que esté irritada. Sáltate el paso más fuerte una o dos noches y mantén la hidratante. Si arde o se hincha, acláralo y consulta a un farmacéutico.",
     "easeStep": "Pasar {{name}} a noche sí, noche no",
-    "eased": "{{name}} ahora es noche sí, noche no."
+    "eased": "{{name}} ahora es noche sí, noche no.",
+    "photoStartQ": "¿Haces una foto de inicio?",
+    "photoStartSub": "Se queda en este teléfono. En 4 semanas verás la diferencia lado a lado.",
+    "photoDueQ_one": "Llevas {{count}} semana. ¿Haces una foto para comparar?",
+    "photoDueQ_other": "Llevas {{count}} semanas. ¿Haces una foto para comparar?",
+    "photoDueSub": "Mismo sitio y misma luz que la última vez. Se queda en este teléfono."
   },
   "history": {
     "title": "Racha",
@@ -392,7 +397,8 @@
     "freePlan": "Gratis. Revisar ingredientes siempre es gratis.",
     "signIn": "Inicia sesión para sincronizar dispositivos",
     "optional": "opcional",
-    "save": "Guardar"
+    "save": "Guardar",
+    "progress": "Fotos de progreso"
   },
   "rem": {
     "title": "Recordatorios",
@@ -465,5 +471,25 @@
     "deleteBody": "Esto elimina para siempre tu rutina, tu racha, tu perfil de piel y tus revisiones de SkinLens, y los borra de este teléfono. No se puede deshacer.",
     "deleteConfirm": "Eliminar",
     "deleteFailed": "No funcionó. Revisa tu conexión e inténtalo de nuevo."
+  },
+  "progress": {
+    "title": "Fotos de progreso",
+    "sub": "La piel cambia despacio y es fácil no notarlo. Una foto cada 4 semanas con la misma luz te lo muestra. Las fotos se quedan en este teléfono y nunca se suben.",
+    "take": "Hacer una foto",
+    "pick": "Elegir de la galería",
+    "start": "Inicio",
+    "week_one": "Semana {{count}}",
+    "week_other": "Semana {{count}}",
+    "nextIn": "Tu próxima foto irá aquí dentro de 4 semanas.",
+    "empty": "Aún no hay fotos. Haz una esta noche, en un sitio y con una luz que puedas repetir.",
+    "tip": "Mismo sitio, misma luz, sin maquillaje, de frente.",
+    "feelT": "Cómo ha estado tu piel",
+    "feelWindow_one": "Según tu última respuesta tras la rutina de noche.",
+    "feelWindow_other": "Según tus últimas {{count}} respuestas tras la rutina de noche.",
+    "all": "Todas las fotos",
+    "delete": "Borrar",
+    "deleteQ": "¿Borrar esta foto?",
+    "deleteBody": "Se elimina de este teléfono. No se puede deshacer.",
+    "cancel": "Cancelar"
   }
 }
