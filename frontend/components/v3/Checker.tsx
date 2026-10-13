@@ -11,8 +11,10 @@ import {
   COVERAGE_THRESHOLD,
   guessCountry,
   labelDirection,
+  regionCovers,
   SAMPLE_LABELS,
   type AnnotatedLabel,
+  type BanRegion,
   type ItemState,
   type LabelItem,
   type Zone,
@@ -84,6 +86,7 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
       // Opened from a shared link: read that label for this visitor.
       setText(initial.inci)
       setProductName(initial.name)
+      setTypedName(initial.name)
       run(initial.inci, initial.name, p, false)
       return
     }
@@ -487,6 +490,7 @@ function Result({
           {active.general && <div className="v3-label" style={{ marginTop: 10, fontSize: 11, color: "var(--ink2)" }}>{COPY.forYou}</div>}
           <p style={{ margin: "4px 0 0", fontSize: 15, lineHeight: 1.5 }}>{active.line}</p>
           {active.next && <p style={{ margin: "6px 0 0", fontSize: 15, lineHeight: 1.5 }}>{active.next}</p>}
+          {active.bannedIn?.length ? <Banned regions={active.bannedIn} country={profile.country} /> : null}
           {active.general && active.general !== active.line && (
             <>
               <div className="v3-label" style={{ marginTop: 10, fontSize: 11, color: "var(--ink2)" }}>{COPY.inGeneral}</div>
@@ -519,6 +523,7 @@ function Result({
             </span>
             <span style={{ display: "block", fontSize: 15, lineHeight: 1.5, color: "var(--ink2)", marginTop: 4 }}>{it.line}</span>
             {it.next && <span style={{ display: "block", fontSize: 15, lineHeight: 1.5, marginTop: 4 }}>{it.next}</span>}
+            {it.bannedIn?.length ? <Banned regions={it.bannedIn} country={profile.country} /> : null}
           </span>
         </button>
       ))}
@@ -617,5 +622,17 @@ function Result({
         </a>
       </div>
     </div>
+  )
+}
+
+/** Where an ingredient is banned in cosmetics, whatever the reader's country. */
+function Banned({ regions, country }: { regions: string[]; country: string | null }) {
+  const COPY = useCopy()
+  const yours = regions.some((r) => regionCovers(r as BanRegion, country))
+  return (
+    <span style={{ display: "block", fontSize: 14, lineHeight: 1.5, marginTop: 6, color: "var(--ink2)" }}>
+      {COPY.bannedT} {regions.map((r) => COPY.region[r] ?? r).join(" · ")}.{" "}
+      {yours && <strong style={{ color: "var(--t-avoid)" }}>{COPY.bannedYours}</strong>}
+    </span>
   )
 }

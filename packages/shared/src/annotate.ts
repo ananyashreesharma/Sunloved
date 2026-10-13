@@ -26,6 +26,8 @@ export type LabelItem = {
   key?: string
   /** What this person told us about this ingredient, when they did. */
   mine?: IngredientOverride
+  /** Regulators that ban it outright in cosmetics, whatever the reader's country. */
+  bannedIn?: string[]
 }
 
 export type AnnotatedLabel = {
@@ -65,7 +67,15 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
   const unknown = new Set(api.unknownIngredients.map(norm))
   const order = api.parsed.length ? api.parsed : [...api.foundIngredients.map((f) => f.name), ...api.unknownIngredients]
 
-  const items: LabelItem[] = order.map((raw) => {
+  const items: LabelItem[] = order.map((raw) => withBans(raw))
+
+  function withBans(raw: string): LabelItem {
+    const item = itemFor(raw)
+    const f = found.get(norm(raw))
+    return f?.bannedIn?.length && item.state !== "none" ? { ...item, bannedIn: f.bannedIn } : item
+  }
+
+  function itemFor(raw: string): LabelItem {
     const f = found.get(norm(raw))
     if (!f || unknown.has(norm(raw))) return { name: raw, state: "none", line: NO_DATA_LINE, num: 0 }
     const general = f.shortDescription || f.function || NOTE_IN_REFERENCE
@@ -85,7 +95,7 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     if (personal) return { name: f.name, state: "nfy", line: personal.reason, general, num: 0, source, key, next: cautionNextStep(both, f.isFragrance) }
     if (zone === "YELLOW") return { name: f.name, state: "caution", line: general, num: 0, source, key, next: cautionNextStep(both, f.isFragrance) }
     return { name: f.name, state: "fine", line: general, source, key }
-  })
+  }
 
   // Same scoring as everywhere else; "not for you" weighs like caution.
   const rows: IngredientRow[] = items.map((it) => ({

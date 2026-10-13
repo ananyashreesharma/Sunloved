@@ -259,7 +259,22 @@
     "pasteLabel": "Paste the ingredient list",
     "namePlaceholderRequired": "Product name, e.g. CeraVe Foaming Cleanser",
     "nameWhy": "Needed to add it to our {{country}} list. Sent without anything about you.",
-    "nameWhyNoCountry": "Needed to add it to our product list. Sent without anything about you."
+    "nameWhyNoCountry": "Needed to add it to our product list. Sent without anything about you.",
+    "bannedT": "Banned in cosmetics in",
+    "bannedYours": "Including where you live.",
+    "bannedShort": "Banned in: {{list}}",
+    "region": {
+      "EU": "the EU (27 countries)",
+      "ASEAN": "Southeast Asia (10 countries)",
+      "CA": "Canada",
+      "US": "the US"
+    },
+    "regionShort": {
+      "EU": "EU",
+      "ASEAN": "Southeast Asia",
+      "CA": "Canada",
+      "US": "US"
+    }
   },
   "reminders": {
     "gentleMorning": "Your morning routine is ready when you are.",

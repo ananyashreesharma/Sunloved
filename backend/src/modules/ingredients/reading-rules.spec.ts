@@ -55,4 +55,12 @@ describe('reading rules', () => {
     const banned = annotateLabel(label([['Hydroquinone', 'red'], ['Aqua', 'green']]), { overrides: { hydroquinone: 'fine' } });
     expect(banned.items[0].state).toBe('avoid');
   });
+
+  it('carries where an ingredient is banned, whatever the reader\'s country', () => {
+    const api = label([['Aqua', 'green'], ['Hydroquinone', 'red']]);
+    api.foundIngredients[1].bannedIn = ['EU', 'CA'];
+    const r = annotateLabel(api);
+    expect(r.items[1].bannedIn).toEqual(['EU', 'CA']);
+    expect(r.items[0].bannedIn).toBeUndefined();
+  });
 });

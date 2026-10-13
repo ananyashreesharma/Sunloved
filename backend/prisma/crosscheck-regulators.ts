@@ -33,7 +33,7 @@ type Entry = { names: string[]; cas: string[]; status: string; note?: string };
  * is spelled out here against the regulator's own entry.
  */
 const GROUPS: { test: RegExp; src: string; status: string; entry: string }[] = [
-  ...['CA', 'ASEAN'].flatMap((src) => [
+  ...['CA', 'ASEAN', 'EU'].flatMap((src) => [
     { test: /\b(mercury|mercuric|mercurous|calomel)\b/i, src, status: 'prohibited', entry: 'Mercury and its compounds' },
     { test: /\blead\b/i, src, status: 'prohibited', entry: 'Lead and its compounds' },
     { test: /\b(cadmium|arsenic|antimony|thallium|beryllium)\b/i, src, status: 'prohibited', entry: 'Toxic metals and their compounds' },
@@ -43,11 +43,13 @@ const GROUPS: { test: RegExp; src: string; status: string; entry: string }[] = [
   ]),
   { test: /\bprogesterone\b/i, src: 'CA', status: 'prohibited', entry: 'Progestogens' },
   { test: /\btestosterone\b/i, src: 'CA', status: 'prohibited', entry: 'Androgenic effects, substances with' },
-  { test: /^human\b/i, src: 'ASEAN', status: 'prohibited', entry: 'Cells, tissues or products of human origin' },
+  ...['ASEAN', 'EU'].flatMap((src) => [
+    { test: /^human\b/i, src, status: 'prohibited', entry: 'Cells, tissues or products of human origin' },
+    { test: /\b(cholecalciferol|ergocalciferol)\b/i, src, status: 'prohibited', entry: 'Ergocalciferol and cholecalciferol' },
+    { test: /^(isobutyl|isopropyl|pentyl|phenyl|benzyl)paraben$/i, src, status: 'prohibited', entry: 'Isopropyl-, isobutyl-, phenyl-, benzyl- and pentylparaben' },
+    { test: /^formaldehyde$/i, src, status: 'prohibited', entry: 'Formaldehyde' },
+  ]),
   { test: /^human\b/i, src: 'CA', status: 'restricted', entry: 'Human origin, substance of' },
-  { test: /\b(cholecalciferol|ergocalciferol)\b/i, src: 'ASEAN', status: 'prohibited', entry: 'Ergocalciferol and cholecalciferol' },
-  { test: /^(isobutyl|isopropyl|pentyl|phenyl|benzyl)paraben$/i, src: 'ASEAN', status: 'prohibited', entry: 'Isopropyl-, isobutyl-, phenyl-, benzyl- and pentylparaben' },
-  { test: /^formaldehyde$/i, src: 'ASEAN', status: 'prohibited', entry: 'Formaldehyde' },
 ];
 
 // A ban with conditions ("except if fully refined", "when used in hair dyes") is not a ban on the
@@ -86,7 +88,7 @@ async function main() {
   }
   const prisma = new PrismaClient();
   const rows = await prisma.ingredient.findMany({
-    select: { id: true, inciName: true, displayName: true, aliases: true, zone: true, source: true, shortDescription: true, isFragrance: true, regionNotes: true },
+    select: { id: true, inciName: true, displayName: true, aliases: true, zone: true, source: true, shortDescription: true, isFragrance: true, regionNotes: true, regulatoryNotes: true },
   });
 
   // Index each regulator's entries by CAS and by name.
@@ -113,6 +115,9 @@ async function main() {
       if (!e) continue;
       hits.set(r.id, { ...(hits.get(r.id) ?? {}), [src]: e.status });
     }
+    // EU: an "avoid" that rests on an EU ban (hand-checked, or the EU's banned list without an "except").
+    const euBanned = r.zone === 'red' && (/Annex II(?! \(conditional\))/.test(r.regulatoryNotes ?? '') || /\b(in|across) the EU\b|\bEU\b.*\bbann|\bbanned\b[^.]*\bEU\b/i.test(r.shortDescription ?? ''));
+    if (euBanned) hits.set(r.id, { ...(hits.get(r.id) ?? {}), EU: 'prohibited' });
     for (const g of GROUPS) {
       if (!names.some((n) => g.test.test(n))) continue;
       const cur = hits.get(r.id) ?? {};
@@ -142,13 +147,13 @@ async function main() {
       if (r.source === 'manual') review.push(`- **${r.inciName}** (${r.zone ?? 'unrated'}, hand-checked): an EU-labelled fragrance allergen. Re-check by hand.`);
       else changes.push({ row: r, zone: 'yellow', text: [r.shortDescription, line].filter(Boolean).join(' '), fragrance: true, why: 'EU fragrance allergen' });
     }
-    if (r.zone === 'red' && !bannedIn.length && !(r.regionNotes as any)?.EU) {
+    if (r.zone === 'red' && !bannedIn.length && h.EU !== 'prohibited') {
       review.push(`- **${r.inciName}** (avoid): no other regulator in this check bans it. Confirm the EU or hand reason still holds.`);
     }
   }
 
   const count = (src: string) => [...hits.values()].filter((h) => h[src]).length;
-  const summary = `Matched: Canada ${count('CA')}, ASEAN ${count('ASEAN')}, US ${count('US')}, EU allergens ${count('EU_ALLERGEN')}. To caution: ${changes.length}. For review: ${review.length}.`;
+  const summary = `Matched: EU bans ${count('EU')}, Canada ${count('CA')}, ASEAN ${count('ASEAN')}, US ${count('US')}, EU allergens ${count('EU_ALLERGEN')}. To caution: ${changes.length}. For review: ${review.length}.`;
   console.log(summary);
   changes.slice(0, 40).forEach((c) => console.log(`  ${c.row.inciName.padEnd(42)} ${c.row.zone ?? 'unrated'} -> ${c.zone === 'red' ? 'avoid' : 'caution'} (${c.why})`));
   const report = [

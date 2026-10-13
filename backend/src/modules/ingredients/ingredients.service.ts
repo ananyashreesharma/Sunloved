@@ -14,6 +14,8 @@ export interface AnalyzedIngredient {
   /** DB traffic-light zone when present */
   zone?: string;
   safetyRating?: string;
+  /** Regulators that ban it outright in cosmetics: EU, ASEAN, CA, US (from regionNotes). */
+  bannedIn?: string[];
   shortDescription?: string;
   isParaben?: boolean;
   isFragrance?: boolean;
@@ -35,6 +37,14 @@ export interface IngredientAnalysis {
 }
 
 /** Plain-words source of a rating: hand-checked, EU cosmetics rules, or neither (yet). */
+const BAN_REGIONS = ['EU', 'ASEAN', 'CA', 'US'];
+/** Same rule as packages/shared/src/regions.ts: the regions whose note says "prohibited". */
+export function bannedRegions(notes: unknown): string[] | undefined {
+  if (!notes || typeof notes !== 'object') return undefined;
+  const banned = BAN_REGIONS.filter((r) => (notes as Record<string, unknown>)[r] === 'prohibited');
+  return banned.length ? banned : undefined;
+}
+
 export function ratingSource(i: Pick<Ingredient, 'source' | 'regulatoryNotes' | 'zone'>): string | undefined {
   if (i.source === 'manual' || i.source === 'dermatologist_verified') return 'Checked by hand by SkinLens.';
   const eu = i.regulatoryNotes?.match(/^EU CosIng: (.*)$/)?.[1];
@@ -156,6 +166,7 @@ export class IngredientsService {
           isFragrance: dbIngredient.isFragrance,
           isSulfate: dbIngredient.isSulfate,
           source: ratingSource(dbIngredient),
+          bannedIn: bannedRegions(dbIngredient.regionNotes),
         });
       } else {
         unknownIngredients.push(ingredientName);
@@ -261,6 +272,7 @@ export class IngredientsService {
       description: i.shortDescription,
       function: i.function,
       source: ratingSource(i),
+      bannedIn: bannedRegions(i.regionNotes) ?? [],
       productCount: count,
       products: products.slice(0, 24),
     };

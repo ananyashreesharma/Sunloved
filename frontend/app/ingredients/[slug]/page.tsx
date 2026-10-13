@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+const REGION: Record<string, string> = { EU: "the EU (27 countries)", ASEAN: "Southeast Asia (10 countries)", CA: "Canada", US: "the US" }
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { SiteFooter, SiteHeader } from "@/components/v3/SiteChrome"
@@ -39,6 +41,12 @@ export default async function IngredientDetail({ params }: { params: { slug: str
         </p>
         <p style={{ margin: "14px 0 0", fontSize: 20, lineHeight: 1.55 }}>{i.description ?? "We don't have a description for this one yet."}</p>
         {i.source && <p style={{ margin: "10px 0 0", fontSize: 14, color: "var(--ink2)" }}>{i.source}</p>}
+        {i.bannedIn && i.bannedIn.length > 0 && (
+          <p style={{ margin: "14px 0 0", fontSize: 17, lineHeight: 1.5 }}>
+            <strong>Banned in cosmetics in </strong>
+            {i.bannedIn.map((r) => REGION[r] ?? r).join(", ").replace(/, ([^,]*)$/, " and $1")}.
+          </p>
+        )}
 
         <h2 style={{ margin: "40px 0 10px", fontSize: 24, fontWeight: 600 }}>Is {i.name} safe?</h2>
         <p style={{ margin: 0, fontSize: 18, lineHeight: 1.6 }}>

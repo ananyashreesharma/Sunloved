@@ -15,6 +15,8 @@ export type FoundIngredient = {
   isParaben?: boolean
   isFragrance?: boolean
   isIrritant?: boolean
+  /** Regulators that ban it outright in cosmetics ("EU", "ASEAN", "CA", "US"), whatever the reader's country. */
+  bannedIn?: string[]
   found: boolean
 }
 

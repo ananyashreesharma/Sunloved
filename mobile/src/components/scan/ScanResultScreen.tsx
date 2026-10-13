@@ -291,7 +291,7 @@ export function ScanResultScreen() {
           </View>
         </ScrollView>
         <StatusScrim />
-        <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} />
+        <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} country={profile?.country} />
         <Toast text={toast} bottom={insets.bottom + 16} />
       </View>
     )
@@ -360,6 +360,11 @@ export function ScanResultScreen() {
                 </View>
                 <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink2 }}>{it.line}</Text>
                 {it.next ? <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink }}>{it.next}</Text> : null}
+                {it.bannedIn?.length ? (
+                  <Text style={{ marginTop: 4, fontFamily: rubik.medium, fontSize: 14, lineHeight: 20, color: T.ink2 }}>
+                    {t("check.bannedShort", { list: it.bannedIn.map((r) => t(`check.regionShort.${r}`)).join(", ") })}
+                  </Text>
+                ) : null}
               </View>
             </Pressable>
           </Animated.View>
@@ -400,7 +405,7 @@ export function ScanResultScreen() {
         </View>
       </ScrollView>
       <StatusScrim />
-      <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} />
+      <IngredientSheet item={sheet} onClose={() => setSheet(null)} onMark={mark} country={profile?.country} />
       <Toast text={toast} bottom={insets.bottom + 16} />
       {askToSave && (
         <Animated.View

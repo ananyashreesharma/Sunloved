@@ -22,6 +22,8 @@ export type IngredientPage = {
   description: string | null
   function: string | null
   source?: string
+  /** Regulators that ban it outright in cosmetics: EU, ASEAN, CA, US. */
+  bannedIn?: string[]
   productCount: number
   products: { id: string; name: string; brand: string; position: number }[]
 }

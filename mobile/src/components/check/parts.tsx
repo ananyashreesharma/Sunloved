@@ -7,7 +7,7 @@ import { Modal, Platform, Pressable, Text, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { COVERAGE_THRESHOLD, labelDirection, type IngredientOverride, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
+import { COVERAGE_THRESHOLD, labelDirection, regionCovers, type BanRegion, type IngredientOverride, type ItemState, type LabelItem, type Palette } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { Highlight } from "@/components/shared/Highlight"
 import { SoftPressable } from "@/components/shared/SoftPressable"
@@ -184,7 +184,7 @@ export function LabelWords({
 }
 
 /** Tapping an ingredient: what it means for you, and in general when that differs. */
-export function IngredientSheet({ item, onClose, onMark }: { item: LabelItem | null; onClose: () => void; onMark?: (item: LabelItem, value: IngredientOverride | null) => void }) {
+export function IngredientSheet({ item, onClose, onMark, country }: { item: LabelItem | null; onClose: () => void; onMark?: (item: LabelItem, value: IngredientOverride | null) => void; country?: string | null }) {
   const { t } = useTranslation()
   const { T } = useTheme()
   const insets = useSafeAreaInsets()
@@ -226,6 +226,18 @@ export function IngredientSheet({ item, onClose, onMark }: { item: LabelItem | n
             <>
               <Text style={{ marginTop: 16, fontFamily: rubik.semibold, fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: T.ink2 }}>{t("check.whatToDo")}</Text>
               <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink }}>{item.next}</Text>
+            </>
+          ) : null}
+          {/* Where it's banned, whatever the reader's country: the strictest rule anywhere is worth knowing. */}
+          {item.bannedIn?.length ? (
+            <>
+              <Text style={{ marginTop: 16, fontFamily: rubik.semibold, fontSize: 12, letterSpacing: 1, textTransform: "uppercase", color: T.ink2 }}>{t("check.bannedT")}</Text>
+              <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 17, lineHeight: 25, color: T.ink }}>
+                {item.bannedIn.map((r) => t(`check.region.${r}`)).join(" · ")}
+              </Text>
+              {item.bannedIn.some((r) => regionCovers(r as BanRegion, country)) ? (
+                <Text style={{ marginTop: 2, fontFamily: rubik.semibold, fontSize: 15, color: T.tAvoid }}>{t("check.bannedYours")}</Text>
+              ) : null}
             </>
           ) : null}
           {item.source ? <Text style={{ marginTop: 16, fontFamily: rubik.regular, fontSize: 13, lineHeight: 19, color: T.ink2 }}>{item.source}</Text> : null}
