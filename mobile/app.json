@@ -16,7 +16,8 @@
           "es",
           "ar"
         ]
-      }
+      },
+      "appleTeamId": "PPL6K3V8TX"
     },
     "android": {
       "package": "in.knowbetter.app",
