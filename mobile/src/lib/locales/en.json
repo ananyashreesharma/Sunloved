@@ -252,7 +252,14 @@
     "yourSkin": "Your skin",
     "fineForMe": "Fine for me",
     "iReact": "I react to this",
-    "markHint": "Every label is read with this from now on. Tap again to undo."
+    "markHint": "Every label is read with this from now on. Tap again to undo.",
+    "buildingT": "We're building our {{country}} product list.",
+    "buildingTNoCountry": "We're building our product list.",
+    "buildingSub": "Every product is checked against its real label before it's added. Until yours is here, paste its ingredients below.",
+    "pasteLabel": "Paste the ingredient list",
+    "namePlaceholderRequired": "Product name, e.g. CeraVe Foaming Cleanser",
+    "nameWhy": "Needed to add it to our {{country}} list. Sent without anything about you.",
+    "nameWhyNoCountry": "Needed to add it to our product list. Sent without anything about you."
   },
   "reminders": {
     "gentleMorning": "Your morning routine is ready when you are.",

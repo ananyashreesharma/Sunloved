@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -465,6 +466,24 @@ export class ProductsService {
       country: product.country,
       inci: product.ingredients.map((i) => i.ingredient.inciName).join(', '),
     };
+  }
+
+  /** Products in the clean catalogue for a country (with an ingredient list). */
+  async coverage(country: string) {
+    if (!country) return { country, products: 0 };
+    const products = await this.prisma.product.count({ where: { deletedAt: null, country, ingredients: { some: {} } } });
+    return { country, products };
+  }
+
+  /** Queue a checked label for review; the same country + name + list just counts again. */
+  async submitLabel(country: string, name: string, ingredients: string) {
+    const norm = (s: string) => s.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim();
+    const fingerprint = createHash('sha256').update(`${country}|${norm(name)}|${norm(ingredients)}`).digest('hex');
+    await this.prisma.labelSubmission.upsert({
+      where: { fingerprint },
+      update: { timesSeen: { increment: 1 } },
+      create: { country, name: name.trim(), ingredients: ingredients.trim(), fingerprint },
+    });
   }
 
   /** Products with a known label, for the sitemap. */

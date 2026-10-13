@@ -45,6 +45,10 @@ export default function Privacy() {
 
       <h2>Checking a label</h2>
       <p>When you search for a product or paste an ingredient list, it&apos;s sent to our server, which looks each ingredient up and sends back a reading. Your skin profile isn&apos;t sent; the reading is personalised on your device. We may count which ingredient names we didn&apos;t recognise, without anything about you, to fill gaps in our data.</p>
+      <p>
+        When you paste a list, you also give the product&apos;s name. We keep that name, the ingredient list and your country, with nothing that identifies you, to
+        build our product list country by country. A person checks each one against the real pack or the brand&apos;s own site before it&apos;s added.
+      </p>
 
       <h2>Sharing a check</h2>
       <p>If you share a check, the link contains the product or its ingredient list and a name. It never contains your skin profile; whoever opens it sees the reading for their own skin.</p>

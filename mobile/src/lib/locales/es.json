@@ -252,7 +252,14 @@
     "yourSkin": "Tu piel",
     "fineForMe": "Me va bien",
     "iReact": "Me da reacción",
-    "markHint": "A partir de ahora leemos cada etiqueta con esto. Toca de nuevo para deshacerlo."
+    "markHint": "A partir de ahora leemos cada etiqueta con esto. Toca de nuevo para deshacerlo.",
+    "buildingT": "Estamos creando nuestra lista de productos de {{country}}.",
+    "buildingTNoCountry": "Estamos creando nuestra lista de productos.",
+    "buildingSub": "Cada producto se comprueba con su etiqueta real antes de añadirlo. Mientras tanto, pega sus ingredientes abajo.",
+    "pasteLabel": "Pega la lista de ingredientes",
+    "namePlaceholderRequired": "Nombre del producto, p. ej. CeraVe Foaming Cleanser",
+    "nameWhy": "Lo necesitamos para añadirlo a nuestra lista de {{country}}. Se envía sin nada sobre ti.",
+    "nameWhyNoCountry": "Lo necesitamos para añadirlo a nuestra lista. Se envía sin nada sobre ti."
   },
   "reminders": {
     "gentleMorning": "Tu rutina de mañana te espera cuando quieras.",

@@ -17,7 +17,7 @@ import {
   type LabelItem,
   type Zone,
 } from "@skinlens/shared"
-import { analyzeIngredients, completeOnboarding, getMe } from "@/lib/api"
+import { analyzeIngredients, completeOnboarding, getMe, getPublicApiBase } from "@/lib/api"
 import { useIsGuest } from "@/lib/use-guest"
 import { initAnalytics, track } from "@/lib/analytics"
 import { checkUrl } from "@/lib/shared-check"
@@ -38,10 +38,15 @@ type State = { kind: "idle" } | { kind: "reading" } | { kind: "error" } | { kind
 /** `initial`: a label opened from a shared link (/c?…), read for this visitor's own skin. */
 export function Checker({ initial }: { initial?: { name: string; inci: string } } = {}) {
   const COPY = useCopy()
+  const lang = useLang()
   const [text, setText] = useState("")
   const [sampleKey, setSampleKey] = useState<string | null>(null)
   // Set when the list came from a searched product, so the result carries its name.
   const [productName, setProductName] = useState<string | null>(null)
+  // Name of a pasted product: required, because what people check is how the catalogue grows.
+  const [typedName, setTypedName] = useState("")
+  // Products we have for this person's country; until there are some, search would only say "not found".
+  const [coverage, setCoverage] = useState<number | null>(null)
   const [productId, setProductId] = useState<string | null>(null)
   const [shared, setShared] = useState(false)
   const [profile, setProfile] = useState<Profile>({ country: null, skinType: null, concerns: [] })
@@ -90,7 +95,22 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  async function run(inci = text, name = sampleKey ? COPY.samples[sampleKey as keyof typeof COPY.samples] : (productName ?? COPY.yourLabel), p = profile, reveal = true) {
+  useEffect(() => {
+    if (!profile.country) return setCoverage(0)
+    fetch(`${getPublicApiBase()}/products/coverage?country=${profile.country}`)
+      .then((r) => r.json())
+      .then((b) => setCoverage((b?.data ?? b)?.products ?? 0))
+      .catch(() => setCoverage(0))
+  }, [profile.country])
+
+  const pasted = !sampleKey && !productId
+  const canRead = text.trim().length > 0 && (!pasted || typedName.trim().length >= 2)
+  const countryName = countryLabel(profile.country, lang)?.replace(/^the /, "") ?? null
+
+  async function run(inci = text, name = sampleKey ? COPY.samples[sampleKey as keyof typeof COPY.samples] : (productName ?? (typedName.trim() || COPY.yourLabel)), p = profile, reveal = true) {
+    // A pasted, named label goes to the catalogue review queue: name, country and list, nothing about the person.
+    if (reveal && !sampleKey && !productId && p.country && typedName.trim().length >= 2 && inci.trim())
+      fetch(`${getPublicApiBase()}/products/submissions`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ country: p.country, name: typedName.trim(), ingredients: inci.trim() }) }).catch(() => {})
     if (!inci.trim()) return
     const id = ++runs.current
     setState({ kind: "reading" })
@@ -167,6 +187,13 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
         <section style={{ display: "flex", flexDirection: "column", gap: 20, minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: "clamp(40px, 4.6vw, 68px)", fontWeight: 600, letterSpacing: "-0.045em", lineHeight: 0.98 }}>{COPY.title}</h1>
           <p style={{ margin: 0, fontSize: 18, lineHeight: 1.55, color: "var(--ink2)", maxWidth: 480 }}>{COPY.sub}</p>
+          {coverage === 0 && (
+            <div style={{ padding: 16, borderRadius: 16, background: "var(--surface)" }}>
+              <div style={{ fontSize: 17, fontWeight: 500, lineHeight: 1.4 }}>{COPY.buildingT(countryName)}</div>
+              <div style={{ marginTop: 4, fontSize: 15, lineHeight: 1.5, color: "var(--ink2)" }}>{COPY.buildingSub}</div>
+            </div>
+          )}
+          {coverage !== null && coverage > 0 && (
           <ProductSearch
             country={profile.country}
             onPick={(title, inci, id) => {
@@ -177,7 +204,8 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
               run(inci, title)
             }}
           />
-          <div style={{ fontSize: 14, color: "var(--ink2)", marginBottom: -8 }}>{COPY.orPaste}</div>
+          )}
+          <div style={{ fontSize: 14, color: "var(--ink2)", marginBottom: -8 }}>{coverage === 0 ? COPY.pasteBelow : COPY.orPaste}</div>
           <textarea
             value={text}
             onChange={(e) => {
@@ -205,6 +233,19 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
               outline: "none",
             }}
           />
+          {pasted && (
+            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <span style={{ fontSize: 14, fontWeight: 600, color: "var(--ink2)" }}>{COPY.nameLabel}</span>
+              <input
+                value={typedName}
+                onChange={(e) => setTypedName(e.target.value)}
+                placeholder={COPY.namePlaceholder}
+                dir="auto"
+                style={{ minHeight: 48, padding: "0 14px", borderRadius: 12, border: "1.5px solid var(--line)", background: "transparent", color: "var(--ink)", font: "inherit", fontSize: 16, outline: "none" }}
+              />
+              <span style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.4 }}>{COPY.nameWhy(countryName)}</span>
+            </label>
+          )}
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {SAMPLE_LABELS.map((s) => (
               <button
@@ -234,7 +275,7 @@ export function Checker({ initial }: { initial?: { name: string; inci: string } 
             )}
           </div>
 
-          <button className="v3-btn" style={{ maxWidth: 320 }} onClick={() => run()} disabled={!text.trim() || state.kind === "reading"}>
+          <button className="v3-btn" style={{ maxWidth: 320 }} onClick={() => run()} disabled={!canRead || state.kind === "reading"}>
             {COPY.read}
           </button>
         </section>

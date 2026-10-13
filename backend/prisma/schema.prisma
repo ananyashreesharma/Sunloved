@@ -819,3 +819,22 @@ model AiCache {
   @@index([cacheKey])
   @@map("ai_cache")
 }
+
+/// A label someone checked in the app: product name, country and ingredient list, with nothing about
+/// the person. A review queue for the clean catalogue: a reviewer confirms each against the pack or the
+/// brand's own site before it becomes a product (prisma/review-submissions.ts). Never published as is.
+model LabelSubmission {
+  id          String           @id @default(uuid())
+  country     String
+  name        String
+  ingredients String           @db.Text
+  /// Same country + name + list, for counting repeats instead of storing duplicates.
+  fingerprint String           @unique
+  timesSeen   Int              @default(1)
+  status      ModerationStatus @default(pending)
+  createdAt   DateTime         @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime         @updatedAt @db.Timestamptz(6)
+
+  @@index([country, status])
+  @@map("label_submissions")
+}

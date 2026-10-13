@@ -25,3 +25,13 @@ Check a file, then import it:
 
     npx ts-node --transpile-only prisma/import-clean-products.ts prisma/catalog/IN.csv
     npx ts-node --transpile-only prisma/import-clean-products.ts prisma/catalog/IN.csv --apply
+
+## Labels people check in the app
+
+Every label checked in the app is sent, with its name and country and nothing about the person, to a
+review queue. Export a country's queue, most-checked first:
+
+    npx ts-node --transpile-only prisma/review-submissions.ts IN
+
+Confirm each against the pack or the brand's own site before it goes into `IN.csv`. A list someone
+typed or pasted is a lead, not a source.

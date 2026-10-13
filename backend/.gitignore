@@ -101,3 +101,6 @@ out/
 
 # Downloaded EU CosIng inventory (re-fetched by prisma/import-cosing-inventory.ts)
 prisma/data/cosing-inventory.json
+
+# Review sheets exported from app submissions (contain what people typed)
+prisma/catalog/review-*.csv

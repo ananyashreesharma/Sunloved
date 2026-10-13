@@ -6,10 +6,12 @@ import { Pressable, ScrollView, Text, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
-import { SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
+import { countryByCode, SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { getScans } from "@/lib/data"
 import { loadGuestData } from "@/lib/guest-store"
+import { productCoverage, submitLabel } from "@/lib/api-client"
+import { useCountryName } from "@/components/shared/CountryPicker"
 import { ProductSearch } from "@/components/check/ProductSearch"
 import { useTheme } from "@/lib/theme"
 import { PrimaryButton, SectionLabel, StateTag, StatusScrim } from "@/components/check/parts"
@@ -30,11 +32,20 @@ export function ScanCaptureScreen() {
   const [name, setName] = useState("")
   const [saved, setSaved] = useState<GuestScan[]>([])
   const [country, setCountry] = useState<string | null>(null)
+  // Products we have for this person's country. The catalogue is built country by country from real
+  // labels, so until there are some, search would only ever say "not found": say so honestly instead.
+  const [coverage, setCoverage] = useState<number | null>(null)
+  const nameOf = useCountryName()
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false
-      loadGuestData().then((g) => !cancelled && setCountry(g.country))
+      loadGuestData().then((g) => {
+        if (cancelled) return
+        setCountry(g.country)
+        if (g.country) productCoverage(g.country).then((c) => !cancelled && setCoverage(c.products)).catch(() => !cancelled && setCoverage(0))
+        else setCoverage(0)
+      })
       getScans().then((scans) => !cancelled && setSaved(scans))
       return () => {
         cancelled = true
@@ -42,8 +53,13 @@ export function ScanCaptureScreen() {
     }, []),
   )
 
-  function read(list = inci, label = name) {
+  const canRead = inci.trim().length > 0 && name.trim().length >= 2
+
+  function read(list = inci, label = name, sample = false) {
     if (!list.trim()) return
+    // What people check is how the catalogue grows: name, country and list go to a review queue,
+    // with nothing about the person. Our own samples don't.
+    if (!sample && country && label.trim().length >= 2) submitLabel(country, label.trim(), list.trim()).catch(() => {})
     router.push({
       pathname: "/scan-confirm",
       params: { inci: list, name: label.trim() },
@@ -90,10 +106,26 @@ export function ScanCaptureScreen() {
           {t("check.sub")}
         </Text>
 
-        <View style={{ marginTop: 20 }}>
-          <ProductSearch country={country} />
-        </View>
-        <Text style={{ marginTop: 18, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("check.orPaste")}</Text>
+        {coverage !== null && coverage > 0 ? (
+          <>
+            <View style={{ marginTop: 20 }}>
+              <ProductSearch country={country} />
+            </View>
+            <Text style={{ marginTop: 18, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("check.orPaste")}</Text>
+          </>
+        ) : coverage === 0 ? (
+          <>
+            <View style={{ marginTop: 20, padding: 16, borderRadius: 16, backgroundColor: T.surface }}>
+              <Text style={{ fontFamily: rubik.medium, fontSize: 17, lineHeight: 24, color: T.ink }}>
+                {country ? t("check.buildingT", { country: nameOf(country, countryByCode(country)?.name ?? country) }) : t("check.buildingTNoCountry")}
+              </Text>
+              <Text style={{ marginTop: 4, fontFamily: rubik.regular, fontSize: 15, lineHeight: 22, color: T.ink2 }}>{t("check.buildingSub")}</Text>
+            </View>
+            <Text style={{ marginTop: 18, fontFamily: rubik.regular, fontSize: 14, color: T.ink2 }}>{t("check.pasteLabel")}</Text>
+          </>
+        ) : (
+          <View style={{ height: 8 }} />
+        )}
 
         <TextInput
           value={inci}
@@ -126,7 +158,7 @@ export function ScanCaptureScreen() {
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder={t("check.namePlaceholder")}
+          placeholder={t("check.namePlaceholderRequired")}
           placeholderTextColor={T.ink3}
           accessibilityLabel={t("check.nameLabel")}
           returnKeyType="done"
@@ -143,8 +175,12 @@ export function ScanCaptureScreen() {
           }}
         />
 
+        <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>
+          {country ? t("check.nameWhy", { country: nameOf(country, countryByCode(country)?.name ?? country) }) : t("check.nameWhyNoCountry")}
+        </Text>
+
         <View style={{ marginTop: 16 }}>
-          <PrimaryButton label={t("check.read")} onPress={() => read()} disabled={!inci.trim()} />
+          <PrimaryButton label={t("check.read")} onPress={() => read()} disabled={!canRead} />
         </View>
 
         <Text
@@ -168,7 +204,7 @@ export function ScanCaptureScreen() {
           {SAMPLES.map((s) => (
             <Pressable
               key={s.key}
-              onPress={() => read(s.inci, t(`check.${s.key}`))}
+              onPress={() => read(s.inci, t(`check.${s.key}`), true)}
               style={{
                 minHeight: 44,
                 paddingHorizontal: 16,

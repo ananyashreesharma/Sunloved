@@ -131,6 +131,16 @@ export function analyzeIngredients(ingredients: string): Promise<AnalyzeIngredie
   return api.post<AnalyzeIngredientsResponse>("/ingredients/analyze", { ingredients })
 }
 
+/** How many checked products we have for a country (the clean catalogue grows country by country). */
+export function productCoverage(country: string) {
+  return api.get<{ country: string; products: number }>(`/products/coverage?country=${encodeURIComponent(country)}`)
+}
+
+/** Send a checked label to the catalogue review queue: name, country and list, nothing about the person. */
+export function submitLabel(country: string, name: string, ingredients: string) {
+  return api.post<{ received: boolean }>("/products/submissions", { country, name, ingredients })
+}
+
 // Also public (no guard) — crowdsourced signal for ingredient names the catalog doesn't recognize.
 export function reportUnknownIngredient(name: string, context?: string): Promise<{ ok: true }> {
   return api.post<{ ok: true }>("/ingredients/report-unknown", { name, context })

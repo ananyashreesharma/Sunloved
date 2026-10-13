@@ -1,6 +1,8 @@
-import { Controller, Get, Query, Param, NotFoundException } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Param, NotFoundException } from '@nestjs/common';
+import { Throttle, seconds } from '@nestjs/throttler';
 import { ProductsService, ProductDetail } from './products.service';
 import { SearchProductsDto } from './dto/search-products.dto';
+import { SubmitLabelDto } from './dto/submit-label.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -32,6 +34,24 @@ export class ProductsController {
   @Get('index')
   index() {
     return this.productsService.index();
+  }
+
+  /** How many checked products we have for a country: GET /api/products/coverage?country=IN */
+  @Get('coverage')
+  coverage(@Query('country') country = '') {
+    return this.productsService.coverage(/^[A-Z]{2}$/.test(country) ? country : '');
+  }
+
+  /**
+   * A label someone checked: product name, country, ingredients, nothing about the person. Goes to the
+   * review queue only; never published until a reviewer confirms it (prisma/review-submissions.ts).
+   */
+  @Post('submissions')
+  @HttpCode(202)
+  @Throttle({ default: { limit: 20, ttl: seconds(60) } })
+  async submit(@Body() dto: SubmitLabelDto) {
+    await this.productsService.submitLabel(dto.country, dto.name, dto.ingredients);
+    return { received: true };
   }
 
   /** Type-ahead: GET /api/products/find?q=himalaya%20neem&country=IN */
