@@ -420,7 +420,8 @@
     "signIn": "Inicia sesión para sincronizar dispositivos",
     "optional": "opcional",
     "save": "Guardar",
-    "progress": "Fotos de progreso"
+    "progress": "Fotos de progreso",
+    "talk": "Háblame"
   },
   "rem": {
     "title": "Recordatorios",
@@ -513,5 +514,20 @@
     "deleteQ": "¿Borrar esta foto?",
     "deleteBody": "Se elimina de este teléfono. No se puede deshacer.",
     "cancel": "Cancelar"
+  },
+  "talk": {
+    "title": "Háblame",
+    "hi": "Hola, soy Anannyashree.",
+    "note": "Estoy creando SkinLens y leo cada mensaje yo misma. Cuéntame qué falta, qué te confunde, una idea que te encantaría o tu opinión. Nada es demasiado pequeño.",
+    "messagePlaceholder": "Escribe lo que quieras…",
+    "emailLabel": "Tu correo (opcional)",
+    "emailSub": "Solo si quieres respuesta. No se usa para nada más.",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "sentT": "Gracias.",
+    "sentSub": "Leo cada mensaje. Si dejaste tu correo, te responderé.",
+    "another": "Escribir otro",
+    "direct": "¿Prefieres el correo? Escríbeme a",
+    "error": "No se envió. Revisa tu conexión e inténtalo de nuevo, o escríbeme directamente."
   }
 }

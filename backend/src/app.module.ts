@@ -12,6 +12,7 @@ import { PricingModule } from './modules/pricing/pricing.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { OumaModule } from './modules/ouma/ouma.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { FeedbackModule } from './modules/feedback/feedback.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EnrichmentModule } from './modules/enrichment/enrichment.module';
 import { ContributionsModule } from './modules/contributions/contributions.module';
@@ -56,6 +57,7 @@ import { ContributionsModule } from './modules/contributions/contributions.modul
     AdminModule,
     OumaModule,
     AnalyticsModule,
+    FeedbackModule,
     AuthModule,
     EnrichmentModule,
     ContributionsModule,

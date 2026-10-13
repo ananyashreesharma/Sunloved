@@ -156,3 +156,8 @@ export function sendEmailOtp(email: string): Promise<{ sent: boolean }> {
 export function verifyEmailOtp(email: string, code: string): Promise<{ userId: string; isNew: boolean; accessToken: string; refreshToken: string }> {
   return api.post("/auth/email-otp/verify", { email, code })
 }
+
+/** A message from "Talk to me": ideas, requests, problems, reviews. The reply address is optional. */
+export function sendFeedback(message: string, replyTo: string | null, country: string | null, platform: "ios" | "android") {
+  return api.post<{ received: boolean }>("/feedback", { message, ...(replyTo ? { replyTo } : {}), ...(country ? { country } : {}), platform })
+}

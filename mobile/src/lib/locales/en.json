@@ -420,7 +420,8 @@
     "signIn": "Sign in to sync devices",
     "optional": "optional",
     "save": "Save",
-    "progress": "Progress photos"
+    "progress": "Progress photos",
+    "talk": "Talk to me"
   },
   "rem": {
     "title": "Reminders",
@@ -513,5 +514,20 @@
     "deleteQ": "Delete this photo?",
     "deleteBody": "It's removed from this phone. This can't be undone.",
     "cancel": "Cancel"
+  },
+  "talk": {
+    "title": "Talk to me",
+    "hi": "Hi, I'm Anannyashree.",
+    "note": "I'm building SkinLens, and I read every message myself. Tell me what's missing, what confuses you, an idea you'd love, or a review. Nothing is too small.",
+    "messagePlaceholder": "Write anything…",
+    "emailLabel": "Your email (optional)",
+    "emailSub": "Only if you'd like a reply. Used for nothing else.",
+    "send": "Send",
+    "sending": "Sending…",
+    "sentT": "Thank you.",
+    "sentSub": "I read every message. If you left your email, I'll write back.",
+    "another": "Write another",
+    "direct": "Prefer email? Write to me at",
+    "error": "That didn't send. Check your connection and try again, or email me directly."
   }
 }

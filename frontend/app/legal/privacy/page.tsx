@@ -50,6 +50,12 @@ export default function Privacy() {
         build our product list country by country. A person checks each one against the real pack or the brand&apos;s own site before it&apos;s added.
       </p>
 
+      <h2>Messages you send us</h2>
+      <p>
+        If you write to us from &ldquo;Talk to me&rdquo;, we keep your message, your country and, only if you add it, your email address so we can reply. We use
+        them to answer you and to improve SkinLens, and you can ask us to delete them at any time.
+      </p>
+
       <h2>Sharing a check</h2>
       <p>If you share a check, the link contains the product or its ingredient list and a name. It never contains your skin profile; whoever opens it sees the reading for their own skin.</p>
 

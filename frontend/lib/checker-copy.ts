@@ -23,7 +23,7 @@ export function pickLang(choice?: string | null, acceptLanguage?: string | null)
 const en = {
   dir: "ltr" as "ltr" | "rtl",
   nav: { check: "Check a label", how: "How we rate", routine: "Your routine" },
-  footer: { noAds: "No ads. No affiliate links. No sponsored verdicts.", rule: "If we can rate less than 70% of a label, we don't give a verdict.", ingredients: "Ingredients A–Z", privacy: "Privacy", terms: "Terms", medical: "Not medical advice" },
+  footer: { noAds: "No ads. No affiliate links. No sponsored verdicts.", rule: "If we can rate less than 70% of a label, we don't give a verdict.", talk: "Talk to me", ingredients: "Ingredients A–Z", privacy: "Privacy", terms: "Terms", medical: "Not medical advice" },
   title: "Check any skincare label, free.",
   sub: "Search a product or paste its ingredients. Get a plain-language reading for your skin, and find hidden steroids, mercury and hydroquinone that some creams don't advertise.",
   search: "Search a product",
@@ -103,7 +103,7 @@ export type CheckerCopy = typeof en
 const es: CheckerCopy = {
   ...en,
   nav: { check: "Revisar una etiqueta", how: "Cómo evaluamos", routine: "Tu rutina" },
-  footer: { noAds: "Sin anuncios. Sin enlaces de afiliado. Sin veredictos patrocinados.", rule: "Si podemos evaluar menos del 70% de una etiqueta, no damos veredicto.", ingredients: "Ingredientes A–Z", privacy: "Privacidad", terms: "Términos", medical: "No es consejo médico" },
+  footer: { noAds: "Sin anuncios. Sin enlaces de afiliado. Sin veredictos patrocinados.", rule: "Si podemos evaluar menos del 70% de una etiqueta, no damos veredicto.", talk: "Háblame", ingredients: "Ingredientes A–Z", privacy: "Privacidad", terms: "Términos", medical: "No es consejo médico" },
   title: "Revisa cualquier etiqueta de cosmética, gratis.",
   sub: "Busca un producto o pega sus ingredientes. Recibe una lectura clara para tu piel y detecta corticoides, mercurio e hidroquinona que algunas cremas no anuncian.",
   search: "Buscar un producto",
@@ -180,7 +180,7 @@ const ar: CheckerCopy = {
   ...en,
   dir: "rtl",
   nav: { check: "افحص ملصقًا", how: "كيف نقيّم", routine: "روتينك" },
-  footer: { noAds: "بلا إعلانات. بلا روابط تسويقية. بلا أحكام مدفوعة.", rule: "إن استطعنا تقييم أقل من 70% من الملصق فلا نصدر حكمًا.", ingredients: "المكونات من أ إلى ي", privacy: "الخصوصية", terms: "الشروط", medical: "ليست نصيحة طبية" },
+  footer: { noAds: "بلا إعلانات. بلا روابط تسويقية. بلا أحكام مدفوعة.", rule: "إن استطعنا تقييم أقل من 70% من الملصق فلا نصدر حكمًا.", talk: "تحدّث معي", ingredients: "المكونات من أ إلى ي", privacy: "الخصوصية", terms: "الشروط", medical: "ليست نصيحة طبية" },
   title: "افحص أي ملصق عناية بالبشرة، مجانًا.",
   sub: "ابحث عن منتج أو الصق مكوناته. احصل على قراءة بسيطة لبشرتك، واكشف الكورتيزون والزئبق والهيدروكينون التي لا تذكرها بعض الكريمات.",
   search: "ابحث عن منتج",

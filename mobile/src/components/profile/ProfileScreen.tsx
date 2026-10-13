@@ -74,6 +74,7 @@ export function ProfileScreen() {
     [t("me.myProducts"), "/products"],
     [t("me.history"), "/history"],
     [t("me.progress"), "/progress"],
+    [t("me.talk"), "/talk"],
   ]
 
   return (

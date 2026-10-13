@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation"
 import { LANGS } from "@/lib/checker-copy"
 import { useCopy, useLang } from "@/lib/copy-context"
 
-export function SiteHeader({ current }: { current: "check" | "how" | "routine" }) {
+export function SiteHeader({ current }: { current?: "check" | "how" | "routine" }) {
   const C = useCopy()
   const nav = [
     { key: "check", href: "/", label: C.nav.check },
@@ -59,6 +59,7 @@ export function SiteFooter() {
     >
       <span>{C.footer.noAds}</span>
       <span>{C.footer.rule}</span>
+      <Link href="/talk">{C.footer.talk}</Link>
       <Link href="/ingredients">{C.footer.ingredients}</Link>
       <Link href="/legal/privacy">{C.footer.privacy}</Link>
       <Link href="/legal/terms">{C.footer.terms}</Link>

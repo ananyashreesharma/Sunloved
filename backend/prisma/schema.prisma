@@ -838,3 +838,19 @@ model LabelSubmission {
   @@index([country, status])
   @@map("label_submissions")
 }
+
+/// A message someone sent from "Talk to me" in the app or website: ideas, requests, problems, reviews.
+/// The reply address is optional and only used to answer this message.
+model FeedbackMessage {
+  id        String   @id @default(uuid())
+  message   String   @db.Text
+  replyTo   String?
+  country   String?
+  platform  String?
+  /// Set once someone has read and handled it.
+  handledAt DateTime? @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([createdAt])
+  @@map("feedback_messages")
+}
