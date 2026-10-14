@@ -9,6 +9,9 @@ on:
 jobs:
   backend:
     runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts requires it; nothing here connects to a database.
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
     defaults:
       run:
         working-directory: backend
@@ -24,6 +27,11 @@ jobs:
       - run: npm run sync:shared && git diff --exit-code src/modules/ingredients/shared-labels.ts
       - run: npx tsc --noEmit -p tsconfig.json
       - run: npx jest
+      # Shared logic and mobile helpers borrow this job's Jest (see packages/shared/jest.config.js).
+      - run: npm test
+        working-directory: packages/shared
+      - run: npm test
+        working-directory: mobile
       - run: npm run build
 
   web:
