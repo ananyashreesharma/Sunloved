@@ -1,8 +1,7 @@
 // V3 theme: paper and ink by day, warm dark by night. The routine's Morning/Night switch flips the
 // whole app (see app-chrome-context), so every restyled screen reads its colours from here.
 
-import { useReducedMotion } from "react-native-reanimated"
-import { Easing } from "react-native-reanimated"
+import { Easing, useReducedMotion } from "react-native-reanimated"
 import { motion, palettes, type Palette } from "@skinlens/shared"
 import { useAppChrome } from "@/lib/app-chrome-context"
 

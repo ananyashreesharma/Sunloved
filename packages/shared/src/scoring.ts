@@ -90,7 +90,7 @@ export function breakdownFromRows(rows: IngredientRow[], coverage = 1): Ingredie
   const raw = 100 - ((high * 28 + med * 12) / Math.max(known, 1)) * 2.2
   // One avoid-level ingredient is enough to avoid the product — averaging let a single
   // hydroquinone among five harmless ingredients score 81 ("looks fine").
-  const score = capForRed(Math.max(18, Math.min(96, Math.round(raw))), high)
+  const score = capScore(Math.max(18, Math.min(96, Math.round(raw))), high, med, known)
 
   const warnings: IngredientBreakdown["warnings"] = []
   for (const r of rows) {
@@ -108,8 +108,18 @@ export function breakdownFromRows(rows: IngredientRow[], coverage = 1): Ingredie
 /** Highest score a product with an avoid-level ingredient can get (inside the HIGH RISK band). */
 const RED_SCORE_CAP = 40
 
-function capForRed(score: number, high: number): number {
-  return high > 0 ? Math.min(score, RED_SCORE_CAP) : score
+/** Share of rated ingredients at caution level from which a label can't be "looks fine". */
+export const CAUTION_SHARE_LIMIT = 0.25
+
+/** Highest score for a label that is CAUTION_SHARE_LIMIT or more caution (top of the CAUTION band). */
+const CAUTION_SCORE_CAP = 69
+
+// Averaging alone tops out near 74 even when every rated ingredient is caution-level, so a label
+// of nothing but fragrance and denatured alcohol used to read "looks fine".
+function capScore(score: number, high: number, med: number, known: number): number {
+  if (high > 0) return Math.min(score, RED_SCORE_CAP)
+  if (known > 0 && med / known >= CAUTION_SHARE_LIMIT) return Math.min(score, CAUTION_SCORE_CAP)
+  return score
 }
 
 export function breakdownFromAnalyze(api: AnalyzeIngredientsResponse): IngredientBreakdown {
@@ -123,8 +133,19 @@ export function breakdownFromAnalyze(api: AnalyzeIngredientsResponse): Ingredien
 export function breakdownFromProduct(p: ProductDetail): IngredientBreakdown {
   const rows = rowsFromProduct(p)
   const bd = breakdownFromRows(rows)
-  if (rows.length > 0 && p.overallScore != null) bd.score = capForRed(Math.round(Number(p.overallScore)), bd.high)
+  if (rows.length > 0 && isSafetyScore(p.overallScore)) bd.score = capScore(Math.round(Number(p.overallScore)), bd.high, bd.med, bd.high + bd.med + bd.safe)
   return bd
+}
+
+/**
+ * Whether a stored score is one of ours (18–96, see breakdownFromRows). Catalogue seeds once put
+ * retailer star ratings (4.4 out of 5) in overallScore, which read as a safety score of 4 and made
+ * every such product "high risk"; anything outside our range is ignored and the score comes from
+ * the ingredient rows instead.
+ */
+function isSafetyScore(v: unknown): boolean {
+  const n = Number(v)
+  return v != null && Number.isFinite(n) && n >= 18 && n <= 96
 }
 
 export type Risk = "HIGH RISK" | "CAUTION" | "SAFE"

@@ -21,7 +21,7 @@ import Animated, {
   withTiming,
   ZoomIn,
 } from "react-native-reanimated"
-import { CONCERNS, countryByCode, guessCountry, MAX_CONCERNS, NIGHT_ANCHORS, SKIN_TYPES, type NightAnchor, type StepKind } from "@skinlens/shared"
+import { CONCERNS, countryByCode, guessCountry, LIFE_STAGES, MAX_CONCERNS, NIGHT_ANCHORS, SKIN_TYPES, type LifeStage, type NightAnchor, type StepKind } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { addStep, saveProfile } from "@/lib/data"
@@ -73,6 +73,7 @@ export function OnboardingFlow() {
   const [moreOpen, setMoreOpen] = useState(false)
   const [skinType, setSkinType] = useState<string | null>(null)
   const [concerns, setConcerns] = useState<string[]>([])
+  const [lifeStage, setLifeStage] = useState<LifeStage | null>(null)
   const [products, setProducts] = useState<string[]>([])
   const [remindMorning, setRemindMorning] = useState(true)
   const [remindNight, setRemindNight] = useState(true)
@@ -86,6 +87,7 @@ export function OnboardingFlow() {
       setCountry(g.country ?? guessCountry(i18n.language))
       if (g.skinType) setSkinType(g.skinType)
       if (g.concerns.length) setConcerns(g.concerns.slice(0, MAX_CONCERNS))
+      setLifeStage(g.lifeStage)
       setTimes({ morning: g.morningTime, night: g.nightTime })
       // A reminder for an empty routine is just noise: morning starts off until there are morning steps.
       setRemindMorning(g.remindMorning && g.steps.some((st) => st.when !== "night"))
@@ -112,6 +114,7 @@ export function OnboardingFlow() {
       country,
       skinType,
       concerns,
+      lifeStage,
       remindMorning,
       remindNight,
       reminderTone: tone,
@@ -132,6 +135,8 @@ export function OnboardingFlow() {
   async function saveEdit() {
     // Saved on the phone, and to the account when signed in.
     await saveProfile(edit === "country" ? { country } : { skinType, concerns })
+    // Health information: on this phone only, never sent with the profile.
+    if (edit !== "country") await updateGuestData({ lifeStage })
     router.back()
   }
 
@@ -286,6 +291,13 @@ export function OnboardingFlow() {
                   {t("ob.twoPlenty")}
                 </Animated.Text>
               )}
+              <Text style={{ marginTop: 28, fontFamily: rubik.semibold, fontSize: 14, color: T.ink2 }}>{t("ob.lifeStageT")}</Text>
+              <Text style={{ marginTop: 4, marginBottom: 10, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>{t("ob.lifeStageSub")}</Text>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+                {LIFE_STAGES.map((s) => (
+                  <Chip key={s} on={lifeStage === s} label={t(`onboarding.lifeStages.${s}`)} onPress={() => setLifeStage((cur) => (cur === s ? null : s))} radio />
+                ))}
+              </View>
             </>
           )}
 

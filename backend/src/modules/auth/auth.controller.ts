@@ -12,6 +12,7 @@ import {
   CompleteOnboardingDto, UpdateCountryDto,
 } from './dto/auth.dto';
 import { UserAuthGuard } from '../../common/guards/user-auth.guard';
+import { InternalKeyGuard } from '../../common/guards/internal-key.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -98,8 +99,12 @@ export class AuthController {
   /**
    * Called by NextAuth after Google/Apple sign-in to upsert the user row.
    * Returns { userId, isNew } so NextAuth can embed userId in the JWT.
+   *
+   * Server-to-server only. Open to anyone, it let a caller attach their own Google ID to any
+   * account by naming its email, then sign in as that account.
    */
   @Post('oauth/upsert')
+  @UseGuards(InternalKeyGuard)
   @HttpCode(HttpStatus.OK)
   upsertOAuth(@Body() dto: UpsertOAuthUserDto) {
     return this.authService.upsertOAuthUser(dto);

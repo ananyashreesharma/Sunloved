@@ -1,7 +1,7 @@
 // "Search a product" on the phone: type-ahead over products we have a label for (the user's
 // country's formulation first). Picking one opens its reading, as if the label had been pasted.
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Pressable, Text, TextInput, View } from "react-native"
 import { useTranslation } from "react-i18next"
 import { router } from "expo-router"
@@ -17,33 +17,33 @@ export function ProductSearch({ country }: { country: string | null }) {
   const { t } = useTranslation()
   const { T } = useTheme()
   const [q, setQ] = useState("")
-  const [results, setResults] = useState<Found[]>([])
-  const [searched, setSearched] = useState(false)
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Results are kept with the query they answer, so a slow reply to an older query never shows
+  // under a newer one, and clearing the box hides them without another state update.
+  const [found, setFound] = useState<{ key: string; items: Found[] } | null>(null)
+  const query = q.trim()
+  const key = `${query}|${country ?? ""}`
+  const results = query.length >= 2 && found?.key === key ? found.items : []
+  const searched = query.length >= 2 && found?.key === key
 
   useEffect(() => {
-    if (timer.current) clearTimeout(timer.current)
-    if (q.trim().length < 2) {
-      setResults([])
-      setSearched(false)
-      return
-    }
-    timer.current = setTimeout(() => {
+    if (query.length < 2) return
+    let cancelled = false
+    const timer = setTimeout(() => {
       api
-        .get<Found[]>(`/products/find?q=${encodeURIComponent(q.trim())}${country ? `&country=${country}` : ""}`)
-        .then((r) => {
-          setResults(r)
-          setSearched(true)
-        })
-        .catch(() => setResults([]))
+        .get<Found[]>(`/products/find?q=${encodeURIComponent(query)}${country ? `&country=${country}` : ""}`)
+        .then((r) => !cancelled && setFound({ key, items: r }))
+        .catch(() => !cancelled && setFound(null))
     }, 250)
-  }, [q, country])
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+  }, [query, country, key])
 
   async function pick(p: Found) {
     const label = await api.get<{ inci: string }>(`/products/${encodeURIComponent(p.id)}/label`).catch(() => null)
     if (!label?.inci) return
     setQ("")
-    setResults([])
     router.push({ pathname: "/scan-result", params: { inci: label.inci, name: title(p), pid: p.id } })
   }
 

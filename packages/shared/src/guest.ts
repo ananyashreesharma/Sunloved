@@ -6,7 +6,7 @@ import type { StepFrequency, StreakDayStatus, StreakSummary, RoutineKind } from 
 import { daysBetween, streakFromDates, todayKey } from "./streak"
 import { isDueOn } from "./schedule"
 import { stepKind, type StepKind } from "./kinds"
-import type { IngredientOverride } from "./personal"
+import { LIFE_STAGES, type IngredientOverride, type LifeStage } from "./personal"
 
 export type GuestStep = {
   id: string
@@ -24,6 +24,11 @@ export type GuestData = {
   country: string | null
   skinType: string | null
   concerns: string[]
+  /** Pregnant, breastfeeding, or checking products for a child. On this phone only, never sent. */
+  lifeStage: LifeStage | null
+  /** Whether checked labels (name, country, ingredients; nothing about the person) go to the
+   * catalogue review queue. Null until the person has seen the choice. */
+  shareLabels: boolean | null
   steps: GuestStep[]
   morningTime: string
   nightTime: string
@@ -83,6 +88,8 @@ export function defaultGuestData(): GuestData {
     country: null,
     skinType: null,
     concerns: [],
+    lifeStage: null,
+    shareLabels: null,
     steps: [],
     morningTime: "07:30",
     nightTime: "21:30",
@@ -102,14 +109,45 @@ export function defaultGuestData(): GuestData {
   }
 }
 
-/** Parse stored JSON, filling fields added since it was written. Corrupt data → defaults. */
+const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v)
+
+/**
+ * Parse stored JSON, filling fields added since it was written. Corrupt data → defaults, field by
+ * field: a null or wrongly typed field (e.g. `"steps": null`) falls back to its default instead of
+ * crashing every screen that reads it.
+ */
 export function parseGuestData(raw: string | null): GuestData {
-  if (!raw) return defaultGuestData()
+  const base = defaultGuestData()
+  if (!raw) return base
+  let parsed: unknown
   try {
-    return { ...defaultGuestData(), ...(JSON.parse(raw) as Partial<GuestData>) }
+    parsed = JSON.parse(raw)
   } catch {
-    return defaultGuestData()
+    return base
   }
+  if (!isRecord(parsed)) return base
+  const out: Record<string, unknown> = { ...base }
+  for (const [key, fallback] of Object.entries(base)) {
+    const v = parsed[key]
+    if (v === undefined) continue
+    const ok =
+      fallback === null
+        ? v === null || typeof v === (key === "shareLabels" ? "boolean" : "string")
+        : Array.isArray(fallback)
+          ? Array.isArray(v)
+          : isRecord(fallback)
+            ? isRecord(v)
+            : typeof v === typeof fallback
+    if (ok) out[key] = v
+  }
+  const data = out as GuestData
+  data.steps = data.steps.filter(
+    (s): s is GuestStep => isRecord(s) && typeof s.id === "string" && typeof s.name === "string",
+  )
+  if (data.lifeStage !== null && !LIFE_STAGES.includes(data.lifeStage)) data.lifeStage = null
+  data.concerns = data.concerns.filter((c): c is string => typeof c === "string")
+  data.milestonesSeen = data.milestonesSeen.filter((m): m is number => typeof m === "number")
+  return data
 }
 
 export function hasGuestProfile(data: GuestData): boolean {
@@ -150,11 +188,13 @@ export type NewGuestStep = {
 
 /** Adds a step unless one with the same name exists. */
 export function withStep(data: GuestData, input: NewGuestStep): GuestData {
-  if (data.steps.some((s) => s.name.toLowerCase() === input.name.toLowerCase())) return data
+  const name = input.name.trim().replace(/\s+/g, " ")
+  if (!name) return data
+  if (data.steps.some((s) => s.name.trim().toLowerCase() === name.toLowerCase())) return data
   const id = `guest-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
   const step: GuestStep = {
     id,
-    name: input.name,
+    name,
     brand: input.brand ?? null,
     when: input.when,
     frequency: input.frequency,
@@ -313,6 +353,6 @@ export function parseGuestScans(raw: string | null): GuestScan[] {
 
 /** Newest first, capped at MAX_GUEST_SCANS. */
 export function withScan(list: GuestScan[], scan: Omit<GuestScan, "id" | "savedAt">): GuestScan[] {
-  const entry: GuestScan = { ...scan, id: `guest-scan-${Date.now()}`, savedAt: new Date().toISOString() }
+  const entry: GuestScan = { ...scan, id: `guest-scan-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, savedAt: new Date().toISOString() }
   return [entry, ...list].slice(0, MAX_GUEST_SCANS)
 }

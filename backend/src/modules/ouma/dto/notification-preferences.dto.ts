@@ -1,13 +1,13 @@
-import { IsBoolean, IsIn, IsInt, IsObject, IsOptional, IsString, Min, Matches } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsObject, IsOptional, IsString, Min, Matches, MaxLength } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class UpdateNotificationPreferencesDto {
   @IsOptional()
-  @Matches(/^\d{2}:\d{2}$/, { message: 'morningTime must be HH:mm' })
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { message: 'morningTime must be HH:mm' })
   morningTime?: string | null;
 
   @IsOptional()
-  @Matches(/^\d{2}:\d{2}$/, { message: 'nightTime must be HH:mm' })
+  @Matches(/^([01]\d|2[0-3]):[0-5]\d$/, { message: 'nightTime must be HH:mm' })
   nightTime?: string | null;
 
   @IsOptional()
@@ -25,6 +25,7 @@ export class UpdateNotificationPreferencesDto {
 
 export class SaveScanDto {
   @IsString()
+  @MaxLength(10000)
   rawIngredientText: string;
 
   @IsObject()

@@ -2,7 +2,7 @@
 // against (backend/prisma/crosscheck-regulators.ts). Shown everywhere, whatever the person's own
 // country: the strictest rule anywhere is worth knowing.
 
-export const BAN_REGIONS = ["EU", "ASEAN", "CA", "US"] as const
+export const BAN_REGIONS = ["IN", "EU", "ASEAN", "CA", "US"] as const
 export type BanRegion = (typeof BAN_REGIONS)[number]
 
 const EU_MEMBERS = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"]

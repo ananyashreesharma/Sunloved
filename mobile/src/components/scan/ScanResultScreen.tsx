@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useLocalSearchParams } from "expo-router"
 import Animated, { FadeIn, FadeInUp, FadeOut } from "react-native-reanimated"
-import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnalyzeIngredientsResponse, type AnnotatedLabel, type IngredientOverride, type LabelItem, type Zone } from "@skinlens/shared"
+import { annotateLabel, splitLabel, countryByCode, COVERAGE_THRESHOLD, type AnalyzeIngredientsResponse, type AnnotatedLabel, type HazardStep, type IngredientOverride, type LabelItem, type Zone } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { analyzeIngredients, ApiError, reportUnknownIngredient } from "@/lib/api-client"
 import { loadGuestData, updateGuestData } from "@/lib/guest-store"
@@ -62,12 +62,9 @@ export function ScanResultScreen() {
   // Fetch, then annotate for this person's skin.
   useEffect(() => {
     let cancelled = false
-    setPhase("reading")
-    setLabel(null)
-    setReadIdx(0)
     ;(async () => {
       const g = await loadGuestData()
-      const p = { skinType: g.skinType ?? null, concerns: g.concerns ?? [], country: g.country ?? null, overrides: g.ingredientOverrides }
+      const p = { skinType: g.skinType ?? null, concerns: g.concerns ?? [], country: g.country ?? null, overrides: g.ingredientOverrides, lifeStage: g.lifeStage ?? null }
       if (!cancelled) setProfile(p)
       try {
         const api = await analyzeIngredients(inci)
@@ -248,7 +245,12 @@ export function ScanResultScreen() {
         <Text style={{ marginTop: 12, fontFamily: rubik.regular, fontSize: 18, lineHeight: 26, color: T.ink }}>{off ? t("check.offBody") : t("check.errBody")}</Text>
         {off && <Text style={{ marginTop: 10, fontFamily: rubik.regular, fontSize: 15, color: T.ink2 }}>{t("check.offRoutine")}</Text>}
         <View style={{ marginTop: 24 }}>
-          <PrimaryButton label={t("check.tryAgain")} onPress={() => setAttempt((a) => a + 1)} />
+          <PrimaryButton label={t("check.tryAgain")} onPress={() => {
+            setPhase("reading")
+            setLabel(null)
+            setReadIdx(0)
+            setAttempt((a) => a + 1)
+          }} />
         </View>
       </View>
     )
@@ -340,7 +342,7 @@ export function ScanResultScreen() {
 
         {strip}
 
-        {label.lighteningHazard && <HazardCard />}
+        {label.lighteningHazard && <HazardCard steps={label.hazard} />}
 
         <View style={{ marginTop: 30, marginBottom: 4 }}>
           <SectionLabel>{t("check.flaggedT")}</SectionLabel>
@@ -449,7 +451,7 @@ function Toast({ text, bottom }: { text: string | null; bottom: number }) {
 }
 
 /** What to do when a label has a drug or toxic metal from illegal lightening creams. Calm, practical. */
-function HazardCard() {
+function HazardCard({ steps }: { steps: HazardStep[] }) {
   const { t } = useTranslation()
   const { T } = useTheme()
   return (
@@ -457,10 +459,10 @@ function HazardCard() {
       <Text accessibilityRole="header" style={{ fontFamily: rubik.semibold, fontSize: 18, color: T.ink }}>
         {t("check.hazardT")}
       </Text>
-      {(["hazard1", "hazard2", "hazard3", "hazard4"] as const).map((k) => (
+      {steps.map((k) => (
         <View key={k} style={{ marginTop: 10, flexDirection: "row", gap: 10 }}>
           <Text style={{ fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink2 }}>•</Text>
-          <Text style={{ flex: 1, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t(`check.${k}`)}</Text>
+          <Text style={{ flex: 1, fontFamily: rubik.regular, fontSize: 16, lineHeight: 23, color: T.ink }}>{t(`check.hz.${k}`)}</Text>
         </View>
       ))}
       <Text style={{ marginTop: 12, fontFamily: rubik.regular, fontSize: 13, color: T.ink2 }}>{t("check.hazardNote")}</Text>

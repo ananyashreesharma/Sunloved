@@ -24,14 +24,16 @@ export function to12Hour(hhmm: string): { hour: number; minute: number; period: 
   if (!match) return { hour: 12, minute: 0, period: "AM" }
   const h24 = Number(match[1])
   const minute = Number(match[2])
+  if (h24 > 23 || minute > 59) return { hour: 12, minute: 0, period: "AM" }
   const period: Period = h24 >= 12 ? "PM" : "AM"
   const hour = h24 % 12 === 0 ? 12 : h24 % 12
   return { hour, minute, period }
 }
 
 export function from12Hour(hour: number, minute: number, period: Period): string {
-  const clampedHour = Math.min(12, Math.max(1, hour))
-  const clampedMinute = Math.min(59, Math.max(0, minute))
+  // A half-typed field can hand over NaN; that reads as 12 and :00 rather than "NaN:05".
+  const clampedHour = Number.isFinite(hour) ? Math.min(12, Math.max(1, Math.trunc(hour))) : 12
+  const clampedMinute = Number.isFinite(minute) ? Math.min(59, Math.max(0, Math.trunc(minute))) : 0
   let h24 = clampedHour % 12
   if (period === "PM") h24 += 12
   return `${String(h24).padStart(2, "0")}:${String(clampedMinute).padStart(2, "0")}`

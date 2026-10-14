@@ -153,11 +153,13 @@ export function RoutineHome() {
   const feltToday = guest?.skinLog?.[todayKey()] ?? null
   const [easedName, setEasedName] = useState<string | null>(null)
   // Progress photo: a starting one, then every 4 weeks; offered after the skin check-in.
-  const [photoWeeks, setPhotoWeeks] = useState<number | null>(null)
+  const [photosTaken, setPhotosTaken] = useState(0)
   const [photoDismissed, setPhotoDismissed] = useState(false)
-  useEffect(() => setPhotoWeeks(photoDue(listPhotos())), [feltToday])
+  // Re-read after the skin check-in and after each new photo.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const photoWeeks = useMemo(() => photoDue(listPhotos()), [feltToday, photosTaken])
   async function takePhoto() {
-    if (await addPhoto("camera")) setPhotoWeeks(photoDue(listPhotos()))
+    if (await addPhoto("camera")) setPhotosTaken((n) => n + 1)
   }
   async function answerFeel(feel: SkinFeel) {
     const g = await loadGuestData()

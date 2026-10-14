@@ -16,13 +16,13 @@
 // version put style on an inner wrapper and left the outer Pressable unstyled, which silently broke
 // every `flex: 1` tab/segmented-control row using it (each Pressable collapsed to content width
 // instead of sharing the row) — caught via a real screenshot, not assumed away.
-import { useRef } from "react"
+import { useState } from "react"
 import { Animated, Pressable, type PressableProps } from "react-native"
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 export function SoftPressable({ children, style, disabled, onPressIn, onPressOut, scaleTo = 0.96, ...rest }: PressableProps & { scaleTo?: number }) {
-  const scale = useRef(new Animated.Value(1)).current
+  const [scale] = useState(() => new Animated.Value(1))
 
   function pressIn(e: Parameters<NonNullable<PressableProps["onPressIn"]>>[0]) {
     if (!disabled) {

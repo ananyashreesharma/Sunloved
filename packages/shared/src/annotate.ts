@@ -4,7 +4,7 @@
 
 import type { AnalyzeIngredientsResponse } from "./types"
 import { breakdownFromRows, NOTE_IN_REFERENCE, verdictFor, zoneOf, type IngredientRow, type Zone } from "./scoring"
-import { personalFlag, type IngredientOverride, type SkinProfile } from "./personal"
+import { lifeStageFlag, personalFlag, type IngredientOverride, type SkinProfile } from "./personal"
 import { cautionNextStep } from "./care"
 
 export type ItemState = "fine" | "caution" | "avoid" | "nfy" | "none"
@@ -48,10 +48,49 @@ export type AnnotatedLabel = {
    * (steroids, hydroquinone, mercury, lead, monobenzone). The apps then show what to do next.
    */
   lighteningHazard: boolean
+  /** Which kind of hazard, because the advice differs: what to do, in order (see hazardSteps). */
+  hazard: HazardStep[]
 }
 
+/**
+ * What to do after finding a hazard, as keys the apps turn into words. Toxic substances (mercury,
+ * lead, hydroquinone, monobenzone) and prescription retinoids: stop now (FDA and US state health
+ * departments). Strong steroids: someone who has used one daily for weeks should not stop suddenly,
+ * because withdrawal can make skin red and burning; they should cut down with a pharmacist's or
+ * doctor's help (UK MHRA 2021; National Eczema Society).
+ */
+export type HazardStep =
+  | "stopNow" // stop, and don't share it
+  | "mercuryDisposal" // don't bin it or pour it away; your body clears mercury over time
+  | "steroidLongUse" // used daily for weeks: talk to a pharmacist or doctor before stopping
+  | "steroidShortUse" // used only a few times: you can just stop
+  | "steroidAlsoInside" // stopping a toxic product that also had a steroid: skin may flare, get help
+  | "steroidDontRestart" // don't go back to it if skin flares
+  | "seeDoctor" // thin, burning skin, stretch marks, patches that won't fade
+  | "gentlerOptions" // niacinamide, azelaic acid, daily sunscreen
+
 // Prescription drugs and toxic metals found in illegal "fairness" and lightening creams.
-const LIGHTENING_HAZARD = /hydroquinone|monobenz|merc(ur|ury)|calomel|\blead\b|clobetasol|betamethasone|mometasone|fluocinolone|hydrocortisone|dexamethasone|triamcinolone|beclomethasone|halobetasol|fluticasone|tretinoin/i
+const STEROID = /clobetasol|betamethasone|mometasone|fluocinolone|hydrocortisone|dexamethasone|triamcinolone|beclomethasone|halobetasol|fluticasone/i
+const METAL = /merc(ur|ury)|calomel|\blead\b/i
+const STOP_NOW = /hydroquinone|monobenz|merc(ur|ury)|calomel|\blead\b|tretinoin/i
+
+/** The advice for what a label contains, in the order to read it. Empty when there's no hazard. */
+export function hazardSteps(names: string[]): HazardStep[] {
+  const steroid = names.some((n) => STEROID.test(n))
+  const stop = names.some((n) => STOP_NOW.test(n))
+  if (!steroid && !stop) return []
+  const steps: HazardStep[] = []
+  if (stop) {
+    steps.push("stopNow")
+    if (names.some((n) => METAL.test(n))) steps.push("mercuryDisposal")
+    if (steroid) steps.push("steroidAlsoInside")
+  } else {
+    steps.push("steroidLongUse", "steroidShortUse")
+  }
+  if (steroid) steps.push("steroidDontRestart")
+  steps.push("seeDoctor", "gentlerOptions")
+  return steps
+}
 
 const NO_DATA_LINE = "We have no data on this one, so we're not calling it fine."
 const MINE_REACT = "You told us your skin reacts to this."
@@ -87,6 +126,10 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     const mine = profile?.overrides?.[key] ?? profile?.overrides?.[norm(f.name)]
     // Avoid stays avoid whatever anyone marks: these are bans and drugs, not preferences.
     if (zone === "RED") return { name: f.name, state: "avoid", line: general, num: 0, source, key }
+    // Pregnancy, breastfeeding or a child's skin outranks "fine for me": that was about how skin
+    // feels, not about this.
+    const stage = lifeStageFlag(both, profile)
+    if (stage) return { name: f.name, state: "nfy", line: stage.reason, general, num: 0, source, key, mine, next: "Ask a doctor, midwife or pharmacist before using it." }
     // What the person told us about their own skin comes first: people trust a reading they can correct.
     if (mine === "react") return { name: f.name, state: "nfy", line: MINE_REACT, general, num: 0, source, key, mine, next: "Leave out products that list it." }
     if (mine === "fine") return { name: f.name, state: "fine", line: MINE_FINE, general, source, key, mine }
@@ -113,7 +156,11 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
   // list counts 1, 2, 3; the marks on the label point back to the same numbers.
   ;[...flagged, ...noData].forEach((it, i) => (it.num = i + 1))
 
-  const lighteningHazard = items.some((i) => i.state === "avoid" && LIGHTENING_HAZARD.test(`${i.name} ${api.foundIngredients.find((f) => f.name === i.name)?.scientificName ?? ""}`))
+  const avoidNames = items
+    .filter((i) => i.state === "avoid")
+    .map((i) => `${i.name} ${api.foundIngredients.find((f) => f.name === i.name)?.scientificName ?? ""}`)
+  const hazard = hazardSteps(avoidNames)
+  const lighteningHazard = hazard.length > 0
   return {
     items,
     flagged,
@@ -125,6 +172,7 @@ export function annotateLabel(api: AnalyzeIngredientsResponse, profile?: SkinPro
     verdict,
     summary: summarize(verdict, flagged, noData, items),
     lighteningHazard,
+    hazard,
   }
 }
 
@@ -168,7 +216,15 @@ function summarize(verdict: Zone | null, flagged: LabelItem[], noData: LabelItem
   } else if (flagged.length === 0) {
     parts.push("Nothing here stands out for your skin.")
   } else {
-    parts.push(flagged.length === 1 ? "Most of this is gentle." : "Mostly gentle, with a few things to know.")
+    // "Gentle" only when it's true of most of the label: two flagged out of two isn't "mostly gentle".
+    const mostlyGentle = flagged.length * 2 < items.length
+    parts.push(
+      !mostlyGentle
+        ? "Much of this needs care for your skin."
+        : flagged.length === 1
+          ? "Most of this is gentle."
+          : "Mostly gentle, with a few things to know.",
+    )
     for (const f of flagged.slice(0, 2)) parts.push(`${f.name}: ${lower(firstSentence(withoutName(f.line)))}`)
   }
   if (noData.length === 1) parts.push("We have no data on one ingredient, so we can't vouch for it.")

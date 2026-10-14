@@ -586,9 +586,9 @@ function Result({
         <section className="v3-up" style={{ marginTop: 32, maxWidth: 640, padding: "20px 24px", borderRadius: 18, background: "var(--surface)", borderInlineStart: "3px solid var(--t-avoid)", animationDelay: "700ms" }}>
           <h3 style={{ margin: 0, fontSize: 19, fontWeight: 600 }}>{COPY.hazardT}</h3>
           <ul style={{ margin: "10px 0 0", paddingInlineStart: 20, fontSize: 17, lineHeight: 1.5 }}>
-            {COPY.hazard.map((h) => (
-              <li key={h} style={{ marginTop: 6 }}>
-                {h}
+            {label.hazard.map((k) => (
+              <li key={k} style={{ marginTop: 6 }}>
+                {COPY.hazard[k]}
               </li>
             ))}
           </ul>

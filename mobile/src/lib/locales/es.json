@@ -36,7 +36,12 @@
       "pores": "Poros dilatados"
     },
     "morningLabel": "Mañana",
-    "nightLabel": "Noche"
+    "nightLabel": "Noche",
+    "lifeStages": {
+      "pregnant": "Embarazada",
+      "breastfeeding": "Dando el pecho",
+      "child": "Es para un niño o niña"
+    }
   },
   "routine": {
     "tabMorning": "Mañana",
@@ -236,10 +241,6 @@
     "shareText": "{{verdict}} {{name}}, revisado con SkinLens. Revísalo para tu propia piel:",
     "toastSaved": "Guardado en tus revisiones.",
     "hazardT": "Si lo has estado usando",
-    "hazard1": "Deja de usarlo. No lo compartas.",
-    "hazard2": "Si lo usaste durante semanas, dejarlo puede causar un brote breve de rojez o granitos. Pasa; un médico o farmacéutico puede ayudarte.",
-    "hazard3": "Consulta a un médico si tu piel está fina, arde o tiene estrías o manchas que no desaparecen.",
-    "hazard4": "Para las manchas, hay opciones más suaves: niacinamida, ácido azelaico y protector solar a diario.",
     "hazardNote": "Información general, no consejo médico.",
     "sampleFairness": "Crema aclarante",
     "search": "Buscar un producto",
@@ -267,13 +268,29 @@
       "EU": "la UE (27 países)",
       "ASEAN": "el Sudeste Asiático (10 países)",
       "CA": "Canadá",
-      "US": "EE. UU."
+      "US": "EE. UU.",
+      "IN": "India"
     },
     "regionShort": {
       "EU": "UE",
       "ASEAN": "Sudeste Asiático",
       "CA": "Canadá",
-      "US": "EE. UU."
+      "US": "EE. UU.",
+      "IN": "India"
+    },
+    "shareT": "Ayuda a ampliar nuestra lista de {{country}}",
+    "shareTNoCountry": "Ayuda a ampliar nuestra lista de productos",
+    "shareSub": "Comparte el nombre del producto, el país y los ingredientes. Nada sobre ti.",
+    "shareNeedsName": "Añade el nombre del producto arriba para compartirlo. Puedes comprobarlo sin él.",
+    "hz": {
+      "stopNow": "Deja de usarlo y no lo compartas con nadie.",
+      "mercuryDisposal": "No lo tires a la basura ni por el desagüe. Guárdalo cerrado y pregunta en la farmacia o en tu ayuntamiento cómo desecharlo. Tu cuerpo elimina el mercurio por sí solo cuando dejas de usarlo.",
+      "steroidLongUse": "Si lo has usado casi a diario durante más de unas semanas, habla con un farmacéutico o médico antes de dejarlo. Dejar de golpe un corticoide fuerte puede dejar la piel roja, ardiente y descamada; te pueden ayudar a reducirlo poco a poco.",
+      "steroidShortUse": "Si solo lo has usado unas pocas veces, puedes dejarlo sin más.",
+      "steroidAlsoInside": "También contiene un corticoide fuerte, así que tu piel puede enrojecerse o arder un tiempo después de dejarlo. Un farmacéutico o médico puede ayudarte; diles qué contenía.",
+      "steroidDontRestart": "Si tu piel empeora al dejarlo, no vuelvas a la crema. Pide consejo.",
+      "seeDoctor": "Consulta a un médico si tu piel está fina, arde o tiene estrías o manchas que no desaparecen.",
+      "gentlerOptions": "Para las manchas hay opciones más suaves: niacinamida, ácido azelaico y protector solar a diario."
     }
   },
   "reminders": {
@@ -357,7 +374,9 @@
       "shower": "Ducharme",
       "dinner": "Cenar",
       "bed": "Ponerme el pijama"
-    }
+    },
+    "lifeStageT": "¿Algo más? (opcional)",
+    "lifeStageSub": "Algunos ingredientes importan más en el embarazo, durante la lactancia o en la piel de un niño. Esto se queda en tu teléfono."
   },
   "step": {
     "addTitle": "Añadir un paso",

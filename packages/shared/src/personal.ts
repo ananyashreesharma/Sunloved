@@ -31,12 +31,59 @@ const RULES: Rule[] = [
   },
 ]
 
+/** A time of life when some ingredients matter more, whatever the skin type. Kept on the phone only. */
+export type LifeStage = "pregnant" | "breastfeeding" | "child"
+export const LIFE_STAGES: LifeStage[] = ["pregnant", "breastfeeding", "child"]
+
+// Conservative and well established: retinoids are advised against in pregnancy and while
+// breastfeeding; strong exfoliating acids and peels are a "check first" in pregnancy; children's
+// skin is thinner, so strong actives and scent-heavy oils are best left out. Reasons say what to do,
+// never that harm is certain.
+const RETINOIDS = /\b(retinol|retinal|retinaldehyde|retinyl \w+|retinoic|tretinoin|adapalene|tazarotene|isotretinoin|hydroxypinacolone retinoate|retinoid)\b/i
+const STRONG_ACIDS = /\b(salicylic acid|glycolic acid|lactic acid|mandelic acid|pyruvic acid|trichloroacetic|capryloyl salicylic)\b/i
+const LIFE_STAGE_RULES: Array<{ stages: LifeStage[]; match: RegExp; reason: string }> = [
+  {
+    stages: ["pregnant", "breastfeeding"],
+    match: RETINOIDS,
+    reason: "Retinoids (vitamin A) are advised against in pregnancy and while breastfeeding. Ask your doctor or midwife before using it.",
+  },
+  {
+    stages: ["pregnant"],
+    match: STRONG_ACIDS,
+    reason: "Gentle amounts in a wash are usually fine, but check with your doctor or midwife before using strong acids or peels in pregnancy.",
+  },
+  {
+    stages: ["child"],
+    match: RETINOIDS,
+    reason: "A strong anti-ageing and acne active, meant for adult skin. Not for children unless a doctor suggests it.",
+  },
+  {
+    stages: ["child"],
+    match: STRONG_ACIDS,
+    reason: "Exfoliating acids are strong for a child's thinner skin. Best left out unless a doctor suggests it.",
+  },
+  {
+    stages: ["child"],
+    match: /\b(camphor|menthol|eucalyptus|mentha piperita|peppermint|essential oil|melaleuca|tea tree)\b/i,
+    reason: "Strong scent oils and cooling agents can irritate children's skin, and some aren't advised for young children at all.",
+  },
+]
+
+/** A flag that applies because of this person's life stage, whatever they've marked as fine for their skin. */
+export function lifeStageFlag(ingredient: string, profile: SkinProfile | null | undefined): PersonalFlag | null {
+  const stage = profile?.lifeStage
+  if (!stage) return null
+  const rule = LIFE_STAGE_RULES.find((r) => r.stages.includes(stage) && r.match.test(ingredient))
+  return rule ? { reason: rule.reason } : null
+}
+
 /** What a person told us about one ingredient: it suits them, or their skin reacts to it. */
 export type IngredientOverride = "fine" | "react"
 
 export type SkinProfile = {
   skinType?: string | null
   concerns?: string[]
+  lifeStage?: LifeStage | null
   /** Keyed by the ingredient's standard name, lower case (see LabelItem.key). */
   overrides?: Record<string, IngredientOverride>
 }

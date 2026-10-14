@@ -3,7 +3,7 @@
 // formatTimeForDisplay's read-side counterpart) — this only changes how it's typed, matching how
 // it's now displayed for anyone whose device is set to a 12-hour clock.
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { View, Text, TextInput, Pressable } from "react-native"
 import { rubik } from "@/constants/fonts"
 import { useTheme } from "@/lib/theme"
@@ -43,13 +43,15 @@ export function TimeEntryField({
 
   // Resync when the parent's stored value changes from outside this field (e.g. reloaded on
   // screen focus) — but not on every render, or a keystroke's own onChange round-trip would
-  // fight with what's mid-typing.
-  useEffect(() => {
+  // fight with what's mid-typing. Done during render (React's "storing information from previous
+  // renders" pattern) rather than in an effect, which painted the stale time for a frame first.
+  const [synced, setSynced] = useState(value)
+  if (synced !== value) {
     const parsed = to12Hour(value)
+    setSynced(value)
     setText(`${parsed.hour}:${String(parsed.minute).padStart(2, "0")}`)
     setPeriod(parsed.period)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [value])
+  }
 
   function handleText(raw: string) {
     const masked = formatTime12Input(raw)

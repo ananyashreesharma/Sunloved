@@ -6,7 +6,7 @@
 // moves into the account: steps (the server skips any it already has), skin profile, the days
 // completed so far (so the streak survives), and saved checks.
 
-import { useEffect, useState } from "react"
+import { useSyncExternalStore } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import type { GuestStep, MeResponse, RoutineResponse } from "@skinlens/shared"
 import { api } from "./api-client"
@@ -28,16 +28,15 @@ export function isSignedIn(): boolean {
   return state.signedIn
 }
 
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener)
+  return () => {
+    listeners.delete(listener)
+  }
+}
+
 export function useAccount(): State {
-  const [s, setS] = useState(state)
-  useEffect(() => {
-    listeners.add(setS)
-    setS(state)
-    return () => {
-      listeners.delete(setS)
-    }
-  }, [])
-  return s
+  return useSyncExternalStore(subscribe, () => state)
 }
 
 /** Called once at startup, before screens load data. */

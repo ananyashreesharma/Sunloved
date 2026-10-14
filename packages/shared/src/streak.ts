@@ -21,7 +21,10 @@ export function daysBetween(a: string, b: string): number {
 
 /** Current and longest streak from the set of completed days. */
 export function streakFromDates(dates: string[], today: string = todayKey()): { current: number; longest: number } {
-  const sorted = Array.from(new Set(dates)).sort()
+  // Malformed keys and days after today (a phone clock set ahead) never count.
+  const sorted = Array.from(new Set(dates))
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d) && daysBetween(d, today) >= 0)
+    .sort()
   if (sorted.length === 0) return { current: 0, longest: 0 }
   let longest = 1
   let run = 1

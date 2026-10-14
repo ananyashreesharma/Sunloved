@@ -139,10 +139,10 @@ export function StreakHistoryScreen() {
         <View style={{ marginTop: 14, flexDirection: "row", flexWrap: "wrap", columnGap: 16, rowGap: 6 }}>
           {(
             [
-              ["done", <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink }} />],
-              ["part", <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink, opacity: 0.4 }} />],
-              ["paused", <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderStyle: "dashed", borderColor: T.ink2 }} />],
-              ["today", <View style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: T.ink }} />],
+              ["done", <View key="done" style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink }} />],
+              ["part", <View key="part" style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: T.ink, opacity: 0.4 }} />],
+              ["paused", <View key="paused" style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderStyle: "dashed", borderColor: T.ink2 }} />],
+              ["today", <View key="today" style={{ width: 10, height: 10, borderRadius: 5, borderWidth: 1.5, borderColor: T.ink }} />],
             ] as const
           ).map(([k, sw]) => (
             <View key={k} style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>

@@ -57,7 +57,7 @@ export const authOptions: NextAuthOptions = {
         try {
           await fetch(`${API}/auth/oauth/upsert`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "x-internal-api-key": process.env.INTERNAL_API_KEY ?? "" },
             body: JSON.stringify({
               provider: account.provider,
               providerId: account.providerAccountId,
@@ -84,7 +84,7 @@ export const authOptions: NextAuthOptions = {
         try {
           const res = await fetch(`${API}/auth/oauth/upsert`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "x-internal-api-key": process.env.INTERNAL_API_KEY ?? "" },
             body: JSON.stringify({
               provider: account.provider,
               providerId: account.providerAccountId,

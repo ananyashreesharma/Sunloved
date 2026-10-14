@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, Matches, Length, IsArray, ArrayMaxSize, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, Matches, Length, IsArray, ArrayMaxSize, IsOptional, IsIn, MaxLength } from 'class-validator';
 
 export class SendOtpDto {
   /** E.164 Indian mobile number, e.g. +919876543210 */
@@ -54,17 +54,29 @@ export class LogoutDto {
 }
 
 export class UpsertOAuthUserDto {
-  @IsString()
-  @IsNotEmpty()
+  @IsIn(['google', 'apple'])
   provider: 'google' | 'apple';
 
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   providerId: string;
 
-  name?: string;
-  email?: string;
-  avatarUrl?: string;
+  // Undecorated, the global whitelist rejected these, so every Google/Apple sign-in got a 400.
+  // NextAuth sends null for fields the provider leaves out.
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  name?: string | null;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  avatarUrl?: string | null;
 }
 
 export class CompleteOnboardingDto {

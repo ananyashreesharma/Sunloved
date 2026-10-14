@@ -19,18 +19,24 @@ const ACIDS: Array<[RegExp, string]> = [
   [/\baha\b|\bpeel(ing)?\b|\bexfoliat/i, "an exfoliating acid"],
 ]
 
+// "Retinol-free", "no retinol", "without AHA" name what a product leaves out, not what it contains.
+const FREE_OF = /\b(?:no|without|non)[\s-]+[\w/+-]+|\b[\w/+]+[\s-]+free\b/gi
+function withoutFreeOf(name: string): string {
+  return name.replace(FREE_OF, " ")
+}
+
 type StepLike = { id: string; name: string; rest?: boolean }
 
 /** The first retinoid + exfoliating-acid pair due on the same day, if any. */
 export function findRoutineClash(steps: StepLike[]): RoutineClash | null {
   const due = steps.filter((s) => !s.rest)
-  const retinoid = due.find((s) => RETINOID.test(s.name))
+  const retinoid = due.find((s) => RETINOID.test(withoutFreeOf(s.name)))
   if (!retinoid) return null
   for (const s of due) {
     if (s.id === retinoid.id) continue
-    const acid = ACIDS.find(([re]) => re.test(s.name))
+    const acid = ACIDS.find(([re]) => re.test(withoutFreeOf(s.name)))
     if (acid) {
-      const word = (retinoid.name.match(RETINOID)?.[0] ?? "Retinol").toLowerCase()
+      const word = (withoutFreeOf(retinoid.name).match(RETINOID)?.[0] ?? "Retinol").toLowerCase()
       return {
         a: word.charAt(0).toUpperCase() + word.slice(1),
         b: acid[1],

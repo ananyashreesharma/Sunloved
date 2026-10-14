@@ -10,11 +10,11 @@ import { useTheme } from "@/lib/theme"
 // goes straight to it, as does anyone signed in.
 export default function RootEntry() {
   const { T } = useTheme()
-  const [state, setState] = useState<"loading" | "new" | "returning">("loading")
+  // Signed in (e.g. a new phone): the routine is in the account, so go straight to it.
+  const [state, setState] = useState<"loading" | "new" | "returning">(() => (isSignedIn() ? "returning" : "loading"))
 
   useEffect(() => {
-    // Signed in (e.g. a new phone): the routine is in the account, so go straight to it.
-    if (isSignedIn()) return setState("returning")
+    if (isSignedIn()) return
     hasGuestData().then((known) => setState(known ? "returning" : "new"))
   }, [])
 

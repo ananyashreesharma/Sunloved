@@ -2,14 +2,14 @@
 // it, or try a sample. Saved checks sit underneath with the verdict they had when saved.
 
 import { useCallback, useState } from "react"
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native"
+import { Pressable, ScrollView, Switch, Text, TextInput, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useTranslation } from "react-i18next"
 import { router, useFocusEffect } from "expo-router"
 import { countryByCode, SAMPLE_LABELS, type GuestScan, type ItemState } from "@skinlens/shared"
 import { rubik } from "@/constants/fonts"
 import { getScans } from "@/lib/data"
-import { loadGuestData } from "@/lib/guest-store"
+import { loadGuestData, updateGuestData } from "@/lib/guest-store"
 import { productCoverage, submitLabel } from "@/lib/api-client"
 import { useCountryName } from "@/components/shared/CountryPicker"
 import { ProductSearch } from "@/components/check/ProductSearch"
@@ -31,7 +31,12 @@ export function ScanCaptureScreen() {
   const [inci, setInci] = useState("")
   const [name, setName] = useState("")
   const [saved, setSaved] = useState<GuestScan[]>([])
+  // "Today" / "3 days ago" on saved checks, measured from when the list was last loaded.
+  const [now, setNow] = useState(() => Date.now())
   const [country, setCountry] = useState<string | null>(null)
+  // Whether checked labels go to the catalogue review queue. On unless the person turned it off;
+  // either way the switch is in plain sight before anything is sent.
+  const [share, setShare] = useState(true)
   // Products we have for this person's country. The catalogue is built country by country from real
   // labels, so until there are some, search would only ever say "not found": say so honestly instead.
   const [coverage, setCoverage] = useState<number | null>(null)
@@ -43,23 +48,34 @@ export function ScanCaptureScreen() {
       loadGuestData().then((g) => {
         if (cancelled) return
         setCountry(g.country)
+        setShare(g.shareLabels !== false)
         if (g.country) productCoverage(g.country).then((c) => !cancelled && setCoverage(c.products)).catch(() => !cancelled && setCoverage(0))
         else setCoverage(0)
       })
-      getScans().then((scans) => !cancelled && setSaved(scans))
+      getScans().then((scans) => {
+        if (cancelled) return
+        setSaved(scans)
+        setNow(Date.now())
+      })
       return () => {
         cancelled = true
       }
     }, []),
   )
 
-  const canRead = inci.trim().length > 0 && name.trim().length >= 2
+  // The name is optional: it's only needed to add the product to the list, never to check it.
+  const canRead = inci.trim().length > 0
+
+  function toggleShare(on: boolean) {
+    setShare(on)
+    updateGuestData({ shareLabels: on }).catch(() => {})
+  }
 
   function read(list = inci, label = name, sample = false) {
     if (!list.trim()) return
     // What people check is how the catalogue grows: name, country and list go to a review queue,
     // with nothing about the person. Our own samples don't.
-    if (!sample && country && label.trim().length >= 2) submitLabel(country, label.trim(), list.trim()).catch(() => {})
+    if (!sample && share && country && label.trim().length >= 2) submitLabel(country, label.trim(), list.trim()).catch(() => {})
     router.push({
       pathname: "/scan-confirm",
       params: { inci: list, name: label.trim() },
@@ -67,7 +83,7 @@ export function ScanCaptureScreen() {
   }
 
   function when(iso: string) {
-    const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
+    const days = Math.floor((now - new Date(iso).getTime()) / 86400000)
     return days <= 0 ? t("check.today") : t("check.daysAgo", { count: days })
   }
 
@@ -158,7 +174,7 @@ export function ScanCaptureScreen() {
         <TextInput
           value={name}
           onChangeText={setName}
-          placeholder={t("check.namePlaceholderRequired")}
+          placeholder={t("check.namePlaceholder")}
           placeholderTextColor={T.ink3}
           accessibilityLabel={t("check.nameLabel")}
           returnKeyType="done"
@@ -175,9 +191,17 @@ export function ScanCaptureScreen() {
           }}
         />
 
-        <Text style={{ marginTop: 6, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>
-          {country ? t("check.nameWhy", { country: nameOf(country, countryByCode(country)?.name ?? country) }) : t("check.nameWhyNoCountry")}
-        </Text>
+        <View style={{ marginTop: 14, flexDirection: "row", alignItems: "center", gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontFamily: rubik.medium, fontSize: 15, color: T.ink }}>
+              {country ? t("check.shareT", { country: nameOf(country, countryByCode(country)?.name ?? country) }) : t("check.shareTNoCountry")}
+            </Text>
+            <Text style={{ marginTop: 2, fontFamily: rubik.regular, fontSize: 13, lineHeight: 18, color: T.ink2 }}>
+              {share && name.trim().length < 2 ? t("check.shareNeedsName") : t("check.shareSub")}
+            </Text>
+          </View>
+          <Switch value={share} onValueChange={toggleShare} accessibilityLabel={country ? t("check.shareT", { country: nameOf(country, countryByCode(country)?.name ?? country) }) : t("check.shareTNoCountry")} />
+        </View>
 
         <View style={{ marginTop: 16 }}>
           <PrimaryButton label={t("check.read")} onPress={() => read()} disabled={!canRead} />

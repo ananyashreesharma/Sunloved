@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RoutineType, StepFrequency, Streak } from '@prisma/client';
 import { isDueOn } from './schedule';
@@ -150,14 +150,16 @@ export class OumaService {
     userId: string,
     input: { type: 'morning' | 'night' | 'both'; productId?: string; customName?: string; frequency?: StepFrequency },
   ) {
-    if (!input.productId && !input.customName) {
-      throw new NotFoundException('Either productId or customName is required');
+    if (!input.productId && !input.customName?.trim()) {
+      throw new BadRequestException('Either productId or customName is required');
     }
 
     const types: RoutineType[] = input.type === 'both' ? ['morning', 'night'] : [input.type as RoutineType];
     const product = input.productId
       ? await this.prisma.product.findUnique({ where: { id: input.productId } })
       : null;
+    // An unknown id used to reach the insert and fail the foreign key as a 500.
+    if (input.productId && !product) throw new NotFoundException('Product not found');
 
     const created: string[] = [];
     for (const type of types) {
@@ -290,7 +292,12 @@ export class OumaService {
    */
   async importHistory(userId: string, days: { date: string; status: 'both' | 'one' }[]) {
     const today = startOfUtcDay(new Date());
-    const valid = days.filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d.date) && new Date(`${d.date}T00:00:00Z`) <= today).slice(-400);
+    // A real calendar day only: "2026-02-31" would otherwise roll over and be filed as 3 March.
+    const isRealDay = (s: string) => {
+      const t = new Date(`${s}T00:00:00Z`);
+      return !Number.isNaN(t.getTime()) && t.toISOString().slice(0, 10) === s;
+    };
+    const valid = days.filter((d) => isRealDay(d.date) && new Date(`${d.date}T00:00:00Z`) <= today).slice(-400);
     if (valid.length) {
       const night = await this.getOrCreateRoutine(userId, 'night');
       const morning = await this.getOrCreateRoutine(userId, 'morning');
