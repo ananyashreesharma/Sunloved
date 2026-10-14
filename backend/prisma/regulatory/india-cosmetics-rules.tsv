@@ -1,0 +1,7 @@
+# India, Cosmetics Rules 2020 (Drugs and Cosmetics Act, 1940), Rule 39: substances the rules themselves prohibit.
+# https://cdsco.gov.in/opencms/opencms/en/Cosmetics/cosmetics/ (Cosmetics Rules, 2020, G.S.R. 763(E))
+# Read 2026-10-14. Columns: ingredient, CAS numbers (;-separated), rule.
+# Group entries (mercury compounds, lead and arsenic compounds as colourants) are matched in
+# crosscheck-regulators.ts GROUPS. The full list of 1,614 prohibited substances is IS 4707 (Part 2)
+# Annex A from the Bureau of Indian Standards: save it as india-is4707-annex-a.tsv to include it.
+Hexachlorophene	70-30-4	Rule 39: cosmetics containing hexachlorophene must not be imported or manufactured

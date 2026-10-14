@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import type { Ingredient } from '@prisma/client';
+import { Prisma, type Ingredient } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { candidateNames, splitLabel } from './label-parser';
 
@@ -37,7 +37,7 @@ export interface IngredientAnalysis {
 }
 
 /** Plain-words source of a rating: hand-checked, EU cosmetics rules, or neither (yet). */
-const BAN_REGIONS = ['EU', 'ASEAN', 'CA', 'US'];
+const BAN_REGIONS = ['IN', 'EU', 'ASEAN', 'CA', 'US'];
 /** Same rule as packages/shared/src/regions.ts: the regions whose note says "prohibited". */
 export function bannedRegions(notes: unknown): string[] | undefined {
   if (!notes || typeof notes !== 'object') return undefined;
@@ -46,7 +46,8 @@ export function bannedRegions(notes: unknown): string[] | undefined {
 }
 
 export function ratingSource(i: Pick<Ingredient, 'source' | 'regulatoryNotes' | 'zone'>): string | undefined {
-  if (i.source === 'manual' || i.source === 'dermatologist_verified') return 'Checked by hand by SkinLens.';
+  if (i.source === 'dermatologist_verified') return 'Checked by a dermatologist.';
+  if (i.source === 'manual') return 'Checked by hand by SkinLens.';
   const eu = i.regulatoryNotes?.match(/^EU CosIng: (.*)$/)?.[1];
   if (eu) {
     const annex: Record<string, string> = {
@@ -62,8 +63,29 @@ export function ratingSource(i: Pick<Ingredient, 'source' | 'regulatoryNotes' | 
     const what = annex[eu.match(/\bAnnex (II|III|IV|V|VI)\b/)?.[1] ?? ''] ?? 'listed, no restrictions';
     return `EU cosmetics rules (CosIng): ${what}.`;
   }
-  return i.zone ? 'SkinLens rating, not yet checked against EU rules.' : undefined;
+  // Say plainly when no person has checked it: people judge a rating by who made it.
+  if (!i.zone) return undefined;
+  if (i.source === 'ai_generated') return 'Automated rating, not yet checked by a person or against EU rules.';
+  if (i.source === 'community') return 'Suggested by people using SkinLens, not yet checked by us.';
+  return 'SkinLens rating, not yet checked against EU rules.';
 }
+
+const INVISIBLE = '[\u00AD\u200B-\u200D\u2060\uFEFF]';
+
+/** A name as a lookup key: no invisible characters, no spaces around / , -, single spaces, lower case. */
+export function lookupKey(name: string): string {
+  return name
+    .normalize('NFKC')
+    .replace(new RegExp(INVISIBLE, 'g'), '')
+    .replace(/\s*([/,-])\s*/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+/** lookupKey() in SQL, for a column. */
+const SQL_KEY = (column: string) =>
+  Prisma.raw(`lower(btrim(regexp_replace(regexp_replace(regexp_replace(normalize(coalesce(${column}, ''), NFKC), '${INVISIBLE}', '', 'g'), '\\s*([/,-])\\s*', '\\1', 'g'), '\\s+', ' ', 'g')))`);
 
 @Injectable()
 export class IngredientsService {
@@ -89,11 +111,14 @@ export class IngredientsService {
    */
   async findIngredientsByNames(entries: string[]): Promise<Map<string, Ingredient>> {
     const candidates = new Map(entries.map((e) => [e, candidateNames(e)]));
-    const all = Array.from(new Set([...candidates.values()].flat().map((n) => n.toLowerCase())));
+    const all = Array.from(new Set([...candidates.values()].flat().map(lookupKey)));
+    // Compared with the same normalisation on both sides: about 4,000 stored names carry an
+    // invisible character after a slash ("Acrylates/\u200bC10-30…") or stray spaces ("1,2- Hexanediol"),
+    // copied from websites, and an exact match never found them.
     const rows = all.length
       ? await this.prisma.$queryRaw<Ingredient[]>`
           SELECT * FROM ingredients
-          WHERE lower("inciName") = ANY(${all}) OR lower("displayName") = ANY(${all}) OR aliases && ${all}::text[]`
+          WHERE ${SQL_KEY('"inciName"')} = ANY(${all}) OR ${SQL_KEY('"displayName"')} = ANY(${all}) OR aliases && ${all}::text[]`
       : [];
     const byName = new Map<string, Ingredient[]>();
     // Real names first, then aliases (stored lower case: the EU's US, common and pharmacopoeia
@@ -102,14 +127,14 @@ export class IngredientsService {
       for (const r of rows) {
         for (const key of pass === 'names' ? [r.inciName, r.displayName] : (r.aliases ?? [])) {
           if (!key) continue;
-          const k = key.toLowerCase();
+          const k = lookupKey(key);
           byName.set(k, [...(byName.get(k) ?? []), r]);
         }
       }
     }
     const out = new Map<string, Ingredient>();
     for (const [entry, names] of candidates) {
-      const hits = names.map((n) => byName.get(n.toLowerCase()) ?? []);
+      const hits = names.map((n) => byName.get(lookupKey(n)) ?? []);
       const pick = hits.flat().find((r) => r.zone) ?? hits.flat()[0];
       if (pick) out.set(entry, pick);
     }

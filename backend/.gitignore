@@ -104,3 +104,15 @@ prisma/data/cosing-inventory.json
 
 # Review sheets exported from app submissions (contain what people typed)
 prisma/catalog/review-*.csv
+
+# Read-only audit login for production (see prisma/audit-database.ts)
+.env.audit
+
+# Local export of production catalogue data for auditing (never commit)
+db-export/
+
+# Row backups written by repair scripts before they change data
+prisma/backups/
+
+# Review sheet generated from the live database (prisma/review-ratings.ts)
+prisma/review/

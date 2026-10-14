@@ -20,4 +20,10 @@ describe('ratingSource', () => {
   it('credits hand checks', () => {
     expect(ratingSource({ source: 'manual', regulatoryNotes: null, zone: 'green' } as any)).toBe('Checked by hand by SkinLens.');
   });
+  it('says plainly when no person has checked a rating', () => {
+    expect(ratingSource({ source: 'ai_generated', regulatoryNotes: null, zone: 'yellow' } as any)).toMatch(/^Automated rating, not yet checked by a person/);
+    expect(ratingSource({ source: 'community', regulatoryNotes: null, zone: 'green' } as any)).toMatch(/not yet checked by us/);
+    expect(ratingSource({ source: 'dermatologist_verified', regulatoryNotes: null, zone: 'green' } as any)).toBe('Checked by a dermatologist.');
+    expect(ratingSource({ source: 'ai_generated', regulatoryNotes: null, zone: null } as any)).toBeUndefined();
+  });
 });

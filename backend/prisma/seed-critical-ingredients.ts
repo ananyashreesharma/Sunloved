@@ -24,6 +24,8 @@ const MERCURY =
   'Mercury compound. Banned in cosmetics in most countries because mercury is toxic to the kidneys and nervous system; it still turns up in illegal skin-lightening creams. Stop using any product that lists it.';
 const STEROID =
   'Strong prescription steroid. Sometimes found illegally in "fairness" and acne creams; used without a doctor it can thin the skin and cause steroid acne and rebound flare-ups.';
+const MILD_STEROID =
+  'Mild steroid. Sold as a medicine (often over the counter at 0.5–1%) for short-term itching and rashes, but it should not be in a cosmetic: used every day, as in some "fairness" creams, it can thin the skin and cause steroid acne.';
 const TRETINOIN =
   'Prescription retinoid. Effective when a doctor prescribes it, but it should not appear in an over-the-counter cosmetic, and it is not recommended during pregnancy.';
 // Confirmed outright bans in EU cosmetics (Annex II), checked by hand — the automated CosIng pass
@@ -75,6 +77,17 @@ const PROSTAGLANDIN =
 const FRAGRANCE =
   'Fragrance: a blend of scent chemicals that brands don\'t have to list individually. Fine for many people, but a common cause of irritation and allergy, especially on sensitive skin.';
 
+const ADAPALENE =
+  'Retinoid medicine for acne. Prescription-only in many countries, including India and the EU (sold over the counter in the US), so it should not be in a cosmetic. Not recommended in pregnancy.';
+const BENZOYL_PEROXIDE =
+  'Acne treatment that kills spot-causing bacteria. Works well, but it often dries and stings at first, and it bleaches towels, pillowcases and clothes.';
+const TRICLOSAN =
+  'Antibacterial preservative. The EU allows it only at low levels in a few product types, and the US removed it from antibacterial soaps in 2016 for lack of proof it is safe and useful.';
+const FORMALDEHYDE_RELEASER =
+  'Preservative that slowly releases small amounts of formaldehyde. Allowed in the EU at low levels, but a known skin allergen.';
+const OXYBENZONE =
+  'Sunscreen filter. The EU limits it (6% in most products, 2.2% in body sprays) and it is a common cause of allergy among UV filters; some places ban it over reef damage.';
+
 const ENTRIES: Entry[] = [
   { names: ['Hydroquinone'], zone: 'red', safetyRating: 'avoid', shortDescription: HYDROQUINONE },
   {
@@ -92,8 +105,6 @@ const ENTRIES: Entry[] = [
       'Mometasone Furoate',
       'Fluocinolone Acetonide',
       // Also found in illegal lightening and "fairness" creams.
-      'Hydrocortisone',
-      'Hydrocortisone Acetate',
       'Dexamethasone',
       'Triamcinolone Acetonide',
       'Beclomethasone Dipropionate',
@@ -104,6 +115,12 @@ const ENTRIES: Entry[] = [
     safetyRating: 'avoid',
     shortDescription: STEROID,
   },
+  { names: ['Hydrocortisone', 'Hydrocortisone Acetate'], zone: 'red', safetyRating: 'avoid', shortDescription: MILD_STEROID },
+  { names: ['Adapalene'], zone: 'red', safetyRating: 'avoid', shortDescription: ADAPALENE },
+  { names: ['Benzoyl Peroxide'], zone: 'yellow', safetyRating: 'caution', shortDescription: BENZOYL_PEROXIDE },
+  { names: ['Triclosan'], zone: 'yellow', safetyRating: 'caution', shortDescription: TRICLOSAN },
+  { names: ['DMDM Hydantoin', 'Diazolidinyl Urea', 'Imidazolidinyl Urea', 'Sodium Hydroxymethylglycinate'], zone: 'yellow', safetyRating: 'caution', shortDescription: FORMALDEHYDE_RELEASER },
+  { names: ['Benzophenone-3', 'Oxybenzone'], zone: 'yellow', safetyRating: 'caution', shortDescription: OXYBENZONE },
   { names: ['Tretinoin'], zone: 'red', safetyRating: 'avoid', shortDescription: TRETINOIN },
   { names: ['Monobenzone', 'Monobenzyl Ether of Hydroquinone', 'Hydroquinone Monobenzyl Ether'], zone: 'red', safetyRating: 'avoid', shortDescription: MONOBENZONE },
   { names: ['Lead Acetate', 'Lead'], zone: 'red', safetyRating: 'avoid', shortDescription: LEAD },
@@ -129,7 +146,8 @@ const ENTRIES: Entry[] = [
   { names: ['Glycolic Acid', 'Lactic Acid', 'L-Lactic Acid', 'Mandelic Acid'], zone: 'yellow', safetyRating: 'caution', shortDescription: AHA },
   { names: ['Salicylic Acid', 'Capryloyl Salicylic Acid'], zone: 'yellow', safetyRating: 'caution', shortDescription: BHA },
   { names: ['Retinol', 'Retinal', 'Retinaldehyde', 'Retinyl Palmitate', 'Retinyl Retinoate', 'Hydroxypinacolone Retinoate'], zone: 'yellow', safetyRating: 'caution', shortDescription: RETINOID },
-  { names: ['Alcohol Denat', 'Alcohol Denat.', 'Alcohol Denatured', 'SD Alcohol 40', 'Isopropyl Alcohol'], zone: 'yellow', safetyRating: 'caution', shortDescription: DRYING_ALCOHOL },
+  // "Alcohol" on an INCI list is ethanol, the same drying alcohol.
+  { names: ['Alcohol', 'Alcohol Denat', 'Alcohol Denat.', 'Alcohol Denatured', 'SD Alcohol 40', 'Isopropyl Alcohol'], zone: 'yellow', safetyRating: 'caution', shortDescription: DRYING_ALCOHOL },
   { names: ['Methylisothiazolinone', 'Methylchloroisothiazolinone'], zone: 'yellow', safetyRating: 'caution', shortDescription: MIT },
   { names: ['Sodium Lauryl Sulfate'], zone: 'yellow', safetyRating: 'caution', shortDescription: SLS },
   { names: ['Niacinamide'], zone: 'green', safetyRating: 'safe', shortDescription: NIACINAMIDE },

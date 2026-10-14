@@ -87,8 +87,8 @@ const SYNONYMS: Record<string, string> = {
   'red 33': 'CI 17200',
   'red 40': 'CI 16035',
   'blue 1': 'CI 42090',
-  'iron oxide': 'CI 77491',
-  'iron oxides': 'CI 77491',
+  // "Iron Oxides" is itself the INCI name and covers red, yellow and black (CI 77491/77492/77499).
+  'iron oxide': 'Iron Oxides',
   'titanium dioxide': 'CI 77891',
   fragrance: 'Parfum',
   perfume: 'Parfum',
@@ -97,6 +97,26 @@ const SYNONYMS: Record<string, string> = {
   'vitamin e': 'Tocopherol',
   'mineral oil': 'Paraffinum Liquidum',
   'petroleum jelly': 'Petrolatum',
+  // Indian names printed on packs (Hindi and Ayurvedic)
+  haldi: 'Curcuma Longa Root Extract',
+  kesar: 'Crocus Sativus Flower Extract',
+  saffron: 'Crocus Sativus Flower Extract',
+  chandan: 'Santalum Album Oil',
+  'gulab jal': 'Rosa Damascena Flower Water',
+  'multani mitti': 'Solum Fullonum',
+  besan: 'Cicer Arietinum Seed Powder',
+  'gram flour': 'Cicer Arietinum Seed Powder',
+  mulethi: 'Glycyrrhiza Glabra Root Extract',
+  manjistha: 'Rubia Cordifolia Root Extract',
+  // Common names and spellings
+  'alpha arbutin': 'Alpha-Arbutin',
+  'snail mucin': 'Snail Secretion Filtrate',
+  'l ascorbic acid': 'Ascorbic Acid',
+  'l-ascorbic acid': 'Ascorbic Acid',
+  'alpha tocopherol': 'Tocopherol',
+  'green tea leaf extract': 'Camellia Sinensis Leaf Extract',
+  'white tea leaf extract': 'Camellia Sinensis Leaf Extract',
+  etilexilglicerina: 'Ethylhexylglycerin',
   // Spanish
   agua: 'Aqua',
   glicerina: 'Glycerin',
@@ -166,8 +186,15 @@ export function candidateNames(raw: string): string[] {
   const clean = entry.replace(/[\u200B-\u200D\u2060\uFEFF]/g, '').replace(/\\/g, '/').replace(/\.+$/, '').trim();
   add(clean);
   entry = clean;
+  // "Organic Aloe Vera", "Certified Organic Green Tea": the claim isn't part of the ingredient's name.
+  const unclaimed = entry.replace(/^(certified\s+)?organic\s+/i, '');
+  if (unclaimed !== entry) {
+    add(unclaimed);
+    entry = unclaimed;
+  }
   const outer = entry.replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
-  const inner = [...entry.matchAll(/\(([^)]*)\)/g)].map((m) => m[1]);
+  // "Iron Oxides (CI 77491, CI 77492)": each name listed inside the brackets is tried on its own.
+  const inner = [...entry.matchAll(/\(([^)]*)\)/g)].flatMap((m) => [m[1], ...m[1].split(/[,;]/)]);
   // "Aqua/Water/Eau" lists alternatives, but in polymer names ("Castor Oil/IPDI Copolymer",
   // "Acrylates/C10-30 Alkyl Acrylate Crosspolymer") the slash is part of one chemical name.
   const isOneChemical = /polymer|copolymer|glyceride|crosspolymer|\d\/\d/i.test(entry);

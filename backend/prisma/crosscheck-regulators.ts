@@ -22,7 +22,7 @@ const COSING = path.join(__dirname, 'data', 'cosing-inventory.json');
 const apply = process.argv.includes('--apply');
 const key = (s: string) => s.normalize('NFKC').toLowerCase().replace(/[­​-‏⁠﻿]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 const CAS = /\b\d{2,7}-\d{2}-\d\b/g;
-const PLACE: Record<string, string> = { CA: 'Canada', ASEAN: 'Southeast Asia (ASEAN)', US: 'the US' };
+const PLACE: Record<string, string> = { CA: 'Canada', ASEAN: 'Southeast Asia (ASEAN)', US: 'the US', IN: 'India' };
 // A preservative first and a scent only sometimes: an allergen label applies only when it is used as fragrance.
 const ALLERGEN_EXEMPT = new Set(['benzyl alcohol']);
 
@@ -41,6 +41,9 @@ const GROUPS: { test: RegExp; src: string; status: string; entry: string }[] = [
     { test: /\b(estradiol|estrone|ethinylestradiol)\b/i, src, status: 'prohibited', entry: 'Oestrogens' },
     { test: /\b(monobenz\w*|benzyloxyphenol)\b/i, src, status: 'prohibited', entry: '4-Benzyloxyphenol (monobenzone)' },
   ]),
+  // India, Cosmetics Rules 2020, Rule 39: mercury compounds, and lead and arsenic compounds used as colourants.
+  { test: /\b(mercury|mercuric|mercurous|calomel)\b/i, src: 'IN', status: 'prohibited', entry: 'Mercury compounds (Rule 39)' },
+  { test: /\b(lead|arsenic)\b/i, src: 'IN', status: 'prohibited', entry: 'Lead and arsenic compounds as colourants (Rule 39)' },
   { test: /\bprogesterone\b/i, src: 'CA', status: 'prohibited', entry: 'Progestogens' },
   { test: /\btestosterone\b/i, src: 'CA', status: 'prohibited', entry: 'Androgenic effects, substances with' },
   ...['ASEAN', 'EU'].flatMap((src) => [
@@ -73,8 +76,19 @@ const SOURCES: Record<string, Entry[]> = {
   CA: readTsv('canada-prohibited.tsv', ([n, c, syn]) => ({ names: [n, ...list(syn)], cas: casOf(c), status: CONDITIONAL.test(n) ? 'conditional' : 'prohibited' })),
   ASEAN: readTsv('asean-prohibited.tsv', ([n, c]) => ({ names: [n], cas: casOf(c), status: CONDITIONAL.test(n) ? 'conditional' : 'prohibited' })),
   US: readTsv('us-fda.tsv', ([n, c, st, note]) => ({ names: [n], cas: casOf(c), status: st, note })),
+  // India: the Cosmetics Rules' own bans, plus BIS IS 4707 (Part 2) Annex A when its file is present.
+  IN: [
+    ...readTsv('india-cosmetics-rules.tsv', ([n, c]) => ({ names: [n], cas: casOf(c), status: 'prohibited' })),
+    ...(fs.existsSync(path.join(DIR, 'india-is4707-annex-a.tsv'))
+      ? readTsv('india-is4707-annex-a.tsv', ([n, c]) => ({ names: list(n), cas: casOf(c), status: CONDITIONAL.test(n) ? 'conditional' : 'prohibited' }))
+      : []),
+  ],
   EU_ALLERGEN: readTsv('eu-fragrance-allergens.tsv', ([n, c]) => ({ names: list(n), cas: casOf(c), status: 'labelled allergen' })),
 };
+
+// Everyday ingredients that the regulator lists match by a shared CAS number or name, not because
+// they are banned: kept out of the automatic "avoid" until someone checks them.
+const DOUBTFUL_BAN_MATCH = new Set(['Ethylhexyl Ethylhexanoate', 'Catalase', 'Choline Chloride', 'Imidazole', 'Hexane', 'Tetrahydrofurfuryl Alcohol'].map((n) => key(n)));
 
 async function main() {
   // CAS numbers per INCI name, from the EU inventory.
@@ -129,12 +143,23 @@ async function main() {
   const review: string[] = [];
   for (const r of rows) {
     const h = hits.get(r.id) ?? {};
-    const bannedIn = ['CA', 'ASEAN', 'US'].filter((s) => h[s] === 'prohibited');
+    const bannedIn = ['CA', 'ASEAN', 'US', 'IN'].filter((s) => h[s] === 'prohibited');
     const allergen = !!h.EU_ALLERGEN && !ALLERGEN_EXEMPT.has(key(r.inciName));
     const soft = r.zone === 'green' || r.zone === null;
     // Human-origin material is banned outright (EU Annex II/416, ASEAN 416): avoid, like the rest of that group.
     if (soft && /^human\b/i.test(r.inciName) && h.ASEAN === 'prohibited' && r.source !== 'manual') {
       changes.push({ row: r, zone: 'red', text: 'Made from human cells, tissue or blood. Products of human origin are banned in cosmetics in the EU and Southeast Asia.', fragrance: false, why: 'human origin, banned in the EU and ASEAN' });
+      continue;
+    }
+    // Banned outright on the EU's list (Annex II without an "except") and by another regulator too:
+    // two independent bans, so avoid, not caution. (Chloroform, coal tar, phthalates, hormones and
+    // prescription drugs were all sitting at caution.) Names where the match looks like a mix-up go
+    // to review instead.
+    const euAnnexes = new Set((r.regulatoryNotes ?? '').replace(/^EU CosIng: Annex /, '').split(',').map((a) => a.trim()));
+    if (bannedIn.length && euAnnexes.has('II') && r.zone !== 'red' && r.source !== 'manual') {
+      const where = ['the EU', ...bannedIn.map((s) => PLACE[s])].join(', ').replace(/, ([^,]*)$/, ' and $1');
+      if (DOUBTFUL_BAN_MATCH.has(key(r.inciName))) review.push(`- **${r.inciName}** (${r.zone ?? 'unrated'}): matched as banned in ${where}, which looks like a mix-up. Check by hand.`);
+      else changes.push({ row: r, zone: 'red', text: `Banned in cosmetics in ${where}. It should not be in a skincare product.`, fragrance: r.isFragrance, why: `banned in ${where}` });
       continue;
     }
     if (bannedIn.length && soft) {
@@ -153,7 +178,7 @@ async function main() {
   }
 
   const count = (src: string) => [...hits.values()].filter((h) => h[src]).length;
-  const summary = `Matched: EU bans ${count('EU')}, Canada ${count('CA')}, ASEAN ${count('ASEAN')}, US ${count('US')}, EU allergens ${count('EU_ALLERGEN')}. To caution: ${changes.length}. For review: ${review.length}.`;
+  const summary = `Matched: EU bans ${count('EU')}, Canada ${count('CA')}, ASEAN ${count('ASEAN')}, US ${count('US')}, India ${count('IN')}, EU allergens ${count('EU_ALLERGEN')}. Changed: ${changes.length}. For review: ${review.length}.`;
   console.log(summary);
   changes.slice(0, 40).forEach((c) => console.log(`  ${c.row.inciName.padEnd(42)} ${c.row.zone ?? 'unrated'} -> ${c.zone === 'red' ? 'avoid' : 'caution'} (${c.why})`));
   const report = [
@@ -184,11 +209,13 @@ async function main() {
     await prisma.ingredient.update({
       where: { id: c.row.id },
       data: c.zone === 'red'
-        ? { zone: 'red', safetyRating: 'avoid', shortDescription: c.text, source: 'manual', lastReviewedAt: new Date() }
+        ? // A regulator rule, not a person's check: the source stays as it was, so the apps say
+          // "EU cosmetics rules: banned" rather than "Checked by hand".
+          { zone: 'red', safetyRating: 'avoid', shortDescription: c.text }
         : { zone: 'yellow', safetyRating: 'caution', shortDescription: c.text, isFragrance: c.fragrance },
     });
   }
-  console.log(`Saved region notes on ${hits.size} ingredients and moved ${changes.length} to caution.`);
+  console.log(`Saved region notes on ${hits.size} ingredients and changed ${changes.length} ratings.`);
   await prisma.$disconnect();
 }
 

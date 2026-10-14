@@ -125,8 +125,8 @@ export async function seedIndiaCatalog(
     }
 
     const id = productIdForRow(row);
-    const score =
-      row.rating != null ? new Prisma.Decimal(row.rating.toFixed(2)) : undefined;
+    // row.rating is the retailer's star rating (out of 5), not our safety score: it is not stored
+    // in overallScore, which the apps read as an 18–96 safety score.
 
     await prisma.product.upsert({
       where: { id },
@@ -140,7 +140,6 @@ export async function seedIndiaCatalog(
         markets: ['IN'],
         price: new Prisma.Decimal(row.priceInr.toFixed(2)),
         currency: 'INR',
-        overallScore: score,
         source: 'india-catalog-seed',
         sourceProductId: String(row.idx),
       },
@@ -152,7 +151,6 @@ export async function seedIndiaCatalog(
         markets: ['IN'],
         price: new Prisma.Decimal(row.priceInr.toFixed(2)),
         currency: 'INR',
-        overallScore: score ?? undefined,
         source: 'india-catalog-seed',
         sourceProductId: String(row.idx),
       },

@@ -1,5 +1,6 @@
 /**
- * Best-effort search-listing scrape: first Nykaa / Amazon.in / Flipkart hit per catalog product.
+ * Best-effort search-listing scrape: the matching Nykaa / Amazon.in / Flipkart listing per catalog
+ * product (a hit only counts when its title is that product; see titleMatches).
  * Mirrors fetch-catalog-ingredients.ts CLI style (--limit, --skip, --dry-run, --delay-ms).
  *
  * Updates `Product.url` (prefers Nykaa), merges `retailListings` into `description` JSON,
@@ -105,7 +106,7 @@ async function main() {
 
     let hits: RetailListingHit[] = [];
     try {
-      hits = await searchRetailersInOrder(query, ['nykaa', 'amazon-in', 'flipkart']);
+      hits = await searchRetailersInOrder({ brand: p.brand.name, name: p.name }, ['nykaa', 'amazon-in', 'flipkart']);
     } catch {
       hits = [];
     }

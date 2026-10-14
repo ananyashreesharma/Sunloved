@@ -22,12 +22,11 @@ export function splitLabel(raw: string): string[] {
     .replace(/\+\/-\s*:?/g, ",")
     .replace(/[\[\]]/g, ",")
     .replace(HEADINGS, ",")
-  // Full stop between ingredients ("Salicylic Acid 2%. Water"), but not inside numbers ("0.5%").
-  text = text.replace(/\.(?=\s+[^\d\s])/g, ",")
+  // Full stop between ingredients ("Salicylic Acid 2%. Water", "Pentylene Glycol. 1,2-Hexanediol"),
+  // but not inside numbers ("0.5%") or after abbreviations ("Flower Ext. Water", "Red No. 40").
+  text = text.replace(/(?<!\b(?:ext|extr|no|nr|vit|sp|spp|var|approx|min|max))\.(?=\s+\S)/gi, ",")
   return (
-    text
-      // Separators; a comma between two digits belongs to a chemical name (1,2-Hexanediol).
-      .split(/(?<!\d),|,(?!\d)|[;\n•·|،؛]/)
+    splitTopLevel(text)
       // A piece starting with a footnote mark is the legend ("*organic"), not an ingredient.
       .filter((s) => !/^\s*[*°†‡¹²³]/.test(s))
       .map((s) =>
@@ -43,6 +42,43 @@ export function splitLabel(raw: string): string[] {
       )
       .filter((s) => s.length > 0 && /[\p{L}\d]/u.test(s))
   )
+}
+
+/**
+ * Splits on separators outside parentheses only, so "Iron Oxides (CI 77491, CI 77492)" stays one
+ * entry. An unclosed "(" never swallows the rest of the label: its piece is split normally.
+ */
+function splitTopLevel(text: string): string[] {
+  const out: string[] = []
+  let depth = 0
+  let start = 0
+  let openedAt = -1
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i]
+    if (ch === "(") {
+      if (depth === 0) openedAt = i
+      depth++
+    } else if (ch === ")" && depth > 0) {
+      depth--
+    } else if (depth === 0 && isSeparatorAt(text, i)) {
+      out.push(text.slice(start, i))
+      start = i + 1
+    }
+    if (depth > 0 && i === text.length - 1) {
+      // Unbalanced: re-split from the unclosed bracket as if it weren't there.
+      out.push(...splitTopLevel(text.slice(start, openedAt) + " " + text.slice(openedAt + 1)))
+      return out
+    }
+  }
+  out.push(text.slice(start))
+  return out
+}
+
+/** Separators; a comma between two digits belongs to a chemical name (1,2-Hexanediol). */
+function isSeparatorAt(text: string, i: number): boolean {
+  const ch = text[i]
+  if (ch === ",") return !(/\d/.test(text[i - 1] ?? "") && /\d/.test(text[i + 1] ?? ""))
+  return /[;\n•·|،؛]/.test(ch)
 }
 
 /**
