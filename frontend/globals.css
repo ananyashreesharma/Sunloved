@@ -18,13 +18,22 @@
     @apply bg-transparent text-foreground antialiased;
     min-height: 100%;
   }
+
+  /* Know Better site: bone background */
+  html.ouma-site .sun-mesh-parallax {
+    display: none;
+  }
+
+  html.ouma-site {
+    background-color: #F4EFE7;
+  }
 }
 
-/* Frosted shell: lighter scrim so mesh texture stays visible behind content */
+/* Calm page shell: solid warm neutral (no mesh / no frosted glass over imagery) */
 @layer utilities {
   .mesh-page {
-    @apply min-h-screen backdrop-blur-md backdrop-saturate-[0.92];
-    background-color: hsl(var(--sun-mesh-page-shell) / 0.68);
+    @apply min-h-screen;
+    background-color: hsl(var(--sun-html));
   }
 }
 

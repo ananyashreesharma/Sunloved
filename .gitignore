@@ -1,0 +1,13 @@
+# Root-level ignores — backend/, frontend/, and mobile/ each have their own more specific
+# .gitignore for their own build output and dependencies. This one only covers things that can
+# show up anywhere in the repo: personal editor state and OS cruft, never meant to be committed.
+
+# JetBrains (IntelliJ/WebStorm/etc.) — personal project state, not shared config
+.idea/
+
+# macOS
+.DS_Store
+
+# Local env files
+.env
+.env.local

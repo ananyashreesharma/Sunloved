@@ -1,6 +1,14 @@
 -- Sunloved app schema (public). Safe on a new Supabase project: only creates public tables.
--- Apply: Dashboard → SQL → New query → paste → Run, OR from repo root: `supabase db push` (if linked),
--- OR from backend: set DATABASE_URL (+ DIRECT_URL) and run `npx prisma migrate deploy` then `npm run prisma:seed`.
+--
+-- Prefer the backend Prisma workflow (single source of truth + migration history):
+--   cd backend && cp .env.example .env
+--   Set DATABASE_URL and DIRECT_URL (Supabase: Settings → Database → URI, use direct :5432 for migrations).
+--   npx prisma generate && npm run prisma:deploy && npm run prisma:seed
+--   curl http://localhost:3001/api/health/db  → should report database: connected
+--
+-- Use this SQL file only if you are NOT also running Prisma migrations on the same database
+-- (otherwise tables already exist and this script will fail). Alternatives: Supabase SQL Editor,
+-- or `supabase db push` when the project is linked to this repo.
 
 -- CreateTable
 CREATE TABLE "brands" (

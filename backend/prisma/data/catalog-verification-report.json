@@ -1,0 +1,223 @@
+{
+  "generatedAt": "2026-04-05T03:17:31.157Z",
+  "summary": {
+    "totalProducts": 2000,
+    "productsBySource": {
+      "india-body-hair-catalog-seed": 1000,
+      "india-catalog-seed": 1000
+    },
+    "duplicateBarcodeGroups": 0,
+    "productsWithNoBarcodeUrlOrPriceUrl": 1850,
+    "uniqueListingUrlsInDb": 309,
+    "urlsChecked": 15,
+    "urlsOk": 9,
+    "urlsFailed": 6,
+    "uniqueBarcodesInSample": 0,
+    "barcodesChecked": 0,
+    "obfFound": 0,
+    "obfNameWarnings": 0
+  },
+  "duplicateBarcodes": [],
+  "noAnchorSamples": [
+    {
+      "id": "in-18-dot-key-dot-key-pore-cleansing-balm",
+      "name": "Dot & Key Pore Cleansing Balm",
+      "brand": "Dot & Key"
+    },
+    {
+      "id": "in-20-forest-essentials-forest-essentials-cleansing-balm-mashobra-honey",
+      "name": "Forest Essentials Cleansing Balm Mashobra Honey",
+      "brand": "Forest Essentials"
+    },
+    {
+      "id": "in-22-banila-co-banila-co-clean-it-zero-cleansing-oil",
+      "name": "Banila Co Clean It Zero Cleansing Oil",
+      "brand": "Banila Co"
+    },
+    {
+      "id": "in-14-neutrogena-neutrogena-micellar-water",
+      "name": "Neutrogena Micellar Water",
+      "brand": "Neutrogena"
+    },
+    {
+      "id": "in-24-plum-plum-e-luminence-simply-supple-cleansing-balm",
+      "name": "Plum E-Luminence Simply Supple Cleansing Balm",
+      "brand": "Plum"
+    },
+    {
+      "id": "in-32-cetaphil-cetaphil-oily-skin-cleanser",
+      "name": "Cetaphil Oily Skin Cleanser",
+      "brand": "Cetaphil"
+    },
+    {
+      "id": "in-34-minimalist-minimalist-ph-4-5-face-wash",
+      "name": "Minimalist Ph 4.5 Face Wash",
+      "brand": "Minimalist"
+    },
+    {
+      "id": "in-17-farmacy-farmacy-green-clean-makeup-meltaway-balm",
+      "name": "Farmacy Green Clean Makeup Meltaway Balm",
+      "brand": "Farmacy"
+    },
+    {
+      "id": "in-4-plum-plum-green-tea-pore-cleansing-face-wash",
+      "name": "Plum Green Tea Pore Cleansing Face Wash",
+      "brand": "Plum"
+    },
+    {
+      "id": "in-19-the-face-shop-the-face-shop-rice-water-bright-cleansing-foam",
+      "name": "The Face Shop Rice Water Bright Cleansing Foam",
+      "brand": "The Face Shop"
+    },
+    {
+      "id": "in-13-bioderma-bioderma-sensibio-h2o",
+      "name": "Bioderma Sensibio H2O",
+      "brand": "Bioderma"
+    },
+    {
+      "id": "in-2-cetaphil-cetaphil-gentle-skin-cleanser",
+      "name": "Cetaphil Gentle Skin Cleanser",
+      "brand": "Cetaphil"
+    },
+    {
+      "id": "in-23-the-body-shop-the-body-shop-camomile-silky-cleansing-oil",
+      "name": "The Body Shop Camomile Silky Cleansing Oil",
+      "brand": "The Body Shop"
+    },
+    {
+      "id": "in-21-dhc-dhc-deep-cleansing-oil",
+      "name": "DHC Deep Cleansing Oil",
+      "brand": "DHC"
+    },
+    {
+      "id": "in-16-clinique-clinique-take-the-day-off-cleansing-balm",
+      "name": "Clinique Take The Day Off Cleansing Balm",
+      "brand": "Clinique"
+    },
+    {
+      "id": "in-110-forest-essentials-forest-essentials-facial-tonic-mist-nargis",
+      "name": "Forest Essentials Facial Tonic Mist Nargis",
+      "brand": "Forest Essentials"
+    },
+    {
+      "id": "in-149-the-ordinary-the-ordinary-100-plant-derived-squalane",
+      "name": "The Ordinary 100% Plant-Derived Squalane",
+      "brand": "The Ordinary"
+    },
+    {
+      "id": "in-171-minimalist-minimalist-multi-peptide-10-face-serum",
+      "name": "Minimalist Multi-Peptide 10% Face Serum",
+      "brand": "Minimalist"
+    },
+    {
+      "id": "in-245-lakme-lakme-sun-expert-spf-50",
+      "name": "Lakme Sun Expert SPF 50",
+      "brand": "Lakmé"
+    },
+    {
+      "id": "in-267-colorbar-colorbar-sheerskin-tinted-spf-50-moisturizer",
+      "name": "Colorbar SheerSkin Tinted SPF 50 Moisturizer",
+      "brand": "Colorbar"
+    },
+    {
+      "id": "in-293-forest-essentials-forest-essentials-sheet-mask-mashobra-honey",
+      "name": "Forest Essentials Sheet Mask Mashobra Honey",
+      "brand": "Forest Essentials"
+    },
+    {
+      "id": "in-305-everyuth-everyuth-naturals-golden-glow-peel-off-mask",
+      "name": "Everyuth Naturals Golden Glow Peel-Off Mask",
+      "brand": "Everyuth"
+    },
+    {
+      "id": "in-41-klairs-klairs-rich-moist-foaming-cleanser",
+      "name": "Klairs Rich Moist Foaming Cleanser",
+      "brand": "Klairs"
+    },
+    {
+      "id": "in-161-oriflame-oriflame-novage-bright-sublime-serum",
+      "name": "Oriflame NovAge Bright Sublime Serum",
+      "brand": "Oriflame"
+    },
+    {
+      "id": "in-51-patanjali-patanjali-neem-tulsi-face-wash",
+      "name": "Patanjali Neem Tulsi Face Wash",
+      "brand": "Patanjali"
+    },
+    {
+      "id": "in-65-himalaya-himalaya-oil-clear-lemon-face-wash",
+      "name": "Himalaya Oil Clear Lemon Face Wash",
+      "brand": "Himalaya"
+    },
+    {
+      "id": "in-73-kama-ayurveda-kama-ayurveda-sensitive-skin-cleansing-milk",
+      "name": "Kama Ayurveda Sensitive Skin Cleansing Milk",
+      "brand": "Kama Ayurveda"
+    },
+    {
+      "id": "in-97-fresh-fresh-rose-deep-hydration-toner",
+      "name": "Fresh Rose Deep Hydration Toner",
+      "brand": "Fresh"
+    },
+    {
+      "id": "in-197-minimalist-minimalist-10-ceramide-ha-moisturizer",
+      "name": "Minimalist 10% Ceramide + HA Moisturizer",
+      "brand": "Minimalist"
+    },
+    {
+      "id": "in-30-neutrogena-neutrogena-deep-clean-blackhead-eliminating-scrub",
+      "name": "Neutrogena Deep Clean Blackhead Eliminating Scrub",
+      "brand": "Neutrogena"
+    }
+  ],
+  "urlFailures": [
+    {
+      "url": "https://www.nykaa.com/l-oreal-paris-total-repair-5-shampoo-1/p/10970",
+      "productId": "in-bh-1-l-oreal-paris-l-oreal-paris-total-repair-5-shampoo",
+      "label": "L'Oreal Paris — L'Oreal Paris Total Repair 5 Shampoo",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "url": "https://www.nykaa.com/l-oreal-paris-glycolic-gloss-shine-boosting-shampoo/p/21168745",
+      "productId": "in-bh-10-dove-dove-dryness-shine-shampoo",
+      "label": "Dove — Dove Dryness & Shine Shampoo",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "url": "https://www.nykaa.com/ogx-moroccan-argan-oil-conditioner-385ml/p/12032",
+      "productId": "in-bh-108-ogx-ogx-argan-oil-of-morocco-hydrating-hair-mask",
+      "label": "OGX — OGX Argan Oil of Morocco Hydrating Hair Mask",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "url": "https://www.nykaa.com/love-beauty-planet-argan-oil-lavender-hair-mask/p/20917421",
+      "productId": "in-bh-111-mcaffeine-mcaffeine-coffee-hair-mask-with-argan-oil",
+      "label": "mCaffeine — mCaffeine Coffee Hair Mask with Argan Oil",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "url": "https://www.nykaa.com/plum-coconut-milk-peptides-strength-shine-shampoo-paraben-free/p/13377196",
+      "productId": "in-bh-12-head-shoulders-head-shoulders-smooth-silky-shampoo",
+      "label": "Head & Shoulders — Head & Shoulders Smooth & Silky Shampoo",
+      "ok": false,
+      "status": 403
+    },
+    {
+      "url": "https://www.nykaa.com/redken-acidic-bonding-concentrate-leave-in-treatment-bonding-care-complex-for-damaged-hair/p/11962219",
+      "productId": "in-bh-126-redken-redken-extreme-mega-mask",
+      "label": "Redken — Redken Extreme Mega Mask",
+      "ok": false,
+      "status": 403
+    }
+  ],
+  "barcodeFlags": [],
+  "notes": [
+    "URL failures may be bot-blocking, geo, or temporary — not always wrong data.",
+    "Open Beauty Facts is incomplete; missing barcode there does not mean fake.",
+    "name_mismatch_vs_obf: catalog title differs strongly from OBF product_name — worth human review."
+  ]
+}

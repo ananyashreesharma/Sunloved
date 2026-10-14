@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SkinLens App Store scenes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700&display=block" rel="stylesheet">
+<style>
+  /* App design tokens (packages/shared/src/tokens.ts, palettes.day / night). */
+  :root {
+    --bg: #F2ECE1; --surface: #FAF6EE; --ink: #1A1A17; --ink2: #615D55; --ink3: #8E887C; --line: rgba(26,26,23,.14);
+    --hiFine: rgba(110,180,130,.42); --hiCaution: rgba(242,190,70,.55); --hiNfy: rgba(176,136,226,.42); --hiAvoid: rgba(232,130,100,.42);
+    --tFine: #2E6B45; --tCaution: #7A5200; --tNfy: #5F3D85; --tAvoid: #9A3A24; --done: rgba(120,160,205,.34);
+    --brand: #F0BE46;
+    --nbg: #151410; --nsurface: #201E19; --nink: #EFE8DA; --nink2: #A8A194; --nline: rgba(239,232,218,.13); --ndone: rgba(255,236,200,.22);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); font-family: Rubik, system-ui, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  .canvas { position: relative; overflow: hidden; background: var(--bg); }
+  /* Paper grain */
+  .canvas::before { content: ""; position: absolute; inset: 0; opacity: .5; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .09 0 0 0 0 .07 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .canvas.dark { background: var(--nbg); color: var(--nink); }
+  .canvas.dark::before { opacity: .25; }
+  .layer { position: relative; z-index: 1; }
+
+  /* Highlighter: the app's signature mark, a low band behind the words. */
+  .hl { background: linear-gradient(transparent 52%, var(--c, var(--hiCaution)) 52%, var(--c, var(--hiCaution)) 92%, transparent 92%);
+        padding: 0 .08em; margin: 0 -.04em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  .hl.brand { --c: rgba(240,190,70,.85); }
+  .hl.avoid { --c: var(--hiAvoid); } .hl.fine { --c: var(--hiFine); } .hl.nfy { --c: var(--hiNfy); } .hl.done { --c: var(--done); }
+
+  /* Store headline block */
+  .eyebrow { font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink2); }
+  .head { font-weight: 300; letter-spacing: -.035em; line-height: 1.02; }
+  .head b { font-weight: 600; }
+  .sub { color: var(--ink2); font-weight: 400; line-height: 1.32; }
+  .dark .sub, .dark .eyebrow { color: var(--nink2); }
+  .dark .head .hl.brand { color: var(--nink); --c: rgba(240,190,70,.62); }
+
+  /* Phone: 402 x 874 pt screen, drawn at 1x then scaled. */
+  .phone { position: absolute; width: 402px; height: 874px; border-radius: 62px; background: #0c0c0b;
+           padding: 0; box-shadow: 0 0 0 11px #0c0c0b, 0 0 0 13px #3a3833, 0 60px 120px -30px rgba(40,30,10,.45), 0 30px 60px -20px rgba(40,30,10,.3); transform-origin: top left; }
+  .screen { position: absolute; inset: 0; border-radius: 56px; overflow: hidden; background: var(--bg); color: var(--ink); }
+  .screen.night { background: var(--nbg); color: var(--nink); }
+  .island { position: absolute; top: 11px; left: 50%; width: 124px; height: 36px; margin-left: -62px; border-radius: 20px; background: #000; z-index: 9; }
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 54px; padding: 18px 30px 0 40px; display: flex; justify-content: space-between; font-weight: 600; font-size: 16px; z-index: 8; }
+  .status i { display: inline-block; width: 26px; height: 12px; border-radius: 4px; border: 1.5px solid currentColor; position: relative; top: 2px; opacity: .9 }
+  .body { position: absolute; top: 58px; left: 0; right: 0; bottom: 0; padding: 0 22px; }
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; border-top: 1px solid var(--line); display: flex; justify-content: space-around; padding-top: 12px; font-size: 12px; color: var(--ink3); background: var(--bg); }
+  .tabbar div { text-align: center; } .tabbar .on { color: var(--ink); font-weight: 600; }
+  .tabbar svg { display: block; margin: 0 auto 4px; }
+  .night .tabbar { background: var(--nbg); border-color: var(--nline); color: var(--nink2); } .night .tabbar .on { color: var(--nink); }
+
+  /* In-app pieces */
+  .topbar { display: flex; align-items: center; justify-content: space-between; height: 44px; font-size: 15px; color: var(--ink2); }
+  .topbar b { color: var(--ink); font-weight: 600; }
+  .muted { color: var(--ink2); } .small { font-size: 13px; } .tiny { font-size: 12px; }
+  .verdict { font-size: 44px; font-weight: 700; letter-spacing: -.035em; line-height: 1; margin-top: 10px; }
+  .para { font-size: 16px; line-height: 1.45; margin-top: 14px; }
+  .strip { display: flex; gap: 3px; margin-top: 18px; height: 22px; }
+  .strip span { flex: 1; border-radius: 4px; background: var(--ink); }
+  .strip .a { background: #C9654C; } .strip .c { background: #E2A93B; } .strip .n { background: #9C7BC7; } .strip .x { background: transparent; border: 1.5px dashed var(--ink3); }
+  .label { font-weight: 600; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink2); margin-top: 22px; }
+  .item { display: flex; gap: 12px; margin-top: 14px; }
+  .num { flex: none; width: 26px; height: 26px; border-radius: 13px; background: var(--ink); color: var(--bg); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .iname { font-size: 18px; font-weight: 600; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 6px; margin-left: 6px; position: relative; top: -2px; }
+  .tag.avoid { background: var(--hiAvoid); color: var(--tAvoid); } .tag.caution { background: var(--hiCaution); color: var(--tCaution); }
+  .tag.nfy { background: var(--hiNfy); color: var(--tNfy); } .tag.fine { background: var(--hiFine); color: var(--tFine); }
+  .idesc { font-size: 14px; line-height: 1.4; color: var(--ink2); margin-top: 3px; }
+  .card { background: var(--surface); border-radius: 18px; padding: 16px 18px; margin-top: 18px; }
+  .card.warn { border-inline-start: 3px solid #C9654C; }
+  .card h4 { font-size: 17px; font-weight: 600; }
+  .card li { font-size: 14.5px; line-height: 1.42; margin: 8px 0 0 18px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border-radius: 999px; background: var(--surface); border: 1.5px solid var(--line); font-size: 16px; margin: 0 8px 10px 0; }
+  .chip .x { color: var(--ink3); font-size: 15px; }
+  .btn { height: 54px; border-radius: 16px; background: var(--ink); color: var(--bg); font-size: 17px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .field { border: 1.5px solid var(--line); background: var(--surface); border-radius: 14px; padding: 14px 16px; font-size: 16px; color: var(--ink); }
+  .field.ph { color: var(--ink3); }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 28px 28px 0 0; padding: 14px 22px 34px; box-shadow: 0 -20px 60px rgba(26,26,23,.18); }
+  .sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 14px; }
+  .scrim { position: absolute; inset: 0; background: rgba(26,26,23,.38); }
+  .step { display: flex; align-items: center; gap: 14px; padding: 15px 0; border-bottom: 1px solid var(--nline); }
+  .box { width: 26px; height: 26px; border-radius: 8px; border: 2px solid var(--nink2); flex: none; display: flex; align-items: center; justify-content: center; }
+  .box.on { background: var(--nink); border-color: var(--nink); color: var(--nbg); }
+  .sname { font-size: 18px; } .sname .hl { --c: var(--ndone); }
+  .skind { font-size: 13px; color: var(--nink2); margin-top: 2px; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); row-gap: 12px; margin-top: 12px; text-align: center; }
+  .cal .d { font-size: 11px; color: var(--ink3); margin-top: 3px; }
+  .dot { width: 14px; height: 14px; border-radius: 7px; margin: 0 auto; }
+  .dot.done { background: var(--ink); } .dot.part { background: var(--ink); opacity: .4; } .dot.paused { border: 1.5px dashed var(--ink2); } .dot.today { border: 2px solid var(--ink); } .dot.future { opacity: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ---------- tiny icons ----------
+const ICON = {
+  moon: '<svg width="24" height="24" viewBox="0 0 24 24"><path d="M15 3a9 9 0 1 0 6 15.5A8 8 0 0 1 15 3z" fill="currentColor"/></svg>',
+  check: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21" stroke-linecap="round"/></svg>',
+  me: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 21v-9a7 7 0 0 1 14 0v9z"/></svg>',
+  back: '<svg width="22" height="16" viewBox="0 0 22 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 8H2M8 1 1 8l7 7"/></svg>',
+  tick: '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.6"><path d="m2 7 3.5 3.5L12 3.5"/></svg>',
+};
+const status = (t = '9:41') => `<div class="island"></div><div class="status"><span>${t}</span><span><i></i></span></div>`;
+const tabbar = (on) => `<div class="tabbar">${[['moon','Routine'],['check','Check'],['me','Me']].map(([i,l]) => `<div class="${l===on?'on':''}">${ICON[i]}${l}</div>`).join('')}</div>`;
+const flag = (n, name, tag, tagText, desc) => `<div class="item"><div class="num">${n}</div><div><div class="iname">${name}<span class="tag ${tag}">${tagText}</span></div><div class="idesc">${desc}</div></div></div>`;
+const moonSvg = (size, lit = 1) => `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><defs><radialGradient id="mg" cx="40%" cy="35%"><stop offset="0" stop-color="#FFF8EC"/><stop offset=".6" stop-color="#F6E2C2"/><stop offset="1" stop-color="#D8BD98"/></radialGradient><filter id="glow"><feGaussianBlur stdDeviation="4"/></filter></defs><circle cx="50" cy="50" r="44" fill="#F6E2C2" opacity=".35" filter="url(#glow)"/><circle cx="50" cy="50" r="40" fill="url(#mg)"/><circle cx="${50 + lit * 84}" cy="50" r="40" fill="#151410"/></svg>`;
+
+// ---------- app screens (all copy is the app's real copy) ----------
+const SCREENS = {
+  avoid: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Instant Glow Brightening Cream</b><span>Share</span></div>
+    <div class="small muted" style="margin-top:6px">Based on: United Kingdom · oily skin · dark spots</div>
+    <div class="verdict"><span class="hl avoid">Avoid</span> this one.</div>
+    <div class="para">It contains Clobetasol Propionate. Strong prescription steroid. Sometimes found illegally in skin-lightening creams; used without a doctor it can thin the skin.</div>
+    <div class="strip"><span class="a"></span><span class="a"></span><span></span><span></span><span class="c"></span><span></span><span></span><span></span></div>
+    <div class="tiny muted" style="display:flex;justify-content:space-between;margin-top:8px"><span>8 of 8 rated</span><span>70% needed</span></div>
+    <div class="card warn"><h4>If you've been using this</h4><ul>
+      <li>If you've used it most days for weeks, talk to a pharmacist before you stop. They can help you cut down slowly.</li>
+      <li>If your skin flares after stopping, don't go back to the cream.</li>
+      <li>For dark spots, gentler options include niacinamide, azelaic acid and daily sunscreen.</li></ul></div>
+    <div class="label">Flagged for you</div>
+    ${flag(1, 'Clobetasol Propionate', 'avoid', 'Avoid', 'Strong prescription steroid. Should not be in a cosmetic.')}
+    ${flag(2, 'Mercurous Chloride', 'avoid', 'Avoid', 'Mercury compound. Banned in cosmetics in most countries.')}
+  </div></div>`,
+
+  banned: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Skin Whitening Night Cream</b><span>Share</span></div>
+    <div class="verdict" style="margin-top:16px"><span class="hl avoid">Avoid</span> this one.</div>
+    <div class="para muted">It contains Mercurous Chloride.</div>
+  </div><div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <div style="font-size:26px;font-weight:600">Mercurous Chloride<span class="tag avoid" style="font-size:14px">Avoid</span></div>
+    <div class="para" style="margin-top:10px">Mercury compound. Toxic to the kidneys and nervous system; it still turns up in illegal skin-lightening creams. Stop using any product that lists it.</div>
+    <div class="label">Banned in cosmetics in</div>
+    <div style="margin-top:10px;font-size:17px;line-height:1.9">
+      <div><span class="hl avoid">the EU (27 countries)</span> <span class="small muted">· including where you live</span></div>
+      <div>Southeast Asia (10 countries)</div><div>Canada</div><div>India</div></div>
+    <div class="label">What to do</div>
+    <div class="para" style="margin-top:8px">Stop using it, and don't share it with anyone. Keep it sealed and ask a pharmacist how to get rid of it.</div>
+    <div class="small muted" style="margin-top:16px">EU cosmetics rules (CosIng): banned in cosmetics.</div>
+  </div></div>`,
+
+  hormone: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Hair Growth Booster Serum</b><span>Share</span></div>
+    <div class="verdict" style="margin-top:16px"><span class="hl avoid">Avoid</span> this one.</div>
+    <div class="para muted">It contains Ethinylestradiol.</div>
+  </div><div class="scrim"></div>
+  <div class="sheet"><div class="grab"></div>
+    <div style="font-size:26px;font-weight:600">Ethinylestradiol<span class="tag avoid" style="font-size:14px">Avoid</span></div>
+    <div class="para" style="margin-top:10px">A hormone (an oestrogen). Banned in cosmetics in the EU, Canada and Southeast Asia (ASEAN). It should not be in a skincare product.</div>
+    <div class="label">Banned in cosmetics in</div>
+    <div style="margin-top:10px;font-size:17px;line-height:1.9"><div>the EU (27 countries)</div><div>Southeast Asia (10 countries)</div><div>Canada</div></div>
+    <div class="label">Also checked against</div>
+    <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:8px">${['US FDA','India · Cosmetics Rules','EU allergen labelling'].map(x=>`<span class="chip" style="font-size:14px;margin:0">${x}</span>`).join('')}</div>
+    <div class="small muted" style="margin-top:18px">EU cosmetics rules (CosIng): banned in cosmetics.</div>
+  </div></div>`,
+
+  personal: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Rose Glow Moisturiser</b><span>Share</span></div>
+    <div class="small muted" style="margin-top:6px">Based on: United States · combination skin · sensitivity</div>
+    <div class="verdict">Use with <span class="hl">caution</span>.</div>
+    <div class="para">Mostly gentle, with a few things to know. Parfum: fine for many, but scent ingredients are a common trigger for sensitive skin. Patch-test first.</div>
+    <div class="strip"><span></span><span></span><span></span><span class="n"></span><span></span><span></span><span class="n"></span><span></span><span></span></div>
+    <div class="label">Flagged for you</div>
+    ${flag(1, 'Parfum', 'nfy', 'Not for you', 'Scent ingredients are a common trigger for sensitive skin.')}
+    ${flag(2, 'Linalool', 'nfy', 'Not for you', 'Scent compound, one of the EU’s labelled allergens.')}
+    <div class="card" style="margin-top:22px"><div style="font-weight:600;font-size:16px">Your skin</div>
+      <div style="display:flex;gap:10px;margin-top:12px"><div class="chip" style="margin:0">Fine for me</div><div class="chip" style="margin:0;background:var(--hiNfy);border-color:transparent">I react to this</div></div>
+      <div class="small muted" style="margin-top:10px">Every label is read with this from now on.</div></div>
+    <div class="label">The label</div>
+    <div class="para" style="margin-top:8px;line-height:1.9">Aqua, Glycerin, Niacinamide, <span class="hl nfy">Parfum</span>, Cetearyl Alcohol, Panthenol, <span class="hl nfy">Linalool</span>, Tocopherol…</div>
+  </div></div>`,
+
+  indian: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<span></span><span></span></div>
+    <div style="font-size:34px;font-weight:300;letter-spacing:-.02em;margin-top:10px">Check what we read</div>
+    <div class="para"><b>We read 7 ingredients.</b> <span class="muted">Nothing is judged until you continue.</span></div>
+    <div class="small muted" style="margin:6px 0 16px">Tap one to remove it.</div>
+    ${['Agua','Glicerina','Fragancia','Eau','ماء','Haldi','Aloe Vera'].map(c => `<span class="chip">${c} <span class="x">✕</span></span>`).join('')}
+    <div class="field ph" style="margin-top:6px">Add one we missed</div>
+    <div class="card" style="margin-top:22px">
+      <div class="small muted">We read the names on packs from anywhere</div>
+      <div style="font-size:15px;line-height:1.85;margin-top:6px">
+        Agua · Eau · ماء → <b>Water</b><br>Glicerina · Glycérine → <b>Glycerin</b><br>Fragancia → <b>Fragrance</b><br>Haldi → <b>Turmeric root</b></div></div>
+    <div class="btn" style="position:absolute;left:22px;right:22px;bottom:40px">Check these ingredients</div>
+  </div></div>`,
+
+  pregnant: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Night Renewal Serum</b><span>Share</span></div>
+    <div class="small muted" style="margin-top:6px">Based on: Germany · normal skin · fine lines</div>
+    <div class="verdict">Use with <span class="hl">caution</span>.</div>
+    <div class="para">Much of this is gentle, with one thing to know right now.</div>
+    <div class="label">Flagged for you</div>
+    ${flag(1, 'Retinol', 'nfy', 'Not for you', 'Retinoids (vitamin A) are advised against in pregnancy and while breastfeeding. Ask your doctor or midwife before using it.')}
+    <div class="card"><div style="font-weight:600">What to do</div><div class="idesc" style="font-size:15px;margin-top:6px">Ask a doctor, midwife or pharmacist before using it.</div></div>
+    <div class="label">Fine for you</div>
+    ${['Niacinamide','Glycerin','Squalane','Ceramide NP'].map(n => `<div style="font-size:16px;margin-top:10px"><span class="hl fine">${n}</span></div>`).join('')}
+    <div class="card" style="margin-top:26px;display:flex;gap:12px;align-items:center">
+      <span class="chip" style="margin:0;background:var(--ink);color:var(--bg);border-color:var(--ink)">Pregnant</span>
+      <span class="small muted">Stays on your phone. Never sent.</span></div>
+  </div></div>`,
+
+  routine: () => `<div class="screen night">${status()}<div class="body">
+    <div style="display:flex;gap:22px;font-size:18px;margin-top:12px;color:var(--nink2)"><span>Morning</span><span style="color:var(--nink);font-weight:600;border-bottom:2px solid var(--nink);padding-bottom:6px">Night</span><span style="margin-left:auto;font-size:14px">12 nights in a row →</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:24px">
+      <div><div class="small" style="color:var(--nink2)">Wednesday, October 14</div><div style="font-size:64px;font-weight:300;letter-spacing:-.03em">Tonight</div><div style="color:var(--nink2);font-size:15px">3 of 4 done</div></div>
+      ${moonSvg(130, .55)}</div>
+    <div style="margin-top:22px;border-top:1px solid var(--nline)">
+      ${[['Gentle Cleanser','Cleanse',1],['Niacinamide Serum','Serum',1],['Retinol 0.3%','Treat · every other night',1],['Barrier Cream','Moisturise',0]].map(([n,k,d]) => `<div class="step"><div class="box ${d?'on':''}">${d?ICON.tick:''}</div><div><div class="sname">${d?`<span class="hl">${n}</span>`:n}</div><div class="skind">${k}</div></div></div>`).join('')}
+    </div>
+    <div class="card" style="background:var(--nsurface);margin-top:20px"><div style="font-size:15px;color:var(--nink)">After you brush your teeth, your night routine is ready.</div><div class="small" style="color:var(--nink2);margin-top:4px">One gentle reminder. Turn it off any time.</div></div>
+  </div>${tabbar('Routine')}</div>`,
+
+  streak: () => {
+    const st = [3,1,1,1,2,1,1, 1,1,4,1,1,1,1, 1,1,1,2,1,1,1, 1,1,5,6,6,6,6, 6,6];
+    const cls = { 1:'done', 2:'part', 3:'paused', 4:'paused', 5:'today', 6:'future' };
+    return `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<span></span><span></span></div>
+    <div style="font-size:15px" class="muted">Streak</div>
+    <div style="font-size:64px;font-weight:300;letter-spacing:-.03em"><span class="hl done">23 nights</span></div>
+    <div class="small muted">Longest: 23</div>
+    <div class="card" style="margin-top:18px"><div style="font-size:15px;line-height:1.45">Miss a day and your streak <b>pauses</b>. Miss two in a row and it starts again.</div></div>
+    <div style="display:flex;justify-content:space-between;margin-top:22px;font-weight:600"><span>‹</span><span>October</span><span>›</span></div>
+    <div class="cal">${'MTWTFSS'.split('').map(d=>`<div class="tiny muted">${d}</div>`).join('')}<div></div><div></div><div></div>${st.map((s,i)=>`<div><div class="dot ${cls[s]}"></div><div class="d">${i+1}</div></div>`).join('')}</div>
+    <div style="display:flex;gap:16px;margin-top:16px" class="tiny muted"><span>● Done</span><span>◌ Paused</span><span>○ Today</span></div>
+    <div class="label">Milestones</div>
+    ${[['A full week','Reached'],['A whole moon','7 to go'],['Sixty-six nights','43 to go']].map(([a,b])=>`<div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:16px"><span>${a}</span><span class="muted">${b}</span></div>`).join('')}
+  </div></div>`; },
+
+  check: () => `<div class="screen">${status()}<div class="body">
+    <div style="font-size:46px;font-weight:300;letter-spacing:-.03em;margin-top:18px">Check a label.</div>
+    <div class="para muted" style="font-size:17px">Search a product or paste its ingredients, and find hidden steroids, mercury and hydroquinone too.</div>
+    <div class="label" style="margin-top:22px">Paste the ingredient list</div>
+    <div class="field" style="margin-top:10px;height:150px;line-height:1.5">Aqua, Glycerin, Niacinamide, Butylene Glycol, Sodium Hyaluronate, Panthenol, Allantoin, Ceramide NP, Phenoxyethanol, Ethylhexylglycerin</div>
+    <div class="field" style="margin-top:12px">Hydra Barrier Serum</div>
+    <div style="display:flex;align-items:center;gap:12px;margin-top:14px"><div style="flex:1"><div style="font-weight:500;font-size:15px">Help grow our United Kingdom list</div><div class="small muted">Shares the product name, country and ingredients. Nothing about you.</div></div>
+      <div style="width:51px;height:31px;border-radius:16px;background:#34C759;position:relative"><div style="position:absolute;right:2px;top:2px;width:27px;height:27px;border-radius:14px;background:#fff"></div></div></div>
+    <div class="btn" style="margin-top:18px">Read ingredients</div>
+    <div class="small muted" style="text-align:center;margin-top:14px">Free, with no ads, affiliate links or sponsored verdicts.</div>
+  </div>${tabbar('Check')}</div>`,
+
+  fine: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Hydra Barrier Serum</b><span>Share</span></div>
+    <div class="small muted" style="margin-top:6px">Based on: UAE · dry skin · dullness</div>
+    <div class="verdict">Looks <span class="hl fine">fine</span>.</div>
+    <div class="para">Nothing here stands out for your skin.</div>
+    <div class="strip"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="tiny muted" style="display:flex;justify-content:space-between;margin-top:8px"><span>10 of 10 rated</span><span>70% needed</span></div>
+    <div class="label">The label</div>
+    ${[['Niacinamide','Vitamin B3. Helps calm redness, even out tone and support the skin barrier.'],['Sodium Hyaluronate','Draws water into the skin and holds it there, so skin looks plumper.'],['Panthenol','Provitamin B5. Helps skin hold moisture and soothes dryness.'],['Ceramide NP','One of the fats that make up the skin barrier.']].map(([n,d])=>`<div style="margin-top:14px"><div class="iname"><span class="hl fine">${n}</span></div><div class="idesc">${d}</div></div>`).join('')}
+    <div class="card" style="margin-top:22px"><div style="font-weight:600">What to expect</div><div class="idesc" style="font-size:15px;margin-top:6px">Give niacinamide 4–8 weeks for redness, oil and marks. Gentle for most skin.</div></div>
+    <div style="display:flex;gap:10px;margin-top:18px"><div class="btn" style="flex:1">Add to routine</div><div class="btn" style="flex:none;width:110px;background:var(--surface);color:var(--ink)">Save</div></div>
+  </div></div>`,
+
+  expect: () => `<div class="screen">${status()}<div class="body">
+    <div class="topbar">${ICON.back}<b>Add a step</b><span></span></div>
+    <div class="label" style="margin-top:12px">Product name</div><div class="field" style="margin-top:8px">Retinol 0.3% Serum</div>
+    <div class="label">When</div><div style="display:flex;gap:8px;margin-top:8px">${['Morning','Night','Both'].map((x,i)=>`<span class="chip" style="${i===1?'background:var(--ink);color:var(--bg);border-color:var(--ink)':''}">${x}</span>`).join('')}</div>
+    <div class="label" style="margin-top:8px">How often</div><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">${['Daily','Every other day','Twice a week'].map((x,i)=>`<span class="chip" style="${i===1?'background:var(--ink);color:var(--bg);border-color:var(--ink)':''}">${x}</span>`).join('')}</div>
+    <div class="small muted" style="margin-top:4px">Goes after Niacinamide Serum, before Barrier Cream.</div>
+    <div class="card" style="margin-top:20px"><div style="font-weight:600;font-size:17px">What to expect</div><div class="para" style="margin-top:6px">Give it <span class="hl">8–12 weeks</span> before judging. Dryness or stinging in the first few weeks is common. Not recommended in pregnancy.</div></div>
+    <div class="card"><div style="font-weight:600;font-size:17px">It stings?</div><div class="para" style="margin-top:6px">Most skin gets used to it in a few weeks. Using it every other night, with moisturiser first, often helps.</div></div>
+    <div class="btn" style="position:absolute;left:22px;right:22px;bottom:40px">Add to routine</div>
+  </div></div>`,
+};
+
+// ---------- compositions ----------
+function phone(screen, x, y, scale, rot = 0) {
+  return `<div class="phone" style="left:${x}px;top:${y}px;transform:rotate(${rot}deg) scale(${scale})">${SCREENS[screen]()}</div>`;
+}
+const W = 1206, H = 2622, PS = 2.42; // phone scale for portrait shots: 402*2.18 ≈ 876px wide
+const portrait = (eyebrow, head, sub, screen, dark = false, extra = '') => ({ w: W, h: H, dark, html: `
+  <div class="layer" style="padding:150px 96px 0">
+    <div class="eyebrow" style="font-size:30px">${eyebrow}</div>
+    <div class="head" style="font-size:118px;margin-top:26px">${head}</div>
+    <div class="sub" style="font-size:44px;margin-top:30px;max-width:980px">${sub}</div>
+  </div>
+  ${extra}
+  <div class="layer" style="position:absolute;inset:0">${phone(screen, (W - 402 * PS) / 2, 860, PS)}</div>` });
+
+const SCENES = {
+  s1: portrait('SkinLens', 'Know what’s <b><span class="hl brand">really</span></b> in your skincare.', 'Paste any label. Get a plain-words verdict in seconds.', 'avoid'),
+  s2: portrait('Hidden in lightening creams', 'Steroids. Mercury. <b><span class="hl avoid">Caught.</span></b>', 'We flag the drugs and toxic metals that turn up in lightening creams, and tell you what to do next.', 'banned'),
+  s3: portrait('Read for your skin', 'Not just safe. <b><span class="hl nfy">Right for you.</span></b>', 'Sensitive, oily, acne-prone? Every verdict is read for the skin you told us about.', 'personal'),
+  s4: portrait('Checked against the law', 'Banned in <b><span class="hl brand">40 countries</span></b>? You’ll know.', 'Every rating is cross-checked with the rules in the EU, the US, Canada, Southeast Asia and India.', 'hormone'),
+  s5: portrait('Any label, any language', 'Agua, eau, <b><span class="hl brand">ماء</span></b>. We read them all.', 'Labels in English, Spanish, French, Arabic, Hindi and Ayurvedic names, matched to what they really are.', 'indian'),
+  s6: portrait('Pregnant or breastfeeding?', 'We’ll tell you what to <b><span class="hl nfy">skip.</span></b>', 'Or checking for your child. It stays on your phone, never sent anywhere.', 'pregnant'),
+  s7: portrait('Night routine', 'A routine you’ll <b><span class="hl brand">actually keep.</span></b>', 'Add what you already use. We put it in order and catch clashes, like retinol with acids.', 'routine', true),
+  s8: portrait('Streaks, done kindly', 'Missed a night? <b><span class="hl done">Paused,</span></b> not broken.', 'One missed night never wipes out your progress. Milestones at a week, a moon and 66 nights.', 'streak'),
+  s9: portrait('Honest timelines', 'Know when it’ll <b><span class="hl brand">start working.</span></b>', 'What to expect, what’s normal, and what to do if it stings. So you don’t quit too soon.', 'expect'),
+  s10: portrait('Free. Always.', 'No ads. No <b><span class="hl brand">sponsored</span></b> verdicts.', 'Checking ingredients is free, with no affiliate links. No account needed to start.', 'check'),
+
+  // Product page header: 3840 x 1646
+  header: { w: 3840, h: 1646, html: `
+    <div class="layer" style="position:absolute;left:240px;top:0;bottom:0;width:1700px;display:flex;flex-direction:column;justify-content:center">
+      <div style="display:flex;align-items:center;gap:30px"><img src="icon.png" style="width:150px;height:150px;border-radius:34px;box-shadow:0 20px 50px rgba(40,30,10,.18)"><div class="eyebrow" style="font-size:44px">SkinLens</div></div>
+      <div class="head" style="font-size:170px;margin-top:56px">Every label,<br>in <b><span class="hl brand">plain words.</span></b></div>
+      <div class="sub" style="font-size:58px;margin-top:44px;max-width:1500px">Find hidden steroids and mercury, see what suits your skin, and keep a routine you’ll stick to.</div>
+    </div>
+    <div class="layer">${phone('banned', 1960, 330, 1.42, -7)}${phone('routine', 3200, 330, 1.42, 7)}<div style="position:relative;z-index:3">${phone('avoid', 2560, 150, 1.58, 0)}</div></div>` },
+
+  // Search results: 3840 x 2560
+  search: { w: 3840, h: 2560, html: `
+    <div class="layer" style="padding:200px 240px 0;text-align:center">
+      <div class="head" style="font-size:190px">Know what’s <b><span class="hl brand">really</span></b> in your skincare.</div>
+      <div class="sub" style="font-size:66px;margin-top:44px">Plain-words verdicts · Hidden steroids &amp; mercury caught · Free, no ads</div>
+    </div>
+    <div class="layer" style="position:absolute;inset:0">${phone('avoid', 250, 720, 1.95, -3)}${phone('personal', 1100, 660, 1.95, 0)}${phone('indian', 1950, 660, 1.95, 0)}${phone('routine', 2800, 720, 1.95, 3)}</div>` },
+};
+
+const key = new URLSearchParams(location.search).get('s') || 's1';
+const sc = SCENES[key];
+document.body.style.width = sc.w + 'px';
+document.getElementById('root').innerHTML = `<div class="canvas ${sc.dark ? 'dark' : ''}" style="width:${sc.w}px;height:${sc.h}px">${sc.html}</div>`;
+</script>
+</body>
+</html>

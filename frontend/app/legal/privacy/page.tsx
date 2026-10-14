@@ -1,96 +1,92 @@
-import { Header } from "@/components/Header"
-import { Footer } from "@/components/Footer"
+import type { Metadata } from "next"
+import { LegalPage } from "@/components/v3/LegalPage"
 
-export const metadata = {
-  title: "Privacy Policy - Sunloved",
-}
+export const metadata: Metadata = { title: "Privacy policy | SkinLens" }
 
-export default function PrivacyPage() {
+const CONTACT = "anannyashree1425@gmail.com"
+
+export default function Privacy() {
   return (
-    <main className="mesh-page">
-      <Header />
-      
-      <section className="py-16 sm:py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-5xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
-          
-          <div className="space-y-8">
-            <p className="text-gray-600 text-lg">
-              Last updated: November 2025
-            </p>
+    <LegalPage title="Privacy policy" updated="12 October 2026">
+      <p>This explains what SkinLens collects, why, and what you can do about it, in plain language. It covers the SkinLens apps for iPhone and Android and the website.</p>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">1. Introduction</h2>
-              <p className="text-gray-600">
-                Sunloved ("we", "us", "our", or "Company") operates the Sunloved website and applications. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
-              </p>
-            </div>
+      <h2>The short version</h2>
+      <ul>
+        <li>You can use SkinLens fully without an account. Your routine, skin profile and saved checks then stay on your device.</li>
+        <li>An account is optional. If you create one, we keep your email address and your SkinLens data so it follows you to a new phone and to the website.</li>
+        <li>Ingredient lists you check are sent to our server to be read. They aren&apos;t linked to you unless you&apos;re signed in and choose to save the check.</li>
+        <li>We count a few anonymous events to see whether SkinLens is working. No advertising, no third-party tracking, and we never sell your data.</li>
+        <li>You can delete your account and everything in it from the app or the website at any time.</li>
+      </ul>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Information Collection and Use</h2>
-              <p className="text-gray-600 mb-4">
-                We collect several different types of information for various purposes to provide and improve our Service to you.
-              </p>
-              <div className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Types of Data Collected:</h3>
-                  <ul className="list-disc list-inside text-gray-600 space-y-2">
-                    <li>Personal Data: Email address, name, phone number, cookies and usage data</li>
-                    <li>Usage Data: Browser type, IP address, pages visited, time and date of visit</li>
-                    <li>Location Data: Your location if you grant permission</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
+      <h2>Without an account</h2>
+      <p>These stay on your device, in its normal app storage (or your browser&apos;s storage on the website):</p>
+      <ul>
+        <li>Where you live, your skin type and up to two skin concerns, if you enter them</li>
+        <li>Your routine: step names, when and how often you use them, and which days you completed it</li>
+        <li>Reminder times, tone and on/off settings (reminders are scheduled on your phone)</li>
+        <li>Checks you choose to save, and their results</li>
+        <li>How your skin felt after the night routine (calm, same as usual, or irritated), if you answer</li>
+        <li>Ingredients you mark &ldquo;Fine for me&rdquo; or &ldquo;I react to this&rdquo;</li>
+        <li>
+          Progress photos, if you take them. They are kept only in SkinLens&apos;s own folder on your phone, never uploaded, and never moved into an account. Your
+          phone&apos;s own backup (iCloud or Google) may include them, like other app data.
+        </li>
+      </ul>
+      <p>Uninstalling the app or clearing the browser&apos;s site data deletes them. We have no copy. Progress photos can also be deleted one by one in Me → Progress photos.</p>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Use of Data</h2>
-              <p className="text-gray-600 mb-4">
-                Sunloved uses the collected data for various purposes:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 space-y-2">
-                <li>To provide and maintain our Service</li>
-                <li>To notify you about changes to our Service</li>
-                <li>To allow you to participate in interactive features of our Service</li>
-                <li>To provide customer support</li>
-                <li>To gather analysis or valuable information to improve our Service</li>
-                <li>To monitor the usage of our Service</li>
-              </ul>
-            </div>
+      <h2>With an account</h2>
+      <p>Creating an account is optional. We collect:</p>
+      <ul>
+        <li><strong>Your email address</strong>, to send a one-time sign-in code and to identify your account. We don&apos;t ask for a name or a password.</li>
+        <li><strong>Your SkinLens data</strong>: country, skin type and concerns, routine, completed days and streak, and checks you save. When you sign in, what&apos;s already on your device moves into your account.</li>
+        <li><strong>A sign-in token</strong> kept in your device&apos;s secure storage (the Keychain on iPhone) so you stay signed in.</li>
+      </ul>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Security of Data</h2>
-              <p className="text-gray-600">
-                The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your Personal Data, we cannot guarantee its absolute security.
-              </p>
-            </div>
+      <h2>Checking a label</h2>
+      <p>When you search for a product or paste an ingredient list, it&apos;s sent to our server, which looks each ingredient up and sends back a reading. Your skin profile isn&apos;t sent; the reading is personalised on your device. We may count which ingredient names we didn&apos;t recognise, without anything about you, to fill gaps in our data.</p>
+      <p>
+        When you paste a list, you also give the product&apos;s name. We keep that name, the ingredient list and your country, with nothing that identifies you, to
+        build our product list country by country. A person checks each one against the real pack or the brand&apos;s own site before it&apos;s added.
+      </p>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">5. Your Privacy Rights</h2>
-              <p className="text-gray-600 mb-4">
-                You have the right to:
-              </p>
-              <ul className="list-disc list-inside text-gray-600 space-y-2">
-                <li>Access your personal data</li>
-                <li>Correct inaccurate data</li>
-                <li>Request deletion of your data</li>
-                <li>Opt-out of certain processing</li>
-              </ul>
-            </div>
+      <h2>Messages you send us</h2>
+      <p>
+        If you write to us from &ldquo;Talk to me&rdquo;, we keep your message, your country and, only if you add it, your email address so we can reply. We use
+        them to answer you and to improve SkinLens, and you can ask us to delete them at any time.
+      </p>
 
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">6. Contact Us</h2>
-              <p className="text-gray-600">
-                If you have any questions about this Privacy Policy, please contact us at privacy@sunloved.com
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <h2>Sharing a check</h2>
+      <p>If you share a check, the link contains the product or its ingredient list and a name. It never contains your skin profile; whoever opens it sees the reading for their own skin.</p>
 
-      <Footer />
-    </main>
+      <h2>Anonymous usage counts</h2>
+      <p>To know whether SkinLens is useful, the apps and website send five kinds of event: first opened, label checked (with its verdict), routine step ticked, routine completed, and account created. Each comes with a random ID made on your device, the platform, and sometimes your country or which routine. No ingredient lists, names or email addresses. If you&apos;re signed in, events are linked to your account. We use them only to measure SkinLens and never share them.</p>
+
+      <h2>Who processes data for us</h2>
+      <ul>
+        <li>Supabase (database hosting) stores account data.</li>
+        <li>Our server host runs the SkinLens service.</li>
+        <li>Resend sends sign-in code emails.</li>
+      </ul>
+      <p>They process data only to provide these services to us.</p>
+
+      <h2>Deleting your data</h2>
+      <p>
+        In the app: Me → Delete my account. On the website: Me → Delete my account. This permanently deletes your account and everything in it from our servers. Anonymous
+        usage counts stay, no longer linked to anything. Without an account, uninstall the app or clear the site&apos;s data. You can also email us to ask what we hold
+        about you or to have it deleted.
+      </p>
+
+      <h2>Age</h2>
+      <p>SkinLens is for people aged 16 and over. We don&apos;t knowingly collect data from anyone younger; if you think a child has given us data, contact us and we&apos;ll delete it.</p>
+
+      <h2>Changes</h2>
+      <p>If this policy changes in a way that affects your data, we&apos;ll update the date above and, for significant changes, tell you in the app.</p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions or requests about your data: <a href={`mailto:${CONTACT}`}>{CONTACT}</a>
+      </p>
+    </LegalPage>
   )
 }
-
-

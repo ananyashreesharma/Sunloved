@@ -1,0 +1,40 @@
+{
+  "name": "SkinLens",
+  "short_name": "SkinLens",
+  "description": "Check any skincare label, free. Plain words for your skin, and a routine you'll stick to.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F2ECE1",
+  "theme_color": "#F2ECE1",
+  "categories": [
+    "health",
+    "lifestyle",
+    "beauty"
+  ],
+  "lang": "en",
+  "icons": [
+    {
+      "src": "/icons/favicon-32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

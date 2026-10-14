@@ -246,6 +246,7 @@ export class ScraperController {
    * GET /api/scraper/stats
    */
   @Get('stats')
+  @UseGuards(AdminGuard)
   async getStats() {
     this.logger.log('Fetching scraper statistics');
 

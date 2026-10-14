@@ -13,6 +13,8 @@ export interface ProductComparison {
   matchType: 'closest-match' | 'best-value' | 'sensitive-safe';
   savingsPercent?: number;
   sharedActives?: string[]; // Shared ingredients
+  /** Fewer flagged ingredients than the product it replaces — the only kind the app may call a "safer swap". */
+  safer: boolean;
   reason?: string; // Human-readable explanation
   formulationDifference?: {
     percentage: number; // 0-100, how different
@@ -21,6 +23,34 @@ export interface ProductComparison {
     recommendation?: string; // What to do about it
   };
 }
+
+type ZoneFields = {
+  zone: string | null;
+  safetyRating: string | null;
+  isParaben: boolean;
+  isFragrance: boolean;
+};
+
+/**
+ * Flagged-ingredient counts, using the same zone rule as the apps
+ * (packages/shared/src/scoring.ts zoneOf): explicit zone first, then safety rating, then flags.
+ */
+function flagCounts(ings: Array<{ ingredient: ZoneFields }>): { red: number; yellow: number; coverage: number } {
+  let red = 0;
+  let yellow = 0;
+  let rated = 0;
+  for (const { ingredient: i } of ings) {
+    const zone = (i.zone ?? '').toLowerCase();
+    const rating = (i.safetyRating ?? '').toLowerCase();
+    if (zone || rating || i.isParaben || i.isFragrance) rated++;
+    if (zone === 'red' || (!zone && (rating === 'avoid' || (!rating && i.isParaben)))) red++;
+    else if (zone === 'yellow' || (!zone && (rating === 'caution' || (!rating && i.isFragrance)))) yellow++;
+  }
+  return { red, yellow, coverage: ings.length ? rated / ings.length : 0 };
+}
+
+/** Same threshold the apps use before showing any verdict (packages/shared/src/scoring.ts). */
+const COVERAGE_THRESHOLD = 0.7;
 
 @Injectable()
 export class ComparisonsService {
@@ -210,12 +240,12 @@ export class ComparisonsService {
       where: { id: productId },
       include: {
         brand: true,
+        category: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethics: true,
       },
     });
 
@@ -230,24 +260,29 @@ export class ComparisonsService {
       );
     }
 
-    // RUTHLESS: Get all other products WITH ingredients only
+    // Candidates: same product type (a face wash is never swapped for a body wash or a hair
+    // serum) and the same market (formulas differ by country), with an ingredient list.
     const allProducts = await this.prisma.product.findMany({
       where: {
-        id: { not: productId }, // Exclude the base product
-        ingredients: {
-          some: {}, // At least one ingredient link exists
-        },
+        id: { not: productId },
+        ingredients: { some: {} },
+        ...(baseProduct.categoryId
+          ? { categoryId: baseProduct.categoryId }
+          : { categoryLegacy: baseProduct.categoryLegacy }),
+        ...(baseProduct.country ? { OR: [{ country: baseProduct.country }, { country: null }] } : {}),
       },
       include: {
         brand: true,
+        category: true,
         ingredients: {
           include: {
             ingredient: true,
           },
         },
-        ethics: true,
       },
     });
+
+    const baseFlags = flagCounts(baseProduct.ingredients);
 
     // Extract ingredient IDs from base product
     const baseIngredientIds = new Set<string>(
@@ -291,12 +326,15 @@ export class ComparisonsService {
           savingsPercent = Math.round((1 - priceRatio) * 100);
         }
 
-        // Determine match type
+        // Fungal-acne-safe: no fragrance, no sulfates, no isSulfate ingredients
+        const isFungalAcneSafe = (ings: typeof baseProduct.ingredients) =>
+          ings.every((pi) => !pi.ingredient.isFragrance && !pi.ingredient.isSulfate);
+
         const matchType = this.determineMatchType(
           similarity,
           priceRatio,
-          false, // TODO: Calculate from ingredients
-          false, // TODO: Calculate from ingredients
+          isFungalAcneSafe(baseProduct.ingredients),
+          isFungalAcneSafe(candidate.ingredients),
         );
 
         // Generate human-readable reason
@@ -320,11 +358,19 @@ export class ComparisonsService {
           biotechInfo,
         );
 
+        const flags = flagCounts(candidate.ingredients);
+        // Unrated ingredients aren't evidence of safety: a candidate we can't mostly rate is never "safer".
+        const safer =
+          flags.coverage >= COVERAGE_THRESHOLD &&
+          (flags.red < baseFlags.red || (flags.red === baseFlags.red && flags.yellow < baseFlags.yellow));
+
         return {
           id: candidate.id,
+          safer,
           name: candidate.name,
           brand: candidate.brand.name,
-          category: candidate.category || undefined,
+          category:
+            (candidate.category?.name ?? candidate.categoryLegacy) || undefined,
           imageUrl: candidate.imageUrl || undefined,
           pricePerUnit: candidate.pricePerUnit ? Number(candidate.pricePerUnit) : undefined,
           currentPrice: candidate.price ? Number(candidate.price) : undefined,
@@ -343,7 +389,9 @@ export class ComparisonsService {
       })
       .filter((c) => c.similarityScore > 0) // Only include products with at least 1 ingredient in common
       .sort((a, b) => {
-        // Sort: best-value > closest-match > sensitive-safe, then by similarity
+        // Safer candidates first — the app's "safer swap" takes the first one marked safer.
+        if (a.safer !== b.safer) return a.safer ? -1 : 1;
+        // Then best-value > closest-match > sensitive-safe, then by similarity
         const typeOrder = {
           'closest-match': 1,
           'best-value': 0,

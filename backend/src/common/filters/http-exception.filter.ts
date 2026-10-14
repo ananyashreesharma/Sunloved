@@ -41,8 +41,15 @@ export class AllExceptionsFilter implements ExceptionFilter {
           ? exceptionResponse
           : (exceptionResponse as any).message || message;
     } else if (exception instanceof Error) {
-      // Handle generic Error
-      message = exception.message;
+      // Request errors from the body parser (e.g. 413 too large, 400 bad JSON) carry their status.
+      const status = (exception as { status?: number; statusCode?: number }).status ?? (exception as { statusCode?: number }).statusCode;
+      if (status && status >= 400 && status < 500) {
+        statusCode = status;
+        message = status === 413 ? 'That is too long. Paste just the ingredient list.' : 'That request could not be read.';
+      } else {
+        // Anything else is ours: log the details, but never send internals (database errors etc.) to users.
+        message = 'Something went wrong on our side. Please try again.';
+      }
     }
 
     // Log error for debugging

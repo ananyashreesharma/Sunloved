@@ -18,6 +18,11 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "esModuleInterop": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma/check-world-labels.ts",
+    "**/*.spec.ts"
+  ]
 }
-
